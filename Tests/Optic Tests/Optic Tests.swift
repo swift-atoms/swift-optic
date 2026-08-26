@@ -1,6 +1,6 @@
 import Testing
 
-@testable import Optic_Primitives
+@testable import Optic
 
 extension Optic {
     @Suite struct Tests {

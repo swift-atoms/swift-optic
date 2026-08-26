@@ -1,4 +1,4 @@
-# Optic Primitives
+# Optic
 
 ![Development Status](https://img.shields.io/badge/status-active--development-blue.svg)
 
@@ -11,7 +11,7 @@ Composable functional optics for Swift — `Iso`, `Lens`, `Prism`, `Affine`, `Tr
 An optic is a first-class, composable accessor that focuses on one part of a larger value. A `Lens` focuses on a stored field; composing lenses with `>>>` lets you read and immutably update a deeply nested field without rebuilding every enclosing struct by hand.
 
 ```swift
-import Optic_Primitives
+import Optic
 
 struct Address { var street: String; var city: String }
 struct Company { var name: String; var address: Address }
@@ -46,7 +46,7 @@ userStreet.modify(user) { $0.uppercased() }   // "1 MAIN ST" focused, rest untou
 The same `>>>` operator composes across optic kinds. Composing a `Lens` with a `Prism` yields an `Affine` (optional focus); any composition involving a `Setter` yields a `Setter`. Stdlib `Optional` and `Result` ship prism accessors out of the box:
 
 ```swift
-import Optic_Primitives
+import Optic
 
 enum LoadError: Error { case timedOut }
 
@@ -65,7 +65,7 @@ success.extract(.failure(.timedOut))    // nil
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/swift-primitives/swift-optic-primitives.git", branch: "main")
+    .package(url: "https://github.com/swift-molecules/swift-optic.git", branch: "main")
 ]
 ```
 
@@ -73,7 +73,7 @@ dependencies: [
 .target(
     name: "App",
     dependencies: [
-        .product(name: "Optic Primitives", package: "swift-optic-primitives"),
+        .product(name: "Optic", package: "swift-optic"),
     ]
 )
 ```
@@ -100,7 +100,7 @@ One library product, zero external dependencies.
 
 | Product | Target | Purpose |
 |---------|--------|---------|
-| `Optic Primitives` | `Sources/Optic Primitives/` | The `Optic` namespace and its six optic kinds, the `>>>` composition operator with its `OpticCompositionPrecedence` group, and stdlib `Optional` / `Result` prism accessors. |
+| `Optic` | `Sources/Optic/` | The `Optic` namespace and its six optic kinds, the `>>>` composition operator with its `OpticCompositionPrecedence` group, and stdlib `Optional` / `Result` prism accessors. |
 
 The `Optic` enum is a namespace; each optic kind is a nested generic struct over `<Whole, Part>`:
 

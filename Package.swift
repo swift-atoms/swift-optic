@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "swift-optic-primitives",
+    name: "swift-optic",
     platforms: [
         .macOS(.v27),
         .iOS(.v27),
@@ -13,18 +13,18 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "Optic Primitives",
-            targets: ["Optic Primitives"]
+            name: "Optic",
+            targets: ["Optic"]
         )
     ],
     targets: [
         .target(
-            name: "Optic Primitives"
+            name: "Optic"
         ),
         .testTarget(
-            name: "Optic Primitives Tests",
+            name: "Optic Tests",
             dependencies: [
-                "Optic Primitives"
+                "Optic"
             ]
         ),
     ],

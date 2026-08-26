@@ -1,6 +1,6 @@
 import Testing
 
-@testable import Optic_Primitives
+@testable import Optic
 
 @Suite("Optic.Setter")
 struct SetterTests {
