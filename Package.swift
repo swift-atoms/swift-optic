@@ -15,16 +15,44 @@ let package = Package(
         .library(
             name: "Optic",
             targets: ["Optic"]
-        )
+        ),
+        .library(
+            name: "Optic Standard Library Integration",
+            targets: ["Optic Standard Library Integration"]
+        ),
+        .library(
+            name: "Optic Apple Foundation Integration",
+            targets: ["Optic Apple Foundation Integration"]
+        ),
     ],
     targets: [
         .target(
             name: "Optic"
         ),
+        .target(
+            name: "Optic Standard Library Integration",
+            dependencies: [
+                "Optic"
+            ]
+        ),
+        .target(
+            name: "Optic Apple Foundation Integration",
+            dependencies: [
+                "Optic",
+                "Optic Standard Library Integration",
+            ]
+        ),
         .testTarget(
             name: "Optic Tests",
             dependencies: [
                 "Optic"
+            ]
+        ),
+        .testTarget(
+            name: "Optic Standard Library Integration Tests",
+            dependencies: [
+                "Optic",
+                "Optic Standard Library Integration",
             ]
         ),
     ],
