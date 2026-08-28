@@ -1,5 +1,3 @@
-public import Optic
-
 extension Optional: Optic.Prism.Accessible {
 
     @dynamicMemberLookup

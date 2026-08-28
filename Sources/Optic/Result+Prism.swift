@@ -1,5 +1,3 @@
-public import Optic
-
 extension Result: Optic.Prism.Accessible {
 
     public struct Prisms: Sendable {
