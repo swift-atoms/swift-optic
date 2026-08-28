@@ -2,12 +2,13 @@ import Testing
 
 @testable import Optic
 
-@Suite("Optic.Iso")
+@Suite("TestIsomorphism")
+@MainActor
 struct IsoTests {
 
     @Test
     func `forward transforms Whole to Part`() {
-        let iso = Optic.Iso<Int, String>(
+        let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
@@ -19,7 +20,7 @@ struct IsoTests {
 
     @Test
     func `backward transforms Part to Whole`() {
-        let iso = Optic.Iso<Int, String>(
+        let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
@@ -31,7 +32,7 @@ struct IsoTests {
 
     @Test
     func `roundtrip law: backward(forward(whole)) == whole`() {
-        let iso = Optic.Iso<Int, String>(
+        let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
@@ -43,7 +44,7 @@ struct IsoTests {
 
     @Test
     func `roundtrip law: forward(backward(part)) == part`() {
-        let iso = Optic.Iso<Int, String>(
+        let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
@@ -55,7 +56,7 @@ struct IsoTests {
 
     @Test
     func `reversed swaps forward and backward`() {
-        let iso = Optic.Iso<Int, String>(
+        let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
@@ -68,17 +69,17 @@ struct IsoTests {
 
     @Test
     func `composing chains two isos`() {
-        let intToString = Optic.Iso<Int, String>(
+        let intToString = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
 
-        let stringToArray = Optic.Iso<String, [Character]>(
+        let stringToArray = TestIsomorphism<String, [Character]>(
             forward: { Array($0) },
             backward: { String($0) }
         )
 
-        let composed = Optic.Iso.composing(intToString, stringToArray)
+        let composed = TestIsomorphism.composing(intToString, stringToArray)
 
         #expect(composed.forward(42) == ["4", "2"])
         #expect(composed.backward(["4", "2"]) == 42)
@@ -86,12 +87,12 @@ struct IsoTests {
 
     @Test
     func `appending chains isos`() {
-        let intToString = Optic.Iso<Int, String>(
+        let intToString = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
 
-        let stringToArray = Optic.Iso<String, [Character]>(
+        let stringToArray = TestIsomorphism<String, [Character]>(
             forward: { Array($0) },
             backward: { String($0) }
         )
@@ -104,7 +105,7 @@ struct IsoTests {
 
     @Test
     func `identity passes values through unchanged`() {
-        let id: Optic.Iso<Int, Int> = .identity
+        let id: TestIsomorphism<Int, Int> = .identity
 
         #expect(id.forward(42) == 42)
         #expect(id.backward(42) == 42)
@@ -112,7 +113,7 @@ struct IsoTests {
 
     @Test
     func `modify applies transformation via iso`() {
-        let iso = Optic.Iso<[Int], [Int]>(
+        let iso = TestIsomorphism<[Int], [Int]>(
             forward: { $0.reversed() },
             backward: { $0.reversed() }
         )
@@ -123,7 +124,7 @@ struct IsoTests {
 
     @Test
     func `modify in place`() {
-        let iso = Optic.Iso<[Int], [Int]>(
+        let iso = TestIsomorphism<[Int], [Int]>(
             forward: { $0.reversed() },
             backward: { $0.reversed() }
         )
@@ -136,10 +137,10 @@ struct IsoTests {
 }
 
 @Suite
-struct `Iso - Basic Operations` {
+struct `Isomorphism - Basic Operations` {
     @Test
     func `forward transforms value`() {
-        let iso = Optic.Iso<Int, String>(
+        let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
@@ -148,7 +149,7 @@ struct `Iso - Basic Operations` {
 
     @Test
     func `backward transforms value`() {
-        let iso = Optic.Iso<Int, String>(
+        let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
@@ -157,7 +158,7 @@ struct `Iso - Basic Operations` {
 
     @Test
     func `roundtrip forward then backward`() {
-        let iso = Optic.Iso<Int, String>(
+        let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
@@ -168,7 +169,7 @@ struct `Iso - Basic Operations` {
 
     @Test
     func `roundtrip backward then forward`() {
-        let iso = Optic.Iso<Int, String>(
+        let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
@@ -179,10 +180,10 @@ struct `Iso - Basic Operations` {
 }
 
 @Suite
-struct `Iso - Reversal` {
+struct `Isomorphism - Reversal` {
     @Test
     func `reversed swaps forward and backward`() {
-        let iso = Optic.Iso<Int, String>(
+        let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
@@ -194,7 +195,7 @@ struct `Iso - Reversal` {
 
     @Test
     func `double reversal equals original`() {
-        let iso = Optic.Iso<Int, String>(
+        let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
@@ -206,49 +207,49 @@ struct `Iso - Reversal` {
 }
 
 @Suite
-struct `Iso - Composition` {
+struct `Isomorphism - Composition` {
     @Test
     func `composing two isos forward works correctly`() {
-        let intToString = Optic.Iso<Int, String>(
+        let intToString = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
-        let stringToArray = Optic.Iso<String, [Character]>(
+        let stringToArray = TestIsomorphism<String, [Character]>(
             forward: { Array($0) },
             backward: { String($0) }
         )
 
-        let composed = Optic.Iso.composing(intToString, stringToArray)
+        let composed = TestIsomorphism.composing(intToString, stringToArray)
         #expect(composed.forward(42) == ["4", "2"])
     }
 
     @Test
     func `composing two isos backward works correctly`() {
-        let intToString = Optic.Iso<Int, String>(
+        let intToString = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
-        let stringToArray = Optic.Iso<String, [Character]>(
+        let stringToArray = TestIsomorphism<String, [Character]>(
             forward: { Array($0) },
             backward: { String($0) }
         )
 
-        let composed = Optic.Iso.composing(intToString, stringToArray)
+        let composed = TestIsomorphism.composing(intToString, stringToArray)
         #expect(composed.backward(["4", "2"]) == 42)
     }
 
     @Test
     func `appending is equivalent to composing`() {
-        let intToString = Optic.Iso<Int, String>(
+        let intToString = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
-        let stringToArray = Optic.Iso<String, [Character]>(
+        let stringToArray = TestIsomorphism<String, [Character]>(
             forward: { Array($0) },
             backward: { String($0) }
         )
 
-        let composed = Optic.Iso.composing(intToString, stringToArray)
+        let composed = TestIsomorphism.composing(intToString, stringToArray)
         let appended = intToString.appending(stringToArray)
 
         #expect(composed.forward(42) == appended.forward(42))
@@ -257,25 +258,25 @@ struct `Iso - Composition` {
 }
 
 @Suite
-struct `Iso - Identity` {
+struct `Isomorphism - Identity` {
     @Test
     func `identity forward returns same value`() {
-        let iso = Optic.Iso<Int, Int>.identity
+        let iso = TestIsomorphism<Int, Int>.identity
         #expect(iso.forward(42) == 42)
     }
 
     @Test
     func `identity backward returns same value`() {
-        let iso = Optic.Iso<Int, Int>.identity
+        let iso = TestIsomorphism<Int, Int>.identity
         #expect(iso.backward(42) == 42)
     }
 }
 
 @Suite
-struct `Iso - Modification` {
+struct `Isomorphism - Modification` {
     @Test
     func `modify applies transformation via iso`() {
-        let celsiusToFahrenheit = Optic.Iso<Double, Double>(
+        let celsiusToFahrenheit = TestIsomorphism<Double, Double>(
             forward: { $0 * 9 / 5 + 32 },
             backward: { ($0 - 32) * 5 / 9 }
         )
@@ -286,7 +287,7 @@ struct `Iso - Modification` {
 
     @Test
     func `modify inout applies transformation in place`() {
-        let iso = Optic.Iso<Int, Int>(
+        let iso = TestIsomorphism<Int, Int>(
             forward: { $0 * 2 },
             backward: { $0 / 2 }
         )
@@ -298,25 +299,25 @@ struct `Iso - Modification` {
 }
 
 @Suite
-struct `Iso - Conversion to Lens` {
+struct `Isomorphism - Conversion to Lens` {
     @Test
     func `lens from iso get equals forward`() {
-        let iso = Optic.Iso<Int, String>(
+        let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
-        let lens = Optic.Lens(iso)
+        let lens = TestLens(iso)
 
         #expect(lens.get(42) == "42")
     }
 
     @Test
     func `lens from iso set ignores original whole`() {
-        let iso = Optic.Iso<Int, String>(
+        let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
-        let lens = Optic.Lens(iso)
+        let lens = TestLens(iso)
 
         let result = lens.set(999, "42")
         #expect(result == 42)
@@ -324,25 +325,25 @@ struct `Iso - Conversion to Lens` {
 }
 
 @Suite
-struct `Iso - Conversion to Prism` {
+struct `Isomorphism - Conversion to Prism` {
     @Test
     func `prism from iso embed equals backward`() {
-        let iso = Optic.Iso<Int, String>(
+        let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
-        let prism = Optic.Prism(iso)
+        let prism = TestPrism(iso)
 
         #expect(prism.embed("42") == 42)
     }
 
     @Test
     func `prism from iso extract always succeeds`() {
-        let iso = Optic.Iso<Int, String>(
+        let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
-        let prism = Optic.Prism(iso)
+        let prism = TestPrism(iso)
 
         #expect(prism.extract(42) == "42")
     }

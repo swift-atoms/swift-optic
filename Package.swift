@@ -17,15 +17,26 @@ let package = Package(
             targets: ["Optic"]
         )
     ],
+    dependencies: [
+        .package(
+            url: "https://github.com/swift-atoms/swift-either.git",
+            branch: "main"
+        )
+    ],
     targets: [
         .target(
-            name: "Optic"
+            name: "Optic",
+            dependencies: [
+                .product(name: "Either", package: "swift-either")
+            ]
         ),
         .testTarget(
             name: "Optic Tests",
             dependencies: [
-                "Optic"
-            ]
+                .target(name: "Optic"),
+                .product(name: "Either", package: "swift-either"),
+            ],
+            resources: [.copy("Fixtures")]
         ),
     ],
     swiftLanguageModes: [.v6]
@@ -39,6 +50,7 @@ for target in package.targets where ![.system, .binary, .plugin, .macro].contain
         .enableUpcomingFeature("MemberImportVisibility"),
         .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
         .enableExperimentalFeature("Lifetimes"),
+        .enableExperimentalFeature("MoveOnlyTuples"),
         .enableUpcomingFeature("InferIsolatedConformances"),
     ]
 

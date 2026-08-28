@@ -2,12 +2,13 @@ import Testing
 
 @testable import Optic
 
-@Suite("Optic.Traversal")
+@Suite("TestTraversal")
+@MainActor
 struct TraversalTests {
 
     @Test
     func `get extracts all focused values`() {
-        let each: Optic.Traversal<[Int], Int> = .each
+        let each: TestTraversal<[Int], Int> = .each
 
         #expect(each.get([1, 2, 3]) == [1, 2, 3])
         #expect(each.get([]) == [])
@@ -15,7 +16,7 @@ struct TraversalTests {
 
     @Test
     func `modify transforms all focused values`() {
-        let each: Optic.Traversal<[Int], Int> = .each
+        let each: TestTraversal<[Int], Int> = .each
 
         let result = each.modify([1, 2, 3]) { $0 * 2 }
         #expect(result == [2, 4, 6])
@@ -23,10 +24,10 @@ struct TraversalTests {
 
     @Test
     func `composing chains two traversals`() {
-        let outerEach: Optic.Traversal<[[Int]], [Int]> = .each
-        let innerEach: Optic.Traversal<[Int], Int> = .each
+        let outerEach: TestTraversal<[[Int]], [Int]> = .each
+        let innerEach: TestTraversal<[Int], Int> = .each
 
-        let composed = Optic.Traversal.composing(outerEach, innerEach)
+        let composed = TestTraversal.composing(outerEach, innerEach)
 
         let nested = [[1, 2], [3, 4, 5]]
         #expect(composed.get(nested) == [1, 2, 3, 4, 5])
@@ -37,8 +38,8 @@ struct TraversalTests {
 
     @Test
     func `appending chains traversals`() {
-        let outerEach: Optic.Traversal<[[Int]], [Int]> = .each
-        let innerEach: Optic.Traversal<[Int], Int> = .each
+        let outerEach: TestTraversal<[[Int]], [Int]> = .each
+        let innerEach: TestTraversal<[Int], Int> = .each
 
         let composed = outerEach.appending(innerEach)
 
@@ -51,7 +52,7 @@ struct TraversalTests {
 
     @Test
     func `identity focuses on the single whole value`() {
-        let id: Optic.Traversal<Int, Int> = .identity
+        let id: TestTraversal<Int, Int> = .identity
 
         #expect(id.get(42) == [42])
         #expect(id.modify(42) { $0 * 2 } == 84)
@@ -59,7 +60,7 @@ struct TraversalTests {
 
     @Test
     func `set sets all focused values to the same value`() {
-        let each: Optic.Traversal<[Int], Int> = .each
+        let each: TestTraversal<[Int], Int> = .each
 
         let result = each.set([1, 2, 3], 99)
         #expect(result == [99, 99, 99])
@@ -67,7 +68,7 @@ struct TraversalTests {
 
     @Test
     func `count returns number of focused elements`() {
-        let each: Optic.Traversal<[Int], Int> = .each
+        let each: TestTraversal<[Int], Int> = .each
 
         #expect(each.count([1, 2, 3]) == 3)
         #expect(each.count([]) == 0)
@@ -75,7 +76,7 @@ struct TraversalTests {
 
     @Test
     func `isEmpty returns true when no focused elements`() {
-        let each: Optic.Traversal<[Int], Int> = .each
+        let each: TestTraversal<[Int], Int> = .each
 
         #expect(each.isEmpty([1, 2, 3]) == false)
         #expect(each.isEmpty([]) == true)
@@ -83,7 +84,7 @@ struct TraversalTests {
 
     @Test
     func `each focuses on all array elements`() {
-        let each: Optic.Traversal<[String], String> = .each
+        let each: TestTraversal<[String], String> = .each
 
         #expect(each.get(["a", "b", "c"]) == ["a", "b", "c"])
         #expect(each.modify(["a", "b", "c"]) { $0.uppercased() } == ["A", "B", "C"])
@@ -91,7 +92,7 @@ struct TraversalTests {
 
     @Test
     func `init from Affine`() {
-        let firstAffine = Optic.Affine<[Int], Int>(
+        let firstAffine = TestAffine<[Int], Int>(
             extract: { $0.first },
             set: { array, value in
                 guard !array.isEmpty else { return array }
@@ -101,7 +102,7 @@ struct TraversalTests {
             }
         )
 
-        let traversal = Optic.Traversal(firstAffine)
+        let traversal = TestTraversal(firstAffine)
 
         #expect(traversal.get([1, 2, 3]) == [1])
         #expect(traversal.get([]) == [])
@@ -115,12 +116,12 @@ struct TraversalTests {
             var y: Int
         }
 
-        let xLens = Optic.Lens<Point, Int>(
+        let xLens = TestLens<Point, Int>(
             get: { $0.x },
             set: { Point(x: $1, y: $0.y) }
         )
 
-        let traversal = Optic.Traversal(xLens)
+        let traversal = TestTraversal(xLens)
 
         let point = Point(x: 10, y: 20)
         #expect(traversal.get(point) == [10])
@@ -129,12 +130,12 @@ struct TraversalTests {
 
     @Test
     func `init from Prism`() {
-        let somePrism = Optic.Prism<Int?, Int>(
+        let somePrism = TestPrism<Int?, Int>(
             embed: { $0 },
             extract: { $0 }
         )
 
-        let traversal = Optic.Traversal(somePrism)
+        let traversal = TestTraversal(somePrism)
 
         #expect(traversal.get(42) == [42])
         #expect(traversal.get(nil) == [])
@@ -143,13 +144,13 @@ struct TraversalTests {
     }
 
     @Test
-    func `init from Iso`() {
-        let iso = Optic.Iso<[Int], [Int]>(
+    func `init from Isomorphism`() {
+        let iso = TestIsomorphism<[Int], [Int]>(
             forward: { $0.reversed() },
             backward: { $0.reversed() }
         )
 
-        let traversal = Optic.Traversal(iso)
+        let traversal = TestTraversal(iso)
 
         #expect(traversal.get([1, 2, 3]) == [[3, 2, 1]])
 
@@ -162,15 +163,15 @@ struct TraversalTests {
             var sections: [[String]]
         }
 
-        let sectionsLens = Optic.Lens<Document, [[String]]>(
+        let sectionsLens = TestLens<Document, [[String]]>(
             get: { $0.sections },
             set: { Document(sections: $1) }
         )
 
-        let outerEach: Optic.Traversal<[[String]], [String]> = .each
-        let innerEach: Optic.Traversal<[String], String> = .each
+        let outerEach: TestTraversal<[[String]], [String]> = .each
+        let innerEach: TestTraversal<[String], String> = .each
 
-        let allWords = Optic.Traversal(sectionsLens)
+        let allWords = TestTraversal(sectionsLens)
             .appending(outerEach)
             .appending(innerEach)
 

@@ -2,7 +2,8 @@ import Testing
 
 @testable import Optic
 
-@Suite("Optic.Prism")
+@Suite("TestPrism")
+@MainActor
 struct PrismTests {
 
     enum Result<T: Sendable>: Equatable, Sendable where T: Equatable {
@@ -10,7 +11,7 @@ struct PrismTests {
         case failure(String)
     }
 
-    static let successPrism = Optic.Prism<Result<Int>, Int>(
+    static let successPrism = TestPrism<Result<Int>, Int>(
         embed: { .success($0) },
         extract: {
             guard case .success(let v) = $0 else { return nil }
@@ -18,7 +19,7 @@ struct PrismTests {
         }
     )
 
-    static let failurePrism = Optic.Prism<Result<Int>, String>(
+    static let failurePrism = TestPrism<Result<Int>, String>(
         embed: { .failure($0) },
         extract: {
             guard case .failure(let e) = $0 else { return nil }
@@ -56,7 +57,7 @@ struct PrismTests {
 
     @Test
     func `composing chains two prisms`() {
-        let outerPrism = Optic.Prism<Result<Result<Int>>, Result<Int>>(
+        let outerPrism = TestPrism<Result<Result<Int>>, Result<Int>>(
             embed: { .success($0) },
             extract: {
                 guard case .success(let v) = $0 else { return nil }
@@ -64,7 +65,7 @@ struct PrismTests {
             }
         )
 
-        let composed = Optic.Prism.composing(outerPrism, Self.successPrism)
+        let composed = TestPrism.composing(outerPrism, Self.successPrism)
 
         let nested: Result<Result<Int>> = .success(.success(42))
         #expect(composed.extract(nested) == 42)
@@ -73,7 +74,7 @@ struct PrismTests {
 
     @Test
     func `appending chains prisms`() {
-        let outerPrism = Optic.Prism<Result<Result<Int>>, Result<Int>>(
+        let outerPrism = TestPrism<Result<Result<Int>>, Result<Int>>(
             embed: { .success($0) },
             extract: {
                 guard case .success(let v) = $0 else { return nil }
@@ -90,7 +91,7 @@ struct PrismTests {
 
     @Test
     func `identity passes values through unchanged`() {
-        let id: Optic.Prism<Int, Int> = .identity
+        let id: TestPrism<Int, Int> = .identity
 
         #expect(id.embed(42) == 42)
         #expect(id.extract(42) == 42)
@@ -124,13 +125,13 @@ struct PrismTests {
     }
 
     @Test
-    func `init from Iso`() {
-        let iso = Optic.Iso<Int, String>(
+    func `init from Isomorphism`() {
+        let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
 
-        let prism = Optic.Prism(iso)
+        let prism = TestPrism(iso)
 
         #expect(prism.embed("42") == 42)
         #expect(prism.extract(42) == "42")
@@ -158,8 +159,8 @@ enum TestEnum: Hashable, Sendable {
 }
 
 extension TestEnum {
-    static var intCasePrism: Optic.Prism<TestEnum, Int> {
-        Optic.Prism(
+    static var intCasePrism: TestPrism<TestEnum, Int> {
+        TestPrism(
             embed: { .intCase($0) },
             extract: {
                 guard case .intCase(let v) = $0 else { return nil }
@@ -168,8 +169,8 @@ extension TestEnum {
         )
     }
 
-    static var stringCasePrism: Optic.Prism<TestEnum, String> {
-        Optic.Prism(
+    static var stringCasePrism: TestPrism<TestEnum, String> {
+        TestPrism(
             embed: { .stringCase($0) },
             extract: {
                 guard case .stringCase(let v) = $0 else { return nil }
@@ -178,8 +179,8 @@ extension TestEnum {
         )
     }
 
-    static var voidCasePrism: Optic.Prism<TestEnum, Void> {
-        Optic.Prism(
+    static var voidCasePrism: TestPrism<TestEnum, Void> {
+        TestPrism(
             embed: { .voidCase },
             extract: {
                 guard case .voidCase = $0 else { return nil }
@@ -283,13 +284,13 @@ struct `Prism - Convenience Methods` {
 struct `Prism - Identity` {
     @Test
     func `identity embed returns same value`() {
-        let prism = Optic.Prism<Int, Int>.identity
+        let prism = TestPrism<Int, Int>.identity
         #expect(prism.embed(42) == 42)
     }
 
     @Test
     func `identity extract returns same value`() {
-        let prism = Optic.Prism<Int, Int>.identity
+        let prism = TestPrism<Int, Int>.identity
         #expect(prism.extract(42) == 42)
     }
 }
@@ -302,7 +303,7 @@ struct `Prism - Composition` {
         let optionalPrism = Result<Int, TestError>?.prisms.some
         let resultPrism = Result<Int, TestError>.prisms.success
 
-        let composed = Optic.Prism.composing(optionalPrism, resultPrism)
+        let composed = TestPrism.composing(optionalPrism, resultPrism)
         let result = composed.embed(42)
         #expect(result == .some(.success(42)))
     }
@@ -312,7 +313,7 @@ struct `Prism - Composition` {
         let optionalPrism = Result<Int, TestError>?.prisms.some
         let resultPrism = Result<Int, TestError>.prisms.success
 
-        let composed = Optic.Prism.composing(optionalPrism, resultPrism)
+        let composed = TestPrism.composing(optionalPrism, resultPrism)
         let result = composed.extract(.some(.success(42)))
         #expect(result == 42)
     }
@@ -322,7 +323,7 @@ struct `Prism - Composition` {
         let optionalPrism = Result<Int, TestError>?.prisms.some
         let resultPrism = Result<Int, TestError>.prisms.success
 
-        let composed = Optic.Prism.composing(optionalPrism, resultPrism)
+        let composed = TestPrism.composing(optionalPrism, resultPrism)
         let result = composed.extract(nil)
         #expect(result == nil)
     }
@@ -332,7 +333,7 @@ struct `Prism - Composition` {
         let optionalPrism = Result<Int, TestError>?.prisms.some
         let resultPrism = Result<Int, TestError>.prisms.success
 
-        let composed = Optic.Prism.composing(optionalPrism, resultPrism)
+        let composed = TestPrism.composing(optionalPrism, resultPrism)
         let result = composed.extract(.some(.failure(.test)))
         #expect(result == nil)
     }
@@ -342,7 +343,7 @@ struct `Prism - Composition` {
         let optionalPrism = Result<Int, TestError>?.prisms.some
         let resultPrism = Result<Int, TestError>.prisms.success
 
-        let composed = Optic.Prism.composing(optionalPrism, resultPrism)
+        let composed = TestPrism.composing(optionalPrism, resultPrism)
         let appended = optionalPrism.appending(resultPrism)
 
         let testValue: Result<Int, TestError>? = .some(.success(42))

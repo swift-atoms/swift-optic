@@ -2,10 +2,11 @@ import Testing
 
 @testable import Optic
 
-@Suite("Optic.Affine")
+@Suite("TestAffine")
+@MainActor
 struct AffineTests {
 
-    static let firstElement = Optic.Affine<[Int], Int>(
+    static let firstElement = TestAffine<[Int], Int>(
         extract: { $0.first },
         set: { array, value in
             guard !array.isEmpty else { return array }
@@ -15,7 +16,7 @@ struct AffineTests {
         }
     )
 
-    static let atIndex2 = Optic.Affine<[Int], Int>(
+    static let atIndex2 = TestAffine<[Int], Int>(
         extract: { $0.count > 2 ? $0[2] : nil },
         set: { array, value in
             guard array.count > 2 else { return array }
@@ -61,7 +62,7 @@ struct AffineTests {
 
     @Test
     func `composing chains two affines`() {
-        let outerAffine = Optic.Affine<[[Int]], [Int]>(
+        let outerAffine = TestAffine<[[Int]], [Int]>(
             extract: { $0.first },
             set: { outer, inner in
                 guard !outer.isEmpty else { return outer }
@@ -71,7 +72,7 @@ struct AffineTests {
             }
         )
 
-        let composed = Optic.Affine.composing(outerAffine, Self.firstElement)
+        let composed = TestAffine.composing(outerAffine, Self.firstElement)
 
         let nested = [[1, 2], [3, 4]]
         #expect(composed.extract(nested) == 1)
@@ -82,7 +83,7 @@ struct AffineTests {
 
     @Test
     func `appending chains affines`() {
-        let outerAffine = Optic.Affine<[[Int]], [Int]>(
+        let outerAffine = TestAffine<[[Int]], [Int]>(
             extract: { $0.first },
             set: { outer, inner in
                 guard !outer.isEmpty else { return outer }
@@ -103,7 +104,7 @@ struct AffineTests {
 
     @Test
     func `identity focuses on the whole value`() {
-        let id: Optic.Affine<Int, Int> = .identity
+        let id: TestAffine<Int, Int> = .identity
 
         #expect(id.extract(42) == 42)
         #expect(id.set(42, 100) == 100)
@@ -136,24 +137,24 @@ struct AffineTests {
 
     @Test
     func `init from Lens`() {
-        let lens = Optic.Lens<[Int], Int>(
+        let lens = TestLens<[Int], Int>(
             get: { $0.count },
             set: { _, _ in [] }
         )
 
-        let affine = Optic.Affine(lens)
+        let affine = TestAffine(lens)
 
         #expect(affine.extract([1, 2, 3]) == 3)
     }
 
     @Test
     func `init from Prism`() {
-        let prism = Optic.Prism<Int?, Int>(
+        let prism = TestPrism<Int?, Int>(
             embed: { $0 },
             extract: { $0 }
         )
 
-        let affine = Optic.Affine(prism)
+        let affine = TestAffine(prism)
 
         #expect(affine.extract(42) == 42)
         #expect(affine.extract(nil) == nil)
@@ -161,13 +162,13 @@ struct AffineTests {
     }
 
     @Test
-    func `init from Iso`() {
-        let iso = Optic.Iso<Int, String>(
+    func `init from Isomorphism`() {
+        let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
 
-        let affine = Optic.Affine(iso)
+        let affine = TestAffine(iso)
 
         #expect(affine.extract(42) == "42")
         #expect(affine.set(42, "100") == 100)
@@ -179,12 +180,12 @@ struct AffineTests {
             var value: Int?
         }
 
-        let valueLens = Optic.Lens<Container, Int?>(
+        let valueLens = TestLens<Container, Int?>(
             get: { $0.value },
             set: { Container(value: $1) }
         )
 
-        let somePrism = Optic.Prism<Int?, Int>(
+        let somePrism = TestPrism<Int?, Int>(
             embed: { $0 },
             extract: { $0 }
         )
@@ -208,7 +209,7 @@ struct AffineTests {
             case empty
         }
 
-        let valuePrism = Optic.Prism<Wrapper, [Int]>(
+        let valuePrism = TestPrism<Wrapper, [Int]>(
             embed: { .value($0) },
             extract: {
                 guard case .value(let arr) = $0 else { return nil }
@@ -216,7 +217,7 @@ struct AffineTests {
             }
         )
 
-        let countLens = Optic.Lens<[Int], Int>(
+        let countLens = TestLens<[Int], Int>(
             get: { $0.count },
             set: { _, count in Array(repeating: 0, count: count) }
         )

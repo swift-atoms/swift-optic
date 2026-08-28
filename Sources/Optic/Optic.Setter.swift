@@ -1,96 +1,188 @@
-extension Optic {
+extension Optic
+where
+    Source: ~Copyable & ~Escapable,
+    Target: ~Copyable & Escapable,
+    Focus: Copyable & Escapable,
+    Replacement: Copyable & Escapable
+{
+    public struct Setter: Sendable {
+        public var modify: @Sendable (
+            consuming Source,
+            @Sendable (consuming Focus) -> Replacement
+        ) -> Target
 
-    public struct Setter<Whole, Part>: Sendable {
-
-        public let modify: @Sendable (Whole, @Sendable (Part) -> Part) -> Whole
-
-        @inlinable
         public init(
-            modify: @escaping @Sendable (Whole, @Sendable (Part) -> Part) -> Whole
+            modify: @escaping @Sendable (
+                consuming Source,
+                @Sendable (consuming Focus) -> Replacement
+            ) -> Target
         ) {
             self.modify = modify
         }
     }
 }
 
-extension Optic.Setter {
-
-    @inlinable
-    public static func composing<Middle>(
-        _ first: Optic.Setter<Whole, Middle>,
-        _ second: Optic.Setter<Middle, Part>
-    ) -> Optic.Setter<Whole, Part> {
-        Optic.Setter(modify: { whole, transform in
-            first.modify(whole) { middle in
-                second.modify(middle, transform)
+extension Optic.Setter
+where Replacement: Escapable {
+    public static func composing<
+        NextFocus: Copyable & Escapable,
+        NextReplacement: Copyable & Escapable
+    >(
+        _ first: Self,
+        _ second: Optic<Focus, Replacement, NextFocus, NextReplacement>.Setter
+    ) -> Optic<Source, Target, NextFocus, NextReplacement>.Setter {
+        .init { source, transform in
+            first.modify(source) { focus in
+                second.modify(focus, transform)
             }
-        })
+        }
     }
 
-    @inlinable
-    public func appending<Next>(_ next: Optic.Setter<Part, Next>) -> Optic.Setter<Whole, Next> {
-        Optic.Setter<Whole, Next>.composing(self, next)
+    public func appending<
+        NextFocus: Copyable & Escapable,
+        NextReplacement: Copyable & Escapable
+    >(
+        _ next: Optic<Focus, Replacement, NextFocus, NextReplacement>.Setter
+    ) -> Optic<Source, Target, NextFocus, NextReplacement>.Setter {
+        Self.composing(self, next)
+    }
+
+    public func over(
+        _ source: consuming Source,
+        _ transform: @escaping @Sendable (consuming Focus) -> Replacement
+    ) -> Target {
+        modify(source, transform)
+    }
+
+    public func set(
+        _ source: consuming Source,
+        to replacement: Replacement
+    ) -> Target
+    where Replacement: Sendable {
+        modify(source) { _ in replacement }
     }
 }
 
-extension Optic.Setter where Whole == Part {
+extension Optic.Setter
+where
+    Source == Target,
+    Target == Focus,
+    Focus == Replacement
+{
+    public static var identity: Self {
+        .init { source, transform in transform(source) }
+    }
+}
 
-    @inlinable
-    public static var identity: Optic.Setter<Whole, Part> {
-        Optic.Setter(modify: { whole, transform in transform(whole) })
+extension Optic.Setter
+where
+    Source == Target,
+    Focus == Replacement,
+    Replacement: Sendable
+{
+    public func over(
+        _ source: inout Source,
+        _ transform: @escaping @Sendable (consuming Focus) -> Replacement
+    ) {
+        source = modify(source, transform)
+    }
+
+    public func set(_ source: inout Source, to replacement: Replacement) {
+        source = modify(source) { _ in replacement }
     }
 }
 
 extension Optic.Setter {
-
-    @inlinable
-    public func over(_ whole: Whole, _ transform: @Sendable (Part) -> Part) -> Whole {
-        modify(whole, transform)
+    public init(_ isomorphism: Optic<Source, Target, Focus, Replacement>.Isomorphism) {
+        self.init { source, transform in
+            isomorphism.backward(transform(isomorphism.forward(source)))
+        }
     }
 
-    @inlinable
-    public func over(_ whole: inout Whole, _ transform: @Sendable (Part) -> Part) {
-        whole = modify(whole, transform)
+    public init(_ lens: Optic<Source, Target, Focus, Replacement>.Lens) {
+        self.init { source, transform in lens.map(source, transform) }
     }
 
-    @inlinable
-    public func set(_ whole: Whole, to part: Part) -> Whole where Part: Sendable {
-        modify(whole) { _ in part }
+    public init(_ prism: Optic<Source, Target, Focus, Replacement>.Prism) {
+        self.init { source, transform in prism.map(source, transform) }
     }
 
-    @inlinable
-    public func set(_ whole: inout Whole, to part: Part) where Part: Sendable {
-        whole = modify(whole) { _ in part }
+    public init(_ affine: Optic<Source, Target, Focus, Replacement>.Affine) {
+        self.init { source, transform in affine.map(source, transform) }
+    }
+
+    public init(_ traversal: Optic<Source, Target, Focus, Replacement>.Traversal) {
+        self.init { source, transform in traversal.map(source, transform) }
     }
 }
 
-extension Optic.Setter {
-
-    @inlinable
-    public init(_ iso: Optic.Iso<Whole, Part>) {
-        self.init(modify: { whole, transform in iso.backward(transform(iso.forward(whole))) })
+extension Optic.Isomorphism
+where
+    Focus: Copyable,
+    Replacement: Copyable & Escapable
+{
+    public func appending<
+        NextFocus: Copyable & Escapable,
+        NextReplacement: Copyable & Escapable
+    >(
+        _ next: Optic<Focus, Replacement, NextFocus, NextReplacement>.Setter
+    ) -> Optic<Source, Target, NextFocus, NextReplacement>.Setter {
+        Optic<Source, Target, Focus, Replacement>.Setter(self).appending(next)
     }
+}
 
-    @inlinable
-    public init(_ lens: Optic.Lens<Whole, Part>) {
-        self.init(modify: { whole, transform in lens.modify(whole, transform) })
+extension Optic.Lens
+where
+    Focus: Copyable,
+    Replacement: Copyable & Escapable
+{
+    public func appending<
+        NextFocus: Copyable & Escapable,
+        NextReplacement: Copyable & Escapable
+    >(
+        _ next: Optic<Focus, Replacement, NextFocus, NextReplacement>.Setter
+    ) -> Optic<Source, Target, NextFocus, NextReplacement>.Setter {
+        Optic<Source, Target, Focus, Replacement>.Setter(self).appending(next)
     }
+}
 
-    @inlinable
-    public init(_ prism: Optic.Prism<Whole, Part>) {
-        self.init(modify: { whole, transform in
-            guard let part = prism.extract(whole) else { return whole }
-            return prism.embed(transform(part))
-        })
+extension Optic.Prism
+where
+    Focus: Copyable,
+    Replacement: Copyable & Escapable
+{
+    public func appending<
+        NextFocus: Copyable & Escapable,
+        NextReplacement: Copyable & Escapable
+    >(
+        _ next: Optic<Focus, Replacement, NextFocus, NextReplacement>.Setter
+    ) -> Optic<Source, Target, NextFocus, NextReplacement>.Setter {
+        Optic<Source, Target, Focus, Replacement>.Setter(self).appending(next)
     }
+}
 
-    @inlinable
-    public init(_ affine: Optic.Affine<Whole, Part>) {
-        self.init(modify: { whole, transform in affine.modify(whole, transform) })
+extension Optic.Affine
+where
+    Focus: Copyable,
+    Replacement: Copyable & Escapable
+{
+    public func appending<
+        NextFocus: Copyable & Escapable,
+        NextReplacement: Copyable & Escapable
+    >(
+        _ next: Optic<Focus, Replacement, NextFocus, NextReplacement>.Setter
+    ) -> Optic<Source, Target, NextFocus, NextReplacement>.Setter {
+        Optic<Source, Target, Focus, Replacement>.Setter(self).appending(next)
     }
+}
 
-    @inlinable
-    public init(_ traversal: Optic.Traversal<Whole, Part>) {
-        self.init(modify: { whole, transform in traversal.modify(whole, transform) })
+extension Optic.Traversal {
+    public func appending<
+        NextFocus: Copyable & Escapable,
+        NextReplacement: Copyable & Escapable
+    >(
+        _ next: Optic<Focus, Replacement, NextFocus, NextReplacement>.Setter
+    ) -> Optic<Source, Target, NextFocus, NextReplacement>.Setter {
+        Optic<Source, Target, Focus, Replacement>.Setter(self).appending(next)
     }
 }

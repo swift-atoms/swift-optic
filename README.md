@@ -2,70 +2,132 @@
 
 ![Development Status](https://img.shields.io/badge/status-active--development-blue.svg)
 
-Composable functional optics for Swift — `Iso`, `Lens`, `Prism`, `Affine`, `Traversal`, and `Setter` as plain value types with no dependencies.
-
----
-
-## Quick Start
-
-An optic is a first-class, composable accessor that focuses on one part of a larger value. A `Lens` focuses on a stored field; composing lenses with `>>>` lets you read and immutably update a deeply nested field without rebuilding every enclosing struct by hand.
+Ownership-aware, polymorphic optics for Swift. The family
+`Optic<Source, Target, Focus, Replacement>` models both the value being
+inspected and the value reconstructed after a focus changes.
 
 ```swift
 import Optic
 
-struct Address { var street: String; var city: String }
-struct Company { var name: String; var address: Address }
-struct User { var name: String; var employer: Company }
+struct User {
+    var name: String
+    var age: Int
+}
 
-let employer = Optic.Lens<User, Company>(
-    get: { $0.employer },
-    set: { user, value in User(name: user.name, employer: value) }
-)
-let address = Optic.Lens<Company, Address>(
-    get: { $0.address },
-    set: { company, value in Company(name: company.name, address: value) }
-)
-let street = Optic.Lens<Address, String>(
-    get: { $0.street },
-    set: { address, value in Address(street: value, city: address.city) }
-)
+let name = Optic<User, User, String, String>.Lens { user in
+    (
+        focus: user.name,
+        reconstruct: { replacement in
+            var user = user
+            user.name = replacement
+            return user
+        }
+    )
+}
 
-// Compose three lenses into one User → String focus.
-let userStreet = employer >>> address >>> street
-
-let user = User(
-    name: "Alice",
-    employer: Company(name: "Acme", address: Address(street: "1 Main St", city: "Portland"))
-)
-
-userStreet.get(user)                          // "1 Main St"
-let moved = userStreet.set(user, "2 Oak Ave") // User with only the nested street replaced
-userStreet.modify(user) { $0.uppercased() }   // "1 MAIN ST" focused, rest untouched
+let renamed = name.set(User(name: "Blob", age: 1), "Blob Jr.")
 ```
 
-The same `>>>` operator composes across optic kinds. Composing a `Lens` with a `Prism` yields an `Affine` (optional focus); any composition involving a `Setter` yields a `Setter`. Stdlib `Optional` and `Result` ship prism accessors out of the box:
+The four sorts need not be equal. A polymorphic lens can replace an `Int`
+focus with a `String` and consequently reconstruct a different target type:
 
 ```swift
-import Optic
+struct Box<Value> { var value: Value }
 
-enum LoadError: Error { case timedOut }
-
-let someValue = Int?.prisms.some
-someValue.extract(42)   // Optional(42)
-someValue.extract(nil)  // nil
-
-let success = Result<Int, LoadError>.prisms.success
-success.embed(42)                       // .success(42)
-success.extract(.failure(.timedOut))    // nil
+let value = Optic<Box<Int>, Box<String>, Int, String>.Lens { box in
+    (
+        focus: box.value,
+        reconstruct: { Box<String>(value: $0) }
+    )
+}
 ```
 
----
+## Ownership
+
+The outer `Optic` family admits `~Copyable & ~Escapable` in all four
+positions. `Source` and `Replacement` remain consumed inputs throughout the
+core representations. Stored escaping arrows currently require `Target` and
+`Focus` result positions to be `Escapable`; a focused compiler fixture records
+the Swift 6.4 lifetime limitation that makes this restriction unavoidable.
+
+`Prism.match` consumes its source and returns `Either<Target, Focus>`. The left
+branch preserves the unmatched source as its already-transformed target, while
+the right branch carries the focus. `Prism.embed` consumes a replacement.
+
+```swift
+enum Route { case home, user(Int) }
+
+let user = Optic<Route, Route, Int, Int>.Prism(
+    match: {
+        switch $0 {
+        case .home: return .left(.home)
+        case let .user(id): return .right(id)
+        }
+    },
+    embed: Route.user
+)
+```
+
+## Optic kinds
+
+| Kind | Representation and law claim |
+|------|------------------------------|
+| `Adapter<ForwardFailure, BackwardFailure>` | independent, lawless `Source → Focus` and `Replacement → Target` arrows with independently typed failures |
+| `Isomorphism` | lawful bidirectional adapter |
+| `Lens` | one focus plus a replacement-driven reconstruction closure |
+| `Prism` | `Either<Target, Focus>` match plus replacement embedding |
+| `Affine` | zero-or-one focus with reconstruction when present |
+| `Traversal` | an ordered focus array plus replacement-array reconstruction |
+| `Setter` | write-oriented transformation over copyable, escapable focuses |
+
+Adapter directions infer `Never` when their closures cannot fail, so a total
+direction is called without `try`. Composition normalizes each failure axis
+independently:
+
+```text
+Never + Never = Never
+Never + E     = E
+E + Never     = E
+E1 + E2       = Either<E1, E2>
+```
+
+When both adapters can fail, `.left` identifies the first adapter and `.right`
+the second in both directions. The origin convention is stable even though the
+second backward arrow executes first.
+
+`>>>` and `appending` support this law-preserving core matrix:
+
+| First ↓ / Second → | Adapter | Isomorphism | Prism |
+|---|---:|---:|---:|
+| Adapter | Adapter | Adapter | unavailable |
+| Isomorphism | Adapter | Isomorphism | Prism |
+| Prism | unavailable | Prism | Prism |
+
+Mixed Adapter/Prism composition is intentionally absent because an arbitrary
+adapter cannot preserve Prism laws. Isomorphism can be weakened losslessly to
+`Adapter<Never, Never>` or to Prism.
+
+Nominal integrations expose domain optics through `Nest.Name` access:
+
+```swift
+String.isomorphisms.substring
+Represented.prisms.rawValue
+Optic<Value, Value, Void, Void>.Prism.fixed(value)
+```
+
+Derived enum cases use `Root.prisms.caseName`; derived exact stored-property
+representations use `Root.isomorphisms.memberwise`. `Optional` and `Result`
+also provide `.prisms` access, and conforming sum types can expose dynamic
+member prism chains and pattern matching with `~=`.
+
+There is intentionally no `Iso` compatibility spelling; the public name is
+`Isomorphism`.
 
 ## Installation
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/swift-molecules/swift-optic.git", branch: "main")
+    .package(url: "https://github.com/swift-atoms/swift-optic.git", branch: "main")
 ]
 ```
 
@@ -78,63 +140,9 @@ dependencies: [
 )
 ```
 
-Requires Swift 6.3.1 and macOS 26 / iOS 26 / tvOS 26 / watchOS 26 / visionOS 26 (or the matching Linux / Windows toolchain).
-
----
-
-## Key Features
-
-- **Six optic kinds** — `Iso`, `Lens`, `Prism`, `Affine`, `Traversal`, and `Setter`, each a small `Sendable` value type holding closures.
-- **Type-directed composition** — the `>>>` operator (and `appending`) returns the correct optic kind for each pair: `Lens >>> Prism` is an `Affine`, anything `>>>` a `Setter` is a `Setter`.
-- **Lawful by construction** — each optic documents the algebraic laws it must satisfy (roundtrip, get/set, set/get, set/set).
-- **Stdlib prisms** — `Optional` and `Result` conform to the prism-accessor protocol, exposing `.prisms.some`, `.prisms.none`, `.prisms.success`, and `.prisms.failure`.
-- **Ergonomic chaining** — `@dynamicMemberLookup` lets conforming sum types chain nested prisms through dot syntax.
-- **Pattern matching** — prisms implement `~=`, so a prism can be used directly as a `case` in a `switch`.
-- **Zero dependencies** — no imports beyond the Swift standard library; Foundation-free.
-
----
-
-## Architecture
-
-One library product, zero external dependencies.
-
-| Product | Target | Purpose |
-|---------|--------|---------|
-| `Optic` | `Sources/Optic/` | The `Optic` namespace and its six optic kinds, the `>>>` composition operator with its `OpticCompositionPrecedence` group, and stdlib `Optional` / `Result` prism accessors. |
-
-The `Optic` enum is a namespace; each optic kind is a nested generic struct over `<Whole, Part>`:
-
-| Type | Focus | Operations |
-|------|-------|------------|
-| `Optic.Iso<Whole, Part>` | Total, bidirectional (1 ↔ 1) | `forward`, `backward`, `reversed`, `modify` |
-| `Optic.Lens<Whole, Part>` | One field of a product type (1 → 1) | `get`, `set`, `modify` |
-| `Optic.Prism<Whole, Part>` | One case of a sum type (1 → 0-1) | `embed`, `extract`, `matches`, `modify`, `~=` |
-| `Optic.Affine<Whole, Part>` | Optional focus, Lens ⊔ Prism (1 → 0-1) | `extract`, `set`, `isPresent`, `modify` |
-| `Optic.Traversal<Whole, Part>` | Zero or more elements (1 → 0-n) | `get`, `modify`, `count`, `isEmpty`, `each` |
-| `Optic.Setter<Whole, Part>` | Write-only, the most general optic (1 → *) | `over`, `set`, `modify` |
-
-Optics form a lattice: every stronger optic embeds into a weaker one via a corresponding initializer (e.g. `Optic.Setter(someLens)`, `Optic.Affine(somePrism)`). `Iso` is the strongest; `Setter` is the weakest and absorbs every other kind under composition.
-
-Foundation-free.
-
----
-
-## Platform Support
-
-| Platform | Status |
-|----------|--------|
-| macOS 26 | Full support |
-| Linux | Full support |
-| Windows | Full support |
-| iOS / tvOS / watchOS / visionOS | Supported |
-
----
-
-## Community
-
-<!-- BEGIN: discussion -->
-<!-- Discussion thread created at publication. -->
-<!-- END: discussion -->
+Requires Swift 6.4 and macOS 27 / iOS 27 / tvOS 27 / watchOS 27 / visionOS 27
+(or a matching non-Apple toolchain). The package depends on
+[`swift-either`](https://github.com/swift-atoms/swift-either).
 
 ## License
 

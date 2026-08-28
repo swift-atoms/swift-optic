@@ -1,6 +1,5 @@
 # .github/metadata.yaml
-# Triaged by AI-assisted bulk pass (2026-04-29).
-description: "Composable Lens, Prism, Affine, and Traversal optics chained through a single >>> operator for Swift."
+description: "Ownership-aware four-sort Isomorphism, Lens, Prism, Affine, Traversal, and Setter optics for Swift."
 topics:
   - primitives
   - optic

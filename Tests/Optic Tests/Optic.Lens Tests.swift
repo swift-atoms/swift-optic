@@ -2,7 +2,8 @@ import Testing
 
 @testable import Optic
 
-@Suite("Optic.Lens")
+@Suite("TestLens")
+@MainActor
 struct LensTests {
 
     struct User: Equatable, Sendable {
@@ -20,22 +21,22 @@ struct LensTests {
         var address: Address
     }
 
-    static let nameLens = Optic.Lens<User, String>(
+    static let nameLens = TestLens<User, String>(
         get: { $0.name },
         set: { User(name: $1, age: $0.age) }
     )
 
-    static let ageLens = Optic.Lens<User, Int>(
+    static let ageLens = TestLens<User, Int>(
         get: { $0.age },
         set: { User(name: $0.name, age: $1) }
     )
 
-    static let userLens = Optic.Lens<Person, User>(
+    static let userLens = TestLens<Person, User>(
         get: { $0.user },
         set: { Person(user: $1, address: $0.address) }
     )
 
-    static let cityLens = Optic.Lens<Address, String>(
+    static let cityLens = TestLens<Address, String>(
         get: { $0.city },
         set: { Address(city: $1, zip: $0.zip) }
     )
@@ -85,12 +86,12 @@ struct LensTests {
 
     @Test
     func `composing chains two lenses`() {
-        let addressLens = Optic.Lens<Person, Address>(
+        let addressLens = TestLens<Person, Address>(
             get: { $0.address },
             set: { Person(user: $0.user, address: $1) }
         )
 
-        let composed = Optic.Lens.composing(addressLens, Self.cityLens)
+        let composed = TestLens.composing(addressLens, Self.cityLens)
 
         let person = Person(
             user: User(name: "Alice", age: 30),
@@ -122,7 +123,7 @@ struct LensTests {
 
     @Test
     func `identity passes values through unchanged`() {
-        let id: Optic.Lens<Int, Int> = .identity
+        let id: TestLens<Int, Int> = .identity
 
         #expect(id.get(42) == 42)
         #expect(id.set(42, 100) == 100)
@@ -147,13 +148,13 @@ struct LensTests {
     }
 
     @Test
-    func `init from Iso`() {
-        let iso = Optic.Iso<Int, String>(
+    func `init from Isomorphism`() {
+        let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
 
-        let lens = Optic.Lens(iso)
+        let lens = TestLens(iso)
 
         #expect(lens.get(42) == "42")
         #expect(lens.set(42, "100") == 100)
@@ -177,15 +178,15 @@ struct Address: Equatable, Sendable {
 }
 
 extension Point {
-    static var xLens: Optic.Lens<Point, Int> {
-        Optic.Lens(
+    static var xLens: TestLens<Point, Int> {
+        TestLens(
             get: { $0.x },
             set: { point, x in Point(x: x, y: point.y) }
         )
     }
 
-    static var yLens: Optic.Lens<Point, Int> {
-        Optic.Lens(
+    static var yLens: TestLens<Point, Int> {
+        TestLens(
             get: { $0.y },
             set: { point, y in Point(x: point.x, y: y) }
         )
@@ -193,22 +194,22 @@ extension Point {
 }
 
 extension User {
-    static var nameLens: Optic.Lens<User, String> {
-        Optic.Lens(
+    static var nameLens: TestLens<User, String> {
+        TestLens(
             get: { $0.name },
             set: { user, name in User(name: name, age: user.age, address: user.address) }
         )
     }
 
-    static var ageLens: Optic.Lens<User, Int> {
-        Optic.Lens(
+    static var ageLens: TestLens<User, Int> {
+        TestLens(
             get: { $0.age },
             set: { user, age in User(name: user.name, age: age, address: user.address) }
         )
     }
 
-    static var addressLens: Optic.Lens<User, Address> {
-        Optic.Lens(
+    static var addressLens: TestLens<User, Address> {
+        TestLens(
             get: { $0.address },
             set: { user, address in User(name: user.name, age: user.age, address: address) }
         )
@@ -216,15 +217,15 @@ extension User {
 }
 
 extension Address {
-    static var streetLens: Optic.Lens<Address, String> {
-        Optic.Lens(
+    static var streetLens: TestLens<Address, String> {
+        TestLens(
             get: { $0.street },
             set: { address, street in Address(street: street, city: address.city) }
         )
     }
 
-    static var cityLens: Optic.Lens<Address, String> {
-        Optic.Lens(
+    static var cityLens: TestLens<Address, String> {
+        TestLens(
             get: { $0.city },
             set: { address, city in Address(street: address.street, city: city) }
         )
@@ -292,7 +293,7 @@ struct `Lens - Composition` {
             address: Address(street: "123 Main St", city: "Boston")
         )
 
-        let streetLens = Optic.Lens.composing(User.addressLens, Address.streetLens)
+        let streetLens = TestLens.composing(User.addressLens, Address.streetLens)
         #expect(streetLens.get(user) == "123 Main St")
     }
 
@@ -304,7 +305,7 @@ struct `Lens - Composition` {
             address: Address(street: "123 Main St", city: "Boston")
         )
 
-        let streetLens = Optic.Lens.composing(User.addressLens, Address.streetLens)
+        let streetLens = TestLens.composing(User.addressLens, Address.streetLens)
         let result = streetLens.set(user, "456 Oak Ave")
 
         #expect(result.address.street == "456 Oak Ave")
@@ -320,7 +321,7 @@ struct `Lens - Composition` {
             address: Address(street: "123 Main St", city: "Boston")
         )
 
-        let composed = Optic.Lens.composing(User.addressLens, Address.streetLens)
+        let composed = TestLens.composing(User.addressLens, Address.streetLens)
         let appended = User.addressLens.appending(Address.streetLens)
 
         #expect(composed.get(user) == appended.get(user))
@@ -332,13 +333,13 @@ struct `Lens - Composition` {
 struct `Lens - Identity` {
     @Test
     func `identity get returns same value`() {
-        let lens = Optic.Lens<Int, Int>.identity
+        let lens = TestLens<Int, Int>.identity
         #expect(lens.get(42) == 42)
     }
 
     @Test
     func `identity set ignores whole and returns part`() {
-        let lens = Optic.Lens<Int, Int>.identity
+        let lens = TestLens<Int, Int>.identity
         #expect(lens.set(999, 42) == 42)
     }
 }
@@ -372,14 +373,14 @@ struct `Lens - Modification` {
 }
 
 @Suite
-struct `Lens - Construction from Iso` {
+struct `Lens - Construction from Isomorphism` {
     @Test
     func `lens from iso satisfies GetSet law`() {
-        let iso = Optic.Iso<Int, String>(
+        let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
         )
-        let lens = Optic.Lens(iso)
+        let lens = TestLens(iso)
 
         let whole = 42
         let part = "99"

@@ -1,30 +1,46 @@
-extension Result: Optic.Prism.Accessible {
+import Either
 
-    public struct Prisms: Sendable {
-
-        @inlinable
+extension Swift.Result: __OpticPrismAccessible where Success: Copyable & Escapable {
+    public struct Prisms {
         public init() {}
-
-        public var success: Optic.Prism<Result, Success> {
-            Optic.Prism(
-                embed: Result.success,
-                extract: {
-                    guard case .success(let value) = $0 else { return nil }
-                    return value
-                }
-            )
-        }
-
-        public var failure: Optic.Prism<Result, Failure> {
-            Optic.Prism(
-                embed: Result.failure,
-                extract: {
-                    guard case .failure(let error) = $0 else { return nil }
-                    return error
-                }
-            )
-        }
     }
 
-    public static var prisms: Prisms { Prisms() }
+    public static var prisms: Prisms { .init() }
+}
+
+extension Swift.Result.Prisms
+where Success: SendableMetatype, Failure: SendableMetatype {
+    public var success: Optic<
+        Swift.Result<Success, Failure>,
+        Swift.Result<Success, Failure>,
+        Success,
+        Success
+    >.Prism {
+        .init(
+            match: { source in
+                switch source {
+                case let .success(success): return .right(success)
+                case let .failure(failure): return .left(.failure(failure))
+                }
+            },
+            embed: Swift.Result<Success, Failure>.success
+        )
+    }
+
+    public var failure: Optic<
+        Swift.Result<Success, Failure>,
+        Swift.Result<Success, Failure>,
+        Failure,
+        Failure
+    >.Prism {
+        .init(
+            match: { source in
+                switch source {
+                case let .success(success): return .left(.success(success))
+                case let .failure(failure): return .right(failure)
+                }
+            },
+            embed: Swift.Result<Success, Failure>.failure
+        )
+    }
 }

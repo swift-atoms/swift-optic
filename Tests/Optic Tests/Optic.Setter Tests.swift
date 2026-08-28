@@ -2,7 +2,8 @@ import Testing
 
 @testable import Optic
 
-@Suite("Optic.Setter")
+@Suite("TestSetter")
+@MainActor
 struct SetterTests {
 
     struct User: Equatable, Sendable {
@@ -10,15 +11,15 @@ struct SetterTests {
         var age: Int
     }
 
-    static let nameSetter = Optic.Setter<User, String>(
+    static let nameSetter = TestSetter<User, String>(
         modify: { user, f in User(name: f(user.name), age: user.age) }
     )
 
-    static let ageSetter = Optic.Setter<User, Int>(
+    static let ageSetter = TestSetter<User, Int>(
         modify: { user, f in User(name: user.name, age: f(user.age)) }
     )
 
-    static let eachInArray = Optic.Setter<[Int], Int>(
+    static let eachInArray = TestSetter<[Int], Int>(
         modify: { array, f in array.map(f) }
     )
 
@@ -29,6 +30,7 @@ struct SetterTests {
     @Suite struct Composition {}
 }
 
+@MainActor
 extension SetterTests.Unit {
 
     @Test
@@ -60,6 +62,7 @@ extension SetterTests.Unit {
     }
 }
 
+@MainActor
 extension SetterTests.`Edge Case` {
 
     @Test
@@ -81,6 +84,7 @@ extension SetterTests.`Edge Case` {
     }
 }
 
+@MainActor
 extension SetterTests.Laws {
 
     @Test
@@ -108,21 +112,22 @@ extension SetterTests.Laws {
 
     @Test
     func `identity setter law on Whole == Part`() {
-        let identity = Optic.Setter<Int, Int>.identity
+        let identity = TestSetter<Int, Int>.identity
         #expect(identity.over(42) { $0 + 1 } == 43)
         #expect(identity.over(42) { $0 } == 42)
     }
 }
 
+@MainActor
 extension SetterTests.Integration {
 
     @Test
     func `Setter constructed from Lens behaves equivalently`() {
-        let nameLens = Optic.Lens<SetterTests.User, String>(
+        let nameLens = TestLens<SetterTests.User, String>(
             get: { $0.name },
             set: { SetterTests.User(name: $1, age: $0.age) }
         )
-        let setter = Optic.Setter(nameLens)
+        let setter = TestSetter(nameLens)
         let alice = SetterTests.User(name: "Alice", age: 30)
         #expect(
             setter.over(alice) { $0.lowercased() } == nameLens.modify(alice) { $0.lowercased() }
@@ -130,12 +135,12 @@ extension SetterTests.Integration {
     }
 
     @Test
-    func `Setter constructed from Iso preserves transformation`() {
-        let mirror = Optic.Iso<Int, Int>(
+    func `Setter constructed from Isomorphism preserves transformation`() {
+        let mirror = TestIsomorphism<Int, Int>(
             forward: { -$0 },
             backward: { -$0 }
         )
-        let setter = Optic.Setter(mirror)
+        let setter = TestSetter(mirror)
 
         #expect(setter.over(7) { $0 + 1 } == 6)
     }
@@ -146,29 +151,30 @@ extension SetterTests.Integration {
             case left(Int)
             case right(String)
         }
-        let leftPrism = Optic.Prism<Either, Int>(
+        let leftPrism = TestPrism<Either, Int>(
             embed: { .left($0) },
             extract: {
                 guard case .left(let v) = $0 else { return nil }
                 return v
             }
         )
-        let setter = Optic.Setter(leftPrism)
+        let setter = TestSetter(leftPrism)
         #expect(setter.over(.left(5)) { $0 + 1 } == .left(6))
         #expect(setter.over(.right("hi")) { $0 + 1 } == .right("hi"))
     }
 
     @Test
     func `Setter constructed from Traversal applies to all elements`() {
-        let each = Optic.Traversal<[Int], Int>(
+        let each = TestTraversal<[Int], Int>(
             get: { $0 },
             modify: { array, f in array.map(f) }
         )
-        let setter = Optic.Setter(each)
+        let setter = TestSetter(each)
         #expect(setter.over([1, 2, 3]) { $0 * 2 } == [2, 4, 6])
     }
 }
 
+@MainActor
 extension SetterTests.Composition {
 
     @Test
@@ -177,10 +183,10 @@ extension SetterTests.Composition {
             var users: [SetterTests.User]
         }
 
-        let usersSetter = Optic.Setter<Outer, [SetterTests.User]>(
+        let usersSetter = TestSetter<Outer, [SetterTests.User]>(
             modify: { outer, f in Outer(users: f(outer.users)) }
         )
-        let eachUser = Optic.Setter<[SetterTests.User], SetterTests.User>(
+        let eachUser = TestSetter<[SetterTests.User], SetterTests.User>(
             modify: { array, f in array.map(f) }
         )
 
@@ -210,10 +216,10 @@ extension SetterTests.Composition {
             var value: Int
         }
 
-        let innerSetter = Optic.Setter<Outer, Inner>(
+        let innerSetter = TestSetter<Outer, Inner>(
             modify: { outer, f in Outer(inner: f(outer.inner)) }
         )
-        let valueSetter = Optic.Setter<Inner, Int>(
+        let valueSetter = TestSetter<Inner, Int>(
             modify: { inner, f in Inner(value: f(inner.value)) }
         )
         let composed = innerSetter >>> valueSetter
@@ -227,14 +233,14 @@ extension SetterTests.Composition {
         struct Outer: Equatable, Sendable {
             var inner: Int
         }
-        let innerLens = Optic.Lens<Outer, Int>(
+        let innerLens = TestLens<Outer, Int>(
             get: { $0.inner },
             set: { Outer(inner: $1) }
         )
-        let doublingSetter = Optic.Setter<Int, Int>(
+        let doublingSetter = TestSetter<Int, Int>(
             modify: { value, f in f(value) }
         )
-        let composed: Optic.Setter<Outer, Int> = innerLens >>> doublingSetter
+        let composed: TestSetter<Outer, Int> = innerLens >>> doublingSetter
         #expect(composed.over(Outer(inner: 5)) { $0 * 2 } == Outer(inner: 10))
     }
 }
