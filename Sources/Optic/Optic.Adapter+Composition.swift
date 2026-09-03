@@ -5,9 +5,9 @@ private func composeTotal<
     Intermediate: ~Copyable & Escapable,
     Output: ~Copyable & Escapable
 >(
-    _ first: @escaping @Sendable (consuming Input) -> Intermediate,
-    _ second: @escaping @Sendable (consuming Intermediate) -> Output
-) -> @Sendable (consuming Input) -> Output {
+    _ first: @escaping (consuming Input) -> Intermediate,
+    _ second: @escaping (consuming Intermediate) -> Output
+) -> (consuming Input) -> Output {
     { second(first($0)) }
 }
 
@@ -17,10 +17,10 @@ private func composeFirstFailure<
     Output: ~Copyable & Escapable,
     Failure: Swift.Error
 >(
-    _ first: @escaping @Sendable
+    _ first: @escaping
         (consuming Input) throws(Failure) -> Intermediate,
-    _ second: @escaping @Sendable (consuming Intermediate) -> Output
-) -> @Sendable (consuming Input) throws(Failure) -> Output {
+    _ second: @escaping (consuming Intermediate) -> Output
+) -> (consuming Input) throws(Failure) -> Output {
     { second(try first($0)) }
 }
 
@@ -30,10 +30,10 @@ private func composeSecondFailure<
     Output: ~Copyable & Escapable,
     Failure: Swift.Error
 >(
-    _ first: @escaping @Sendable (consuming Input) -> Intermediate,
-    _ second: @escaping @Sendable
+    _ first: @escaping (consuming Input) -> Intermediate,
+    _ second: @escaping
         (consuming Intermediate) throws(Failure) -> Output
-) -> @Sendable (consuming Input) throws(Failure) -> Output {
+) -> (consuming Input) throws(Failure) -> Output {
     { try second(first($0)) }
 }
 
@@ -44,11 +44,11 @@ private func composeFailures<
     FirstFailure: Swift.Error,
     SecondFailure: Swift.Error
 >(
-    _ first: @escaping @Sendable
+    _ first: @escaping
         (consuming Input) throws(FirstFailure) -> Intermediate,
-    _ second: @escaping @Sendable
+    _ second: @escaping
         (consuming Intermediate) throws(SecondFailure) -> Output
-) -> @Sendable
+) ->
     (consuming Input) throws(Either<FirstFailure, SecondFailure>) -> Output
 {
     { input in
@@ -73,11 +73,11 @@ private func composeBackwardFailures<
     FirstFailure: Swift.Error,
     SecondFailure: Swift.Error
 >(
-    _ first: @escaping @Sendable
+    _ first: @escaping
         (consuming Intermediate) throws(FirstFailure) -> Output,
-    _ second: @escaping @Sendable
+    _ second: @escaping
         (consuming Input) throws(SecondFailure) -> Intermediate
-) -> @Sendable
+) ->
     (consuming Input) throws(Either<FirstFailure, SecondFailure>) -> Output
 {
     { input in

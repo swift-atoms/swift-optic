@@ -8,9 +8,9 @@ where
     Replacement: ~Copyable & ~Escapable
 {
     @dynamicMemberLookup
-    public struct Prism: Sendable {
-        public var match: @Sendable (consuming Source) -> Either<Target, Focus>
-        public var embed: @Sendable (consuming Replacement) -> Target
+    public struct Prism {
+        public var match: (consuming Source) -> Either<Target, Focus>
+        public var embed: (consuming Replacement) -> Target
 
         /// Creates a total, law-claiming structural match and embedding.
         ///
@@ -22,8 +22,8 @@ where
         /// - Law: Matching a source either returns that same source in
         ///   `Either.left`, or returns a focus that embeds back to that source.
         public init(
-            match: @escaping @Sendable (consuming Source) -> Either<Target, Focus>,
-            embed: @escaping @Sendable (consuming Replacement) -> Target
+            match: @escaping (consuming Source) -> Either<Target, Focus>,
+            embed: @escaping (consuming Replacement) -> Target
         ) {
             self.match = match
             self.embed = embed
@@ -38,8 +38,8 @@ where
     Focus == Replacement
 {
     public init(
-        embed: @escaping @Sendable (Replacement) -> Target,
-        extract: @escaping @Sendable (Source) -> Focus?
+        embed: @escaping (Replacement) -> Target,
+        extract: @escaping (Source) -> Focus?
     ) {
         self.init(
             match: { source in

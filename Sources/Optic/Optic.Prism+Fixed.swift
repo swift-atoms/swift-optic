@@ -3,7 +3,7 @@ import Either
 extension Optic.Prism
 where
     Source == Target,
-    Source: Copyable & Escapable & Equatable & Sendable,
+    Source: Copyable & Escapable & Equatable,
     Focus == Void,
     Replacement == Void
 {

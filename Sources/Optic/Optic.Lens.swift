@@ -5,16 +5,16 @@ where
     Focus: ~Copyable & Escapable,
     Replacement: ~Copyable & ~Escapable
 {
-    public struct Lens: Sendable {
-        public var decompose: @Sendable (consuming Source) -> (
+    public struct Lens {
+        public var decompose: (consuming Source) -> (
             focus: Focus,
-            reconstruct: @Sendable (consuming Replacement) -> Target
+            reconstruct: (consuming Replacement) -> Target
         )
 
         public init(
-            decompose: @escaping @Sendable (consuming Source) -> (
+            decompose: @escaping (consuming Source) -> (
                 focus: Focus,
-                reconstruct: @Sendable (consuming Replacement) -> Target
+                reconstruct: (consuming Replacement) -> Target
             )
         ) {
             self.decompose = decompose
@@ -44,12 +44,12 @@ where
 extension Optic.Lens
 where
     Source == Target,
-    Source: Copyable & Escapable & Sendable,
+    Source: Copyable & Escapable,
     Focus == Replacement
 {
     public init(
-        get: @escaping @Sendable (Source) -> Focus,
-        set: @escaping @Sendable (Source, Replacement) -> Target
+        get: @escaping (Source) -> Focus,
+        set: @escaping (Source, Replacement) -> Target
     ) {
         self.init { source in
             (

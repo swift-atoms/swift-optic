@@ -22,21 +22,6 @@ private struct ScopedReplacement: ~Copyable, ~Escapable {
 @Suite
 private struct `Capability Tests` {
     @Test
-    func `stored optic representations are safely sendable`() {
-        func requireSendable<Value: Sendable>(_: Value.Type) {}
-
-        typealias Family = Optic<Int, Int, Int, Int>
-        requireSendable(Family.Adapter<Never, Never>.self)
-        requireSendable(Family.Isomorphism.self)
-        requireSendable(Family.Lens.self)
-        requireSendable(Family.Prism.self)
-        requireSendable(Family.Affine.self)
-        requireSendable(Family.Traversal.self)
-        requireSendable(Family.Setter.self)
-        requireSendable(Family.Traversal.Bazaar.self)
-    }
-
-    @Test
     func `adapter consumes noncopyable nonescapable input sorts`() {
         let adapter = Optic<
             ScopedValue,

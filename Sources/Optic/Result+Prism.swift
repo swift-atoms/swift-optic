@@ -8,8 +8,7 @@ extension Swift.Result: __OpticPrismAccessible where Success: Copyable & Escapab
     public static var prisms: Prisms { .init() }
 }
 
-extension Swift.Result.Prisms
-where Success: SendableMetatype, Failure: SendableMetatype {
+extension Swift.Result.Prisms {
     public var success: Optic<
         Swift.Result<Success, Failure>,
         Swift.Result<Success, Failure>,

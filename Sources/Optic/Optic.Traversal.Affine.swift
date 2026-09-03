@@ -7,21 +7,21 @@ where
     Focus: ~Copyable & Escapable,
     Replacement: ~Copyable & ~Escapable
 {
-    public struct Affine: Sendable {
-        public var decompose: @Sendable (consuming Source) -> Either<
+    public struct Affine {
+        public var decompose: (consuming Source) -> Either<
             Target,
             (
                 focus: Focus,
-                reconstruct: @Sendable (consuming Replacement) -> Target
+                reconstruct: (consuming Replacement) -> Target
             )
         >
 
         public init(
-            decompose: @escaping @Sendable (consuming Source) -> Either<
+            decompose: @escaping (consuming Source) -> Either<
                 Target,
                 (
                     focus: Focus,
-                    reconstruct: @Sendable (consuming Replacement) -> Target
+                    reconstruct: (consuming Replacement) -> Target
                 )
             >
         ) {
@@ -33,12 +33,12 @@ where
 extension Optic.Affine
 where
     Source == Target,
-    Source: Copyable & Escapable & Sendable,
+    Source: Copyable & Escapable,
     Focus == Replacement
 {
     public init(
-        extract: @escaping @Sendable (Source) -> Focus?,
-        set: @escaping @Sendable (Source, Replacement) -> Target
+        extract: @escaping (Source) -> Focus?,
+        set: @escaping (Source, Replacement) -> Target
     ) {
         self.init { source in
             if let focus = extract(source) {

@@ -9,7 +9,7 @@ extension Optional: __OpticPrismAccessible where Wrapped: Copyable & Escapable {
     public static var prisms: Prisms { .init() }
 }
 
-extension Optional.Prisms where Wrapped: SendableMetatype {
+extension Optional.Prisms {
     public var none: Optic<Optional, Optional, Void, Void>.Prism {
         .init(
             match: { source in
@@ -35,7 +35,7 @@ extension Optional.Prisms where Wrapped: SendableMetatype {
     }
 
     @_disfavoredOverload
-    public subscript<Member: Copyable & Escapable & SendableMetatype>(
+    public subscript<Member: Copyable & Escapable>(
         dynamicMember keyPath: KeyPath<
             Wrapped.Prisms,
             Optic<Wrapped, Wrapped, Member, Member>.Prism

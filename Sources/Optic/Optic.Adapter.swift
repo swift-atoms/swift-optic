@@ -12,16 +12,16 @@ where
     public struct Adapter<
         ForwardFailure: Swift.Error,
         BackwardFailure: Swift.Error
-    >: Sendable {
+    > {
         public var forward:
-            @Sendable (consuming Source) throws(ForwardFailure) -> Focus
+            (consuming Source) throws(ForwardFailure) -> Focus
         public var backward:
-            @Sendable (consuming Replacement) throws(BackwardFailure) -> Target
+            (consuming Replacement) throws(BackwardFailure) -> Target
 
         public init(
-            forward: @escaping @Sendable
+            forward: @escaping
                 (consuming Source) throws(ForwardFailure) -> Focus,
-            backward: @escaping @Sendable
+            backward: @escaping
                 (consuming Replacement) throws(BackwardFailure) -> Target
         ) {
             self.forward = forward

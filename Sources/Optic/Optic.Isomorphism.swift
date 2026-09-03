@@ -5,9 +5,9 @@ where
     Focus: ~Copyable & Escapable,
     Replacement: ~Copyable & ~Escapable
 {
-    public struct Isomorphism: Sendable {
-        public var forward: @Sendable (consuming Source) -> Focus
-        public var backward: @Sendable (consuming Replacement) -> Target
+    public struct Isomorphism {
+        public var forward: (consuming Source) -> Focus
+        public var backward: (consuming Replacement) -> Target
 
         /// Creates a total, law-claiming bidirectional transformation.
         ///
@@ -17,8 +17,8 @@ where
         ///   type-changing family whose monomorphic members obey those inverse
         ///   equations.
         public init(
-            forward: @escaping @Sendable (consuming Source) -> Focus,
-            backward: @escaping @Sendable (consuming Replacement) -> Target
+            forward: @escaping (consuming Source) -> Focus,
+            backward: @escaping (consuming Replacement) -> Target
         ) {
             self.forward = forward
             self.backward = backward

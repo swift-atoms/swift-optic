@@ -2,13 +2,13 @@ import Either
 
 extension Optic.Traversal {
     public static func composing<
-        NextFocus: Copyable & Escapable & Sendable,
+        NextFocus: Copyable & Escapable,
         NextReplacement: Copyable & Escapable
     >(
         _ first: Self,
         _ second: Optic<Focus, Replacement, NextFocus, NextReplacement>.Traversal
     ) -> Optic<Source, Target, NextFocus, NextReplacement>.Traversal
-    where Focus: Sendable {
+    {
         .init { source in
             let outer = first.decompose(source)
             let inners = outer.focuses.map(second.decompose)
@@ -33,12 +33,12 @@ extension Optic.Traversal {
     }
 
     public func appending<
-        NextFocus: Copyable & Escapable & Sendable,
+        NextFocus: Copyable & Escapable,
         NextReplacement: Copyable & Escapable
     >(
         _ next: Optic<Focus, Replacement, NextFocus, NextReplacement>.Traversal
     ) -> Optic<Source, Target, NextFocus, NextReplacement>.Traversal
-    where Focus: Sendable {
+    {
         Self.composing(self, next)
     }
 
@@ -121,7 +121,7 @@ extension Optic.Traversal {
 }
 
 extension Optic.Traversal
-where Target: Copyable & Sendable {
+where Target: Copyable {
     public init(_ prism: Optic<Source, Target, Focus, Replacement>.Prism) {
         self.init { source in
             let result = prism.match(source)
@@ -162,12 +162,12 @@ where Target: Copyable & Sendable {
 extension Optic.Traversal
 where
     Source == Target,
-    Source: Copyable & Sendable,
+    Source: Copyable,
     Focus == Replacement
 {
     public init(
-        get: @escaping @Sendable (Source) -> [Focus],
-        modify: @escaping @Sendable (Source, (Focus) -> Focus) -> Source
+        get: @escaping (Source) -> [Focus],
+        modify: @escaping (Source, (Focus) -> Focus) -> Source
     ) {
         self.init { source in
             let focuses = get(source)

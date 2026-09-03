@@ -7,11 +7,11 @@ where
     Focus: Copyable & Escapable,
     Replacement: Copyable & Escapable
 {
-    public struct Traversal: Sendable {
-        public var decompose: @Sendable (consuming Source) -> Bazaar
+    public struct Traversal {
+        public var decompose: (consuming Source) -> Bazaar
 
         public init(
-            decompose: @escaping @Sendable (consuming Source) -> Bazaar
+            decompose: @escaping (consuming Source) -> Bazaar
         ) {
             self.decompose = decompose
         }

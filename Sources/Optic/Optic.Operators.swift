@@ -132,7 +132,7 @@ public func >>> <Source, Target, Focus, Replacement, NextFocus, NextReplacement>
     lhs.appending(rhs)
 }
 
-public func >>> <Source, Target, Focus: Sendable, Replacement, NextFocus: Sendable, NextReplacement>(
+public func >>> <Source, Target, Focus, Replacement, NextFocus, NextReplacement>(
     lhs: Optic<Source, Target, Focus, Replacement>.Traversal,
     rhs: Optic<Focus, Replacement, NextFocus, NextReplacement>.Traversal
 ) -> Optic<Source, Target, NextFocus, NextReplacement>.Traversal {

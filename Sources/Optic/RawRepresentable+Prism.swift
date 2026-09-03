@@ -6,7 +6,7 @@ public struct Prisms<Represented: RawRepresentable>: Sendable {
 
 extension RawRepresentable
 where
-    Self: Copyable & Escapable & SendableMetatype,
+    Self: Copyable & Escapable,
     RawValue: Copyable & Escapable
 {
     public static var prisms: Prisms<Self> { .init() }
@@ -14,7 +14,7 @@ where
 
 extension Prisms
 where
-    Represented: Copyable & Escapable & SendableMetatype,
+    Represented: Copyable & Escapable,
     Represented.RawValue: Copyable & Escapable
 {
     /// Matches a raw value without discarding an unrepresentable value.

@@ -8,11 +8,11 @@ where
 {
     public struct Bazaar {
         public var focuses: [Focus]
-        private var _reconstruct: @Sendable (consuming [Replacement]) -> Target
+        private var _reconstruct: (consuming [Replacement]) -> Target
 
         public init(
             focuses: consuming [Focus],
-            reconstruct: @escaping @Sendable (consuming [Replacement]) -> Target
+            reconstruct: @escaping (consuming [Replacement]) -> Target
         ) {
             self.focuses = focuses
             self._reconstruct = reconstruct
@@ -20,7 +20,6 @@ where
     }
 }
 
-extension Optic.Traversal.Bazaar: Sendable where Focus: Sendable {}
 
 extension Optic.Traversal.Bazaar
 where

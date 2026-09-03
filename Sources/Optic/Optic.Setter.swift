@@ -5,16 +5,16 @@ where
     Focus: Copyable & Escapable,
     Replacement: Copyable & Escapable
 {
-    public struct Setter: Sendable {
-        public var modify: @Sendable (
+    public struct Setter {
+        public var modify: (
             consuming Source,
-            @Sendable (consuming Focus) -> Replacement
+            (consuming Focus) -> Replacement
         ) -> Target
 
         public init(
-            modify: @escaping @Sendable (
+            modify: @escaping (
                 consuming Source,
-                @Sendable (consuming Focus) -> Replacement
+                (consuming Focus) -> Replacement
             ) -> Target
         ) {
             self.modify = modify
@@ -49,7 +49,7 @@ where Replacement: Escapable {
 
     public func over(
         _ source: consuming Source,
-        _ transform: @escaping @Sendable (consuming Focus) -> Replacement
+        _ transform: @escaping (consuming Focus) -> Replacement
     ) -> Target {
         modify(source, transform)
     }
@@ -58,7 +58,7 @@ where Replacement: Escapable {
         _ source: consuming Source,
         to replacement: Replacement
     ) -> Target
-    where Replacement: Sendable {
+    {
         modify(source) { _ in replacement }
     }
 }
@@ -77,12 +77,11 @@ where
 extension Optic.Setter
 where
     Source == Target,
-    Focus == Replacement,
-    Replacement: Sendable
+    Focus == Replacement
 {
     public func over(
         _ source: inout Source,
-        _ transform: @escaping @Sendable (consuming Focus) -> Replacement
+        _ transform: @escaping (consuming Focus) -> Replacement
     ) {
         source = modify(source, transform)
     }
