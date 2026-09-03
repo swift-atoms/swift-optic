@@ -85,20 +85,3 @@ where
         map(source) { _ in replacement }
     }
 }
-
-extension Optic.Traversal
-where
-    Source: ~Copyable & ~Escapable,
-    Target: ~Copyable & Escapable,
-    Focus: Copyable & Escapable,
-    Replacement: Copyable & Escapable
-{
-    /// Compatibility spelling for the affine optic that historically lived
-    /// under the Array-backed total traversal namespace.
-    public typealias Affine = Optic<
-        Source,
-        Target,
-        Focus,
-        Replacement
-    >.Affine
-}

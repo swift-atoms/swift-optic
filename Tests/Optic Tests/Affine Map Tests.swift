@@ -8,13 +8,13 @@ private enum AffineChoice<Value>: Equatable where Value: Equatable {
 }
 
 @Suite
-private struct `Traversal Affine Tests` {
+private struct `Affine Map Tests` {
     let traversal = Optic<
         AffineChoice<Int>,
         AffineChoice<String>,
         Int,
         String
-    >.Traversal.Affine(
+    >.Affine(
         decompose: {
             switch $0 {
             case let .value(value):
