@@ -21,7 +21,13 @@ where Replacement: Escapable {
     }
 }
 
-extension Optic.Prism {
+extension Optic.Prism
+where
+    Source: ~Copyable & ~Escapable,
+    Target: ~Copyable,
+    Focus: ~Copyable,
+    Replacement: ~Copyable & ~Escapable
+{
     public func matches(_ source: consuming Source) -> Bool {
         let result = match(source)
         switch consume result {
