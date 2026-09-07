@@ -13,8 +13,8 @@ let package = Package(
     ],
     products: [
         .library(name: "Optic", targets: ["Optic"]),
-        .library(name: "Optic Standard Library Integration", targets: ["Optic Standard Library Integration"]),
-        .library(name: "Optic Foundation Library Integration", targets: ["Optic Foundation Library Integration"]),
+
+        .library(name: "Optic Foundation Integration", targets: ["Optic Foundation Integration"]),
         .library(name: "Optic Test Support", targets: ["Optic Test Support"]),
     ],
     dependencies: [
@@ -31,20 +31,13 @@ let package = Package(
             ],
             path: "Sources/Optic"
         ),
+        
         .target(
-            name: "Optic Standard Library Integration",
+            name: "Optic Foundation Integration",
             dependencies: [
                 .target(name: "Optic"),
             ],
-            path: "Sources/Optic Standard Library Integration"
-        ),
-        .target(
-            name: "Optic Foundation Library Integration",
-            dependencies: [
-                .target(name: "Optic"),
-                .target(name: "Optic Standard Library Integration"),
-            ],
-            path: "Sources/Optic Foundation Library Integration"
+            path: "Sources/Optic Foundation Integration"
         ),
         .target(
             name: "Optic Test Support",
@@ -59,8 +52,7 @@ let package = Package(
                 .target(name: "Optic"),
                 .product(name: "Either", package: "swift-either"),
                 .target(name: "Optic Test Support"),
-                .target(name: "Optic Standard Library Integration"),
-                .target(name: "Optic Foundation Library Integration"),
+                .target(name: "Optic Foundation Integration"),
             ],
             path: "Tests/Optic Tests",
             resources: [.copy("Fixtures")]

@@ -1,4 +1,4 @@
-extension String {
+extension Swift.String {
     public struct Isomorphisms: Sendable {
         public init() {}
 

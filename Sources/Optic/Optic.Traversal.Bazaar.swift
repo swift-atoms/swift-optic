@@ -20,7 +20,6 @@ where
     }
 }
 
-
 extension Optic.Traversal.Bazaar
 where
     Source: ~Copyable & ~Escapable,

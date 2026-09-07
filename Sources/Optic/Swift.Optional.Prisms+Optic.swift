@@ -1,15 +1,6 @@
 import Either
 
-extension Optional: __OpticPrismAccessible where Wrapped: Copyable & Escapable {
-    @dynamicMemberLookup
-    public struct Prisms {
-        public init() {}
-    }
-
-    public static var prisms: Prisms { .init() }
-}
-
-extension Optional.Prisms {
+extension Swift.Optional.Prisms {
     public var none: Optic<Optional, Optional, Void, Void>.Prism {
         .init(
             match: { source in
