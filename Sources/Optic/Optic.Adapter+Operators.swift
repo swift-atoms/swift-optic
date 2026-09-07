@@ -1,6 +1,6 @@
 public import Either
 
-// MARK: Adapter >>> Adapter
+
 
 public func >>> <
     Source: ~Copyable & ~Escapable,
@@ -319,7 +319,7 @@ public func >>> <
     lhs.appending(rhs)
 }
 
-// MARK: Total composition
+
 
 public func >>> <
     Source: ~Copyable & ~Escapable,

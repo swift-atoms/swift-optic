@@ -7,7 +7,7 @@ where
     Source == Target,
     Focus == Replacement
 {
-    /// Composition of two total correspondences remains total.
+
     public func appending<
         NextFocus: ~Copyable & Escapable
     >(
@@ -19,7 +19,7 @@ where
         .init(adapter: adapter.appending(next.adapter))
     }
 
-    /// A total first correspondence introduces no additional failures.
+
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextForwardFailure: Swift.Error,
@@ -33,7 +33,7 @@ where
         .init(adapter: adapter.appending(next.adapter))
     }
 
-    /// A total second correspondence introduces no additional failures.
+
     public func appending<
         NextFocus: ~Copyable & Escapable
     >(
@@ -44,11 +44,11 @@ where
         .init(adapter: adapter.appending(next.adapter))
     }
 
-    /// Composes supported domains and preserves the origin of each failure.
-    ///
-    /// A `.left` failure comes from this correspondence and a `.right` failure
-    /// from `next`, in either direction. If either correspondence is total,
-    /// the more specific overload preserves the other correspondence's errors.
+
+
+
+
+
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextForwardFailure: Swift.Error,

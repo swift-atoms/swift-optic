@@ -5,10 +5,10 @@ where
     Focus: ~Copyable & Escapable,
     Replacement: ~Copyable & ~Escapable
 {
-    /// Two unrestricted directional transformations.
-    ///
-    /// `Adapter` makes no round-trip or coherence claim. Its directions may be
-    /// independently partial, lossy, validating, or otherwise unrelated.
+
+
+
+
     public struct Adapter<
         ForwardFailure: Swift.Error,
         BackwardFailure: Swift.Error

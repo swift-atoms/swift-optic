@@ -2,7 +2,7 @@ extension Optic.Traversal
 where
     Source: ~Copyable & ~Escapable,
     Target: ~Copyable & Escapable,
-    // Swift 6.4 Array still requires copyable elements.
+
     Focus: Copyable & Escapable,
     Replacement: Copyable & Escapable
 {

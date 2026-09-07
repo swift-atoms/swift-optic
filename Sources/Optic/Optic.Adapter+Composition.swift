@@ -102,7 +102,7 @@ where
     Focus: ~Copyable & Escapable,
     Replacement: ~Copyable & Escapable
 {
-    // Forward: Never + Never. Backward: Never + Never.
+
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable
@@ -118,7 +118,7 @@ where
         )
     }
 
-    // Forward: Never + Never. Backward: Never + E.
+
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
@@ -135,7 +135,7 @@ where
         )
     }
 
-    // Forward: Never + Never. Backward: E + Never.
+
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable
@@ -151,7 +151,7 @@ where
         )
     }
 
-    // Forward: Never + Never. Backward: E1 + E2.
+
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
@@ -168,7 +168,7 @@ where
         )
     }
 
-    // Forward: Never + E. Backward: Never + Never.
+
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
@@ -185,7 +185,7 @@ where
         )
     }
 
-    // Forward: Never + E. Backward: Never + E.
+
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
@@ -203,7 +203,7 @@ where
         )
     }
 
-    // Forward: Never + E. Backward: E + Never.
+
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
@@ -220,7 +220,7 @@ where
         )
     }
 
-    // Forward: Never + E. Backward: E1 + E2.
+
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
@@ -241,7 +241,7 @@ where
         )
     }
 
-    // Forward: E + Never. Backward: Never + Never.
+
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable
@@ -257,7 +257,7 @@ where
         )
     }
 
-    // Forward: E + Never. Backward: Never + E.
+
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
@@ -274,7 +274,7 @@ where
         )
     }
 
-    // Forward: E + Never. Backward: E + Never.
+
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable
@@ -289,7 +289,7 @@ where
         )
     }
 
-    // Forward: E + Never. Backward: E1 + E2.
+
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
@@ -308,7 +308,7 @@ where
         )
     }
 
-    // Forward: E1 + E2. Backward: Never + Never.
+
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
@@ -325,7 +325,7 @@ where
         )
     }
 
-    // Forward: E1 + E2. Backward: Never + E.
+
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
@@ -346,7 +346,7 @@ where
         )
     }
 
-    // Forward: E1 + E2. Backward: E + Never.
+
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
@@ -365,7 +365,7 @@ where
         )
     }
 
-    // Forward: E1 + E2. Backward: E1 + E2.
+
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
@@ -393,7 +393,7 @@ where
     Focus: ~Copyable & Escapable,
     Replacement: ~Copyable & ~Escapable
 {
-    /// Losslessly weakens this law-claiming isomorphism to a lawless Adapter.
+
     public var adapter: Optic<Source, Target, Focus, Replacement>
         .Adapter<Never, Never>
     {

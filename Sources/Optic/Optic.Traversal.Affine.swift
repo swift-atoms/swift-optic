@@ -59,9 +59,9 @@ where
     Source: ~Copyable & ~Escapable,
     Target: ~Copyable & Escapable,
     Focus: ~Copyable & Escapable,
-    // `map` returns Replacement from its transform closure before passing it
-    // to the stored reconstruction arrow. Swift 6.4 cannot express that
-    // intermediate result lifetime for a nonescapable Replacement.
+
+
+
     Replacement: ~Copyable & Escapable
 {
     public func map(

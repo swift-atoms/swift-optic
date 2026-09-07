@@ -17,10 +17,10 @@ where
     Represented: Copyable & Escapable,
     Represented.RawValue: Copyable & Escapable
 {
-    /// Matches a raw value without discarding an unrepresentable value.
-    ///
-    /// - Law: Lawfulness relies on the semantic `RawRepresentable` round-trip
-    ///   contract; Swift does not mechanically enforce that contract.
+
+
+
+
     public var rawValue: Optic<
         Represented.RawValue,
         Represented.RawValue,

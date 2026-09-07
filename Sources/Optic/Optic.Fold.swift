@@ -7,15 +7,15 @@ where
     Focus: ~Copyable & ~Escapable,
     Replacement: ~Copyable & ~Escapable
 {
-    /// A borrowed, read-only optic onto zero or one focus.
-    ///
-    /// `Fold` is the read-only weakening of `Prism` and `Affine`: it never
-    /// reconstructs a target, so it only ever borrows its source and lends the
-    /// focus to a visitor. `Target` and `Replacement` are carried for
-    /// composition with the reconstructing optics and are otherwise inert.
-    ///
-    /// - Law: A fold obtained from a prism visits a focus exactly when the
-    ///   prism's match returns `Either.right`, and lends that same focus.
+
+
+
+
+
+
+
+
+
     public struct Fold {
         public var visit: (borrowing Source, (borrowing Focus) -> Void) -> Bool
 
@@ -67,7 +67,7 @@ where
     Focus: ~Copyable & Escapable,
     Replacement: ~Copyable & ~Escapable
 {
-    /// Weakens a prism to a fold by matching a copy of the borrowed source.
+
     public init(_ prism: Optic<Source, Target, Focus, Replacement>.Prism) {
         self.init { source, body in
             let result = prism.match(copy source)
@@ -81,8 +81,8 @@ where
         }
     }
 
-    /// Weakens an affine traversal to a fold by decomposing a copy of the
-    /// borrowed source.
+
+
     public init(_ affine: Optic<Source, Target, Focus, Replacement>.Affine) {
         self.init { source, body in
             let decomposition = affine.decompose(copy source)
@@ -96,7 +96,7 @@ where
         }
     }
 
-    /// Weakens a lens to a fold that always visits.
+
     public init(_ lens: Optic<Source, Target, Focus, Replacement>.Lens) {
         self.init { source, body in
             body(lens.get(copy source))

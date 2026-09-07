@@ -2,8 +2,8 @@ extension Optic
 where
     Source: ~Copyable & ~Escapable,
     Target: ~Copyable & Escapable,
-    // The Array-backed total traversal fixes both element sorts to the
-    // capabilities required by Swift 6.4's Array.
+
+
     Focus: Copyable & Escapable,
     Replacement: Copyable & Escapable
 {

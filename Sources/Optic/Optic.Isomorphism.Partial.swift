@@ -5,16 +5,16 @@ where
     Source == Target,
     Focus == Replacement
 {
-    /// A correspondence between supported subsets of Source and Focus.
-    ///
-    /// Unlike an Adapter, this value claims inverse laws. Whenever `forward`
-    /// succeeds, `backward` must succeed on its result and recover the original
-    /// source. Whenever `backward` succeeds, `forward` must succeed on its result
-    /// and recover the original focus. Equality is semantic and does not require
-    /// either representation to conform to Equatable.
-    ///
-    /// The two directions may have different failures. Captured context must
-    /// retain a stable interpretation throughout the correspondence's use.
+
+
+
+
+
+
+
+
+
+
     public struct Partial<ForwardFailure: Swift.Error, BackwardFailure: Swift.Error> {
         public let adapter: Optic<Source, Source, Focus, Focus>
             .Adapter<ForwardFailure, BackwardFailure>
@@ -61,7 +61,7 @@ where
     Source == Target,
     Focus == Replacement
 {
-    /// A total isomorphism also satisfies the partial correspondence laws.
+
     public var partial: Partial<Never, Never> {
         .init(forward: forward, backward: backward)
     }
