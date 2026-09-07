@@ -17,7 +17,7 @@ private struct Unique: ~Copyable {
 }
 
 @Suite
-private struct `Partial Isomorphism Tests` {
+private struct `Partial isomorphisms preserve supported inverses failure origins and ownership` {
     let first = Optic<Int, Int, Int, Int>.Isomorphism.Partial(
         forward: { value throws(FirstFailure) in
             guard (0...10).contains(value) else { throw .forward }

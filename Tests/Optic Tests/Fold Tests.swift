@@ -24,7 +24,7 @@ private func requireCopyable<Value: Copyable>(_: Value) {}
 private func requireEscapable<Value: Escapable>(_: Value) {}
 
 @Suite
-private struct `Fold Tests` {
+private struct `Folds preserve borrowed focus visits through weakening and composition` {
     let value = Optic<LinearChoice, LinearChoice, Token, Token>.Fold { source, visit in
         switch source {
         case let .value(token):

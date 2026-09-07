@@ -27,7 +27,7 @@ private func fallibleBackward(_ value: Int) throws(SecondFailure) -> String {
 }
 
 @Suite
-private struct `Adapter Tests` {
+private struct `Adapters preserve directional behavior and composition failure origins` {
     let adapter = Optic<AdapterBox<Int>, AdapterBox<String>, Int, String>.Adapter(
         forward: { $0.value },
         backward: { AdapterBox(value: $0) }

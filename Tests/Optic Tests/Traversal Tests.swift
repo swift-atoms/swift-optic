@@ -7,7 +7,7 @@ private struct Inventory<Value>: Equatable, Sendable where Value: Equatable & Se
 }
 
 @Suite
-private struct `Traversal Tests` {
+private struct `Traversal families preserve focus order and outer structure` {
     let traversal = Optic<
         Inventory<Int>,
         Inventory<String>,

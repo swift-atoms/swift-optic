@@ -47,7 +47,7 @@ extension Route: Optic<Route, Route, Route, Route>.Prism.Accessible {
 }
 
 @Suite
-private struct `Ergonomics Tests` {
+private struct `Optic convenience operations preserve composition and focus behavior` {
     let name = Optic<Person, Person, String, String>.Lens { person in
         (
             focus: person.name,

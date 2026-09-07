@@ -20,7 +20,7 @@ private struct ScopedReplacement: ~Copyable, ~Escapable {
 }
 
 @Suite
-private struct `Capability Tests` {
+private struct `Optic capabilities preserve input ownership and result lifetimes` {
     @Test
     func `adapter consumes noncopyable nonescapable input sorts`() {
         let adapter = Optic<

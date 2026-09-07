@@ -48,7 +48,7 @@ private func requireCopyable<Value: Copyable>(_: Value) {}
 private func requireEscapable<Value: Escapable>(_: Value) {}
 
 @Suite
-private struct `Prism Tests` {
+private struct `Prism families obey matching laws and preserve input ownership` {
     let prism = Optic<Choice<Int>, Choice<String>, Int, String>.Prism(
         match: {
             switch $0 {

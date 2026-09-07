@@ -2,9 +2,9 @@ import Testing
 
 @testable import Optic
 
-@Suite("TestPrism")
+@Suite
 @MainActor
-struct PrismTests {
+struct `Prisms preserve matching laws through embedding composition and conversion` {
 
     enum Result<T: Sendable>: Equatable, Sendable where T: Equatable {
         case success(T)
@@ -42,13 +42,13 @@ struct PrismTests {
     }
 
     @Test
-    func `roundtrip law: extract(embed(part)) == part`() {
+    func `Extracting an embedded prism payload restores the payload`() {
         let part = 42
         #expect(Self.successPrism.extract(Self.successPrism.embed(part)) == part)
     }
 
     @Test
-    func `embed after extract: embed(extract(whole)) == whole when extract succeeds`() {
+    func `Embedding a successfully extracted prism payload restores the whole`() {
         let whole: Result<Int> = .success(42)
         if let extracted = Self.successPrism.extract(whole) {
             #expect(Self.successPrism.embed(extracted) == whole)
@@ -118,14 +118,14 @@ struct PrismTests {
     }
 
     @Test
-    func `modify in place`() {
+    func `A prism updates its matching payload in place`() {
         var whole: Result<Int> = .success(42)
         Self.successPrism.modify(&whole) { $0 *= 2 }
         #expect(whole == .success(84))
     }
 
     @Test
-    func `init from Isomorphism`() {
+    func `Prism construction preserves the source isomorphism focus behavior`() {
         let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
@@ -138,7 +138,7 @@ struct PrismTests {
     }
 
     @Test
-    func `pattern matching operator`() {
+    func `A matching prism selects its switch case`() {
         let value: Result<Int> = .success(42)
 
         switch value {
@@ -191,7 +191,7 @@ extension TestEnum {
 }
 
 @Suite
-struct `Prism - Basic Operations` {
+struct `Prisms extract matching payloads and embed selected cases` {
     @Test
     func `embed creates correct value`() {
         let prism = TestEnum.intCasePrism
@@ -224,7 +224,7 @@ struct `Prism - Basic Operations` {
 }
 
 @Suite
-struct `Prism - Convenience Methods` {
+struct `Prism convenience methods preserve matching and modification behavior` {
     @Test
     func `matches returns true for matching case`() {
         let prism = TestEnum.intCasePrism
@@ -281,7 +281,7 @@ struct `Prism - Convenience Methods` {
 }
 
 @Suite
-struct `Prism - Identity` {
+struct `Identity prisms always match and preserve values` {
     @Test
     func `identity embed returns same value`() {
         let prism = TestPrism<Int, Int>.identity
@@ -296,7 +296,7 @@ struct `Prism - Identity` {
 }
 
 @Suite
-struct `Prism - Composition` {
+struct `Prism composition matches and embeds nested cases` {
     @Test
     func `composing two prisms embeds correctly`() {
 
@@ -353,7 +353,7 @@ struct `Prism - Composition` {
 }
 
 @Suite
-struct `Optional - Prism` {
+struct `Optional prisms distinguish present and absent values` {
     @Test
     func `somePrism embed creates optional`() {
         let prism = Int?.prisms.some
@@ -377,7 +377,7 @@ struct `Optional - Prism` {
 }
 
 @Suite
-struct `Prism - Pattern Matching` {
+struct `Prisms support conditional and switch pattern matching` {
     @Test
     func `pattern matching with prism returns true for matching case`() {
         let prism = TestEnum.intCasePrism
@@ -428,7 +428,7 @@ enum TestError: Swift.Error, Hashable, Sendable {
 }
 
 @Suite
-struct `Result - Prism` {
+struct `Result prisms distinguish success and failure payloads` {
     @Test
     func `successPrism embed creates success result`() {
         let prism = Result<Int, TestError>.prisms.success

@@ -8,7 +8,7 @@ private enum AffineChoice<Value>: Equatable where Value: Equatable {
 }
 
 @Suite
-private struct `Affine Map Tests` {
+private struct `Affine mapping transforms matching focuses and nonmatching targets` {
     let traversal = Optic<
         AffineChoice<Int>,
         AffineChoice<String>,

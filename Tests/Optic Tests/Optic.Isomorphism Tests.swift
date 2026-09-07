@@ -2,9 +2,9 @@ import Testing
 
 @testable import Optic
 
-@Suite("TestIsomorphism")
+@Suite
 @MainActor
-struct IsoTests {
+struct `Isomorphisms preserve values through inverse transformations and composition` {
 
     @Test
     func `forward transforms Whole to Part`() {
@@ -31,7 +31,7 @@ struct IsoTests {
     }
 
     @Test
-    func `roundtrip law: backward(forward(whole)) == whole`() {
+    func `Applying an isomorphism forward then backward restores each whole value`() {
         let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
@@ -43,7 +43,7 @@ struct IsoTests {
     }
 
     @Test
-    func `roundtrip law: forward(backward(part)) == part`() {
+    func `Applying an isomorphism backward then forward restores each part value`() {
         let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
@@ -123,7 +123,7 @@ struct IsoTests {
     }
 
     @Test
-    func `modify in place`() {
+    func `An isomorphism updates the original value through its transformed representation`() {
         let iso = TestIsomorphism<[Int], [Int]>(
             forward: { $0.reversed() },
             backward: { $0.reversed() }
@@ -137,7 +137,7 @@ struct IsoTests {
 }
 
 @Suite
-struct `Isomorphism - Basic Operations` {
+struct `Isomorphism extraction and embedding apply inverse transformations` {
     @Test
     func `forward transforms value`() {
         let iso = TestIsomorphism<Int, String>(
@@ -157,7 +157,7 @@ struct `Isomorphism - Basic Operations` {
     }
 
     @Test
-    func `roundtrip forward then backward`() {
+    func `The isomorphism restores a value after forward and backward conversion`() {
         let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
@@ -168,7 +168,7 @@ struct `Isomorphism - Basic Operations` {
     }
 
     @Test
-    func `roundtrip backward then forward`() {
+    func `The isomorphism restores a value after backward and forward conversion`() {
         let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
@@ -180,7 +180,7 @@ struct `Isomorphism - Basic Operations` {
 }
 
 @Suite
-struct `Isomorphism - Reversal` {
+struct `Reversing an isomorphism exchanges its transformations` {
     @Test
     func `reversed swaps forward and backward`() {
         let iso = TestIsomorphism<Int, String>(
@@ -207,7 +207,7 @@ struct `Isomorphism - Reversal` {
 }
 
 @Suite
-struct `Isomorphism - Composition` {
+struct `Isomorphism composition chains forward and backward transformations` {
     @Test
     func `composing two isos forward works correctly`() {
         let intToString = TestIsomorphism<Int, String>(
@@ -258,7 +258,7 @@ struct `Isomorphism - Composition` {
 }
 
 @Suite
-struct `Isomorphism - Identity` {
+struct `Identity isomorphisms preserve values in both directions` {
     @Test
     func `identity forward returns same value`() {
         let iso = TestIsomorphism<Int, Int>.identity
@@ -273,7 +273,7 @@ struct `Isomorphism - Identity` {
 }
 
 @Suite
-struct `Isomorphism - Modification` {
+struct `Isomorphism modification updates values through their transformed representation` {
     @Test
     func `modify applies transformation via iso`() {
         let celsiusToFahrenheit = TestIsomorphism<Double, Double>(
@@ -299,7 +299,7 @@ struct `Isomorphism - Modification` {
 }
 
 @Suite
-struct `Isomorphism - Conversion to Lens` {
+struct `Isomorphisms convert to lenses with equivalent extraction and replacement` {
     @Test
     func `lens from iso get equals forward`() {
         let iso = TestIsomorphism<Int, String>(
@@ -325,7 +325,7 @@ struct `Isomorphism - Conversion to Lens` {
 }
 
 @Suite
-struct `Isomorphism - Conversion to Prism` {
+struct `Isomorphisms convert to prisms that always match` {
     @Test
     func `prism from iso embed equals backward`() {
         let iso = TestIsomorphism<Int, String>(

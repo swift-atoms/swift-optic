@@ -2,7 +2,7 @@ import Foundation
 import Testing
 
 @Suite
-private struct `Compiler Tests` {
+private struct `Optic composition preserves failure types and ownership constraints` {
     @Test
     func `Adapter failure axes and ownership compile exactly`() throws {
         try typecheckSuccess(named: "Adapter Capabilities.swift")

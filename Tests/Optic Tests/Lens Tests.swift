@@ -11,7 +11,7 @@ private struct Box<Value>: Equatable where Value: Equatable {
 }
 
 @Suite
-private struct `Lens Tests` {
+private struct `Lens families obey lens laws and support polymorphic mapping` {
     let lens = Optic<Person, Person, String, String>.Lens(
         decompose: { whole in
             (

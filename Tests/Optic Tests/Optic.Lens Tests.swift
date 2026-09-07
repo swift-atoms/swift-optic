@@ -2,9 +2,9 @@ import Testing
 
 @testable import Optic
 
-@Suite("TestLens")
+@Suite
 @MainActor
-struct LensTests {
+struct `Lenses preserve focus laws through modification composition and conversion` {
 
     struct User: Equatable, Sendable {
         var name: String
@@ -58,7 +58,7 @@ struct LensTests {
     }
 
     @Test
-    func `GetSet law: get(set(whole, part)) == part`() {
+    func `Reading a lens after replacement returns the new focus`() {
         let user = User(name: "Alice", age: 30)
         let newName = "Charlie"
 
@@ -67,7 +67,7 @@ struct LensTests {
     }
 
     @Test
-    func `SetGet law: set(whole, get(whole)) == whole`() {
+    func `Replacing a lens focus with its current value preserves the whole`() {
         let user = User(name: "Alice", age: 30)
 
         let result = Self.nameLens.set(user, Self.nameLens.get(user))
@@ -75,7 +75,7 @@ struct LensTests {
     }
 
     @Test
-    func `SetSet law: set(set(whole, a), b) == set(whole, b)`() {
+    func `A second lens replacement supersedes the first replacement`() {
         let user = User(name: "Alice", age: 30)
 
         let result1 = Self.nameLens.set(Self.nameLens.set(user, "Bob"), "Charlie")
@@ -139,7 +139,7 @@ struct LensTests {
     }
 
     @Test
-    func `modify in place`() {
+    func `A lens updates its focus in place and preserves other fields`() {
         var user = User(name: "Alice", age: 30)
         Self.ageLens.modify(&user) { $0 + 1 }
 
@@ -148,7 +148,7 @@ struct LensTests {
     }
 
     @Test
-    func `init from Isomorphism`() {
+    func `Lens construction preserves the source isomorphism focus behavior`() {
         let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
@@ -233,7 +233,7 @@ extension Address {
 }
 
 @Suite
-struct `Lens - Basic Operations` {
+struct `Lens extraction and replacement preserve the surrounding value` {
     @Test
     func `get extracts value`() {
         let point = Point(x: 10, y: 20)
@@ -256,7 +256,7 @@ struct `Lens - Basic Operations` {
 }
 
 @Suite
-struct `Lens - Laws` {
+struct `Lens extraction and replacement obey get set laws` {
     @Test
     func `GetSet law: get after set returns the set value`() {
         let point = Point(x: 10, y: 20)
@@ -284,7 +284,7 @@ struct `Lens - Laws` {
 }
 
 @Suite
-struct `Lens - Composition` {
+struct `Lens composition focuses through nested values` {
     @Test
     func `composing two lenses get works correctly`() {
         let user = User(
@@ -330,7 +330,7 @@ struct `Lens - Composition` {
 }
 
 @Suite
-struct `Lens - Identity` {
+struct `Identity lenses extract and replace whole values` {
     @Test
     func `identity get returns same value`() {
         let lens = TestLens<Int, Int>.identity
@@ -345,7 +345,7 @@ struct `Lens - Identity` {
 }
 
 @Suite
-struct `Lens - Modification` {
+struct `Lens modification transforms the focused value` {
     @Test
     func `modify transforms focused value`() {
         let point = Point(x: 10, y: 20)
@@ -373,7 +373,7 @@ struct `Lens - Modification` {
 }
 
 @Suite
-struct `Lens - Construction from Isomorphism` {
+struct `Lens construction preserves isomorphism transformations` {
     @Test
     func `lens from iso satisfies GetSet law`() {
         let iso = TestIsomorphism<Int, String>(

@@ -2,9 +2,9 @@ import Testing
 
 @testable import Optic
 
-@Suite("TestSetter")
+@Suite
 @MainActor
-struct SetterTests {
+struct `Setters transform focuses while preserving setter laws and composition` {
 
     struct User: Equatable, Sendable {
         var name: String
@@ -23,95 +23,95 @@ struct SetterTests {
         modify: { array, f in array.map(f) }
     )
 
-    @Suite struct Unit {}
-    @Suite struct `Edge Case` {}
-    @Suite struct Integration {}
-    @Suite struct Laws {}
-    @Suite struct Composition {}
+    @Suite struct `Setters modify and replace focused values` {}
+    @Suite struct `Setters preserve array shape across empty single and multiple elements` {}
+    @Suite struct `Setter conversions preserve the source optic focus behavior` {}
+    @Suite struct `Setters obey identity and composition laws` {}
+    @Suite struct `Composed setters update nested focuses` {}
 }
 
 @MainActor
-extension SetterTests.Unit {
+extension `Setters transform focuses while preserving setter laws and composition`.`Setters modify and replace focused values` {
 
     @Test
     func `over applies transform to focused part`() {
-        let alice = SetterTests.User(name: "Alice", age: 30)
-        let upper = SetterTests.nameSetter.over(alice) { $0.uppercased() }
-        #expect(upper == SetterTests.User(name: "ALICE", age: 30))
+        let alice = `Setters transform focuses while preserving setter laws and composition`.User(name: "Alice", age: 30)
+        let upper = `Setters transform focuses while preserving setter laws and composition`.nameSetter.over(alice) { $0.uppercased() }
+        #expect(upper == `Setters transform focuses while preserving setter laws and composition`.User(name: "ALICE", age: 30))
     }
 
     @Test
     func `set replaces focused part with constant`() {
-        let alice = SetterTests.User(name: "Alice", age: 30)
-        let bob = SetterTests.nameSetter.set(alice, to: "Bob")
-        #expect(bob == SetterTests.User(name: "Bob", age: 30))
+        let alice = `Setters transform focuses while preserving setter laws and composition`.User(name: "Alice", age: 30)
+        let bob = `Setters transform focuses while preserving setter laws and composition`.nameSetter.set(alice, to: "Bob")
+        #expect(bob == `Setters transform focuses while preserving setter laws and composition`.User(name: "Bob", age: 30))
     }
 
     @Test
     func `over with inout mutates in place`() {
-        var alice = SetterTests.User(name: "Alice", age: 30)
-        SetterTests.nameSetter.over(&alice) { $0.uppercased() }
-        #expect(alice == SetterTests.User(name: "ALICE", age: 30))
+        var alice = `Setters transform focuses while preserving setter laws and composition`.User(name: "Alice", age: 30)
+        `Setters transform focuses while preserving setter laws and composition`.nameSetter.over(&alice) { $0.uppercased() }
+        #expect(alice == `Setters transform focuses while preserving setter laws and composition`.User(name: "ALICE", age: 30))
     }
 
     @Test
     func `set with inout mutates in place`() {
-        var alice = SetterTests.User(name: "Alice", age: 30)
-        SetterTests.ageSetter.set(&alice, to: 99)
-        #expect(alice == SetterTests.User(name: "Alice", age: 99))
+        var alice = `Setters transform focuses while preserving setter laws and composition`.User(name: "Alice", age: 30)
+        `Setters transform focuses while preserving setter laws and composition`.ageSetter.set(&alice, to: 99)
+        #expect(alice == `Setters transform focuses while preserving setter laws and composition`.User(name: "Alice", age: 99))
     }
 }
 
 @MainActor
-extension SetterTests.`Edge Case` {
+extension `Setters transform focuses while preserving setter laws and composition`.`Setters preserve array shape across empty single and multiple elements` {
 
     @Test
     func `setter on empty array is identity-shape`() {
-        let result = SetterTests.eachInArray.over([]) { $0 + 1 }
+        let result = `Setters transform focuses while preserving setter laws and composition`.eachInArray.over([]) { $0 + 1 }
         #expect(result == [])
     }
 
     @Test
     func `setter on multi-element array transforms each`() {
-        let result = SetterTests.eachInArray.over([1, 2, 3]) { $0 * 10 }
+        let result = `Setters transform focuses while preserving setter laws and composition`.eachInArray.over([1, 2, 3]) { $0 * 10 }
         #expect(result == [10, 20, 30])
     }
 
     @Test
     func `setter on single-element behaves like singleton transform`() {
-        let result = SetterTests.eachInArray.over([42]) { $0 - 42 }
+        let result = `Setters transform focuses while preserving setter laws and composition`.eachInArray.over([42]) { $0 - 42 }
         #expect(result == [0])
     }
 }
 
 @MainActor
-extension SetterTests.Laws {
+extension `Setters transform focuses while preserving setter laws and composition`.`Setters obey identity and composition laws` {
 
     @Test
     func `identity law: over with id is identity`() {
 
-        let alice = SetterTests.User(name: "Alice", age: 30)
-        #expect(SetterTests.nameSetter.over(alice) { $0 } == alice)
-        #expect(SetterTests.ageSetter.over(alice) { $0 } == alice)
+        let alice = `Setters transform focuses while preserving setter laws and composition`.User(name: "Alice", age: 30)
+        #expect(`Setters transform focuses while preserving setter laws and composition`.nameSetter.over(alice) { $0 } == alice)
+        #expect(`Setters transform focuses while preserving setter laws and composition`.ageSetter.over(alice) { $0 } == alice)
 
         let array = [1, 2, 3]
-        #expect(SetterTests.eachInArray.over(array) { $0 } == array)
+        #expect(`Setters transform focuses while preserving setter laws and composition`.eachInArray.over(array) { $0 } == array)
     }
 
     @Test
     func `composition law: sequential over equals composed transform`() {
 
-        let alice = SetterTests.User(name: "alice", age: 30)
+        let alice = `Setters transform focuses while preserving setter laws and composition`.User(name: "alice", age: 30)
         let f: @Sendable (String) -> String = { $0.uppercased() }
         let g: @Sendable (String) -> String = { $0 + "!" }
 
-        let sequential = SetterTests.nameSetter.over(SetterTests.nameSetter.over(alice, f), g)
-        let composed = SetterTests.nameSetter.over(alice) { g(f($0)) }
+        let sequential = `Setters transform focuses while preserving setter laws and composition`.nameSetter.over(`Setters transform focuses while preserving setter laws and composition`.nameSetter.over(alice, f), g)
+        let composed = `Setters transform focuses while preserving setter laws and composition`.nameSetter.over(alice) { g(f($0)) }
         #expect(sequential == composed)
     }
 
     @Test
-    func `identity setter law on Whole == Part`() {
+    func `The identity setter applies its transformation to the whole value`() {
         let identity = TestSetter<Int, Int>.identity
         #expect(identity.over(42) { $0 + 1 } == 43)
         #expect(identity.over(42) { $0 } == 42)
@@ -119,16 +119,16 @@ extension SetterTests.Laws {
 }
 
 @MainActor
-extension SetterTests.Integration {
+extension `Setters transform focuses while preserving setter laws and composition`.`Setter conversions preserve the source optic focus behavior` {
 
     @Test
     func `Setter constructed from Lens behaves equivalently`() {
-        let nameLens = TestLens<SetterTests.User, String>(
+        let nameLens = TestLens<`Setters transform focuses while preserving setter laws and composition`.User, String>(
             get: { $0.name },
-            set: { SetterTests.User(name: $1, age: $0.age) }
+            set: { `Setters transform focuses while preserving setter laws and composition`.User(name: $1, age: $0.age) }
         )
         let setter = TestSetter(nameLens)
-        let alice = SetterTests.User(name: "Alice", age: 30)
+        let alice = `Setters transform focuses while preserving setter laws and composition`.User(name: "Alice", age: 30)
         #expect(
             setter.over(alice) { $0.lowercased() } == nameLens.modify(alice) { $0.lowercased() }
         )
@@ -175,34 +175,34 @@ extension SetterTests.Integration {
 }
 
 @MainActor
-extension SetterTests.Composition {
+extension `Setters transform focuses while preserving setter laws and composition`.`Composed setters update nested focuses` {
 
     @Test
     func `Setter composes with Setter via appending`() {
         struct Outer: Equatable, Sendable {
-            var users: [SetterTests.User]
+            var users: [`Setters transform focuses while preserving setter laws and composition`.User]
         }
 
-        let usersSetter = TestSetter<Outer, [SetterTests.User]>(
+        let usersSetter = TestSetter<Outer, [`Setters transform focuses while preserving setter laws and composition`.User]>(
             modify: { outer, f in Outer(users: f(outer.users)) }
         )
-        let eachUser = TestSetter<[SetterTests.User], SetterTests.User>(
+        let eachUser = TestSetter<[`Setters transform focuses while preserving setter laws and composition`.User], `Setters transform focuses while preserving setter laws and composition`.User>(
             modify: { array, f in array.map(f) }
         )
 
         let composed = usersSetter.appending(eachUser)
         let outer = Outer(users: [
-            SetterTests.User(name: "Alice", age: 30),
-            SetterTests.User(name: "Bob", age: 25),
+            `Setters transform focuses while preserving setter laws and composition`.User(name: "Alice", age: 30),
+            `Setters transform focuses while preserving setter laws and composition`.User(name: "Bob", age: 25),
         ])
         let aged = composed.over(outer) { user in
-            SetterTests.User(name: user.name, age: user.age + 1)
+            `Setters transform focuses while preserving setter laws and composition`.User(name: user.name, age: user.age + 1)
         }
         #expect(
             aged
                 == Outer(users: [
-                    SetterTests.User(name: "Alice", age: 31),
-                    SetterTests.User(name: "Bob", age: 26),
+                    `Setters transform focuses while preserving setter laws and composition`.User(name: "Alice", age: 31),
+                    `Setters transform focuses while preserving setter laws and composition`.User(name: "Bob", age: 26),
                 ])
         )
     }

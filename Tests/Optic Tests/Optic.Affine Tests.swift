@@ -2,9 +2,9 @@ import Testing
 
 @testable import Optic
 
-@Suite("TestAffine")
+@Suite
 @MainActor
-struct AffineTests {
+struct `Affine traversals update present focuses and preserve nonmatching values` {
 
     static let firstElement = TestAffine<[Int], Int>(
         extract: { $0.first },
@@ -45,7 +45,7 @@ struct AffineTests {
     }
 
     @Test
-    func `GetSet when present: extract(set(whole, part)) == part`() {
+    func `Extracting after setting a present affine focus returns the replacement`() {
         let array = [1, 2, 3]
         let newValue = 99
 
@@ -54,7 +54,7 @@ struct AffineTests {
     }
 
     @Test
-    func `SetNoop when absent: set(whole, part) == whole`() {
+    func `Setting an absent affine focus preserves the whole value`() {
         let emptyArray: [Int] = []
         let result = Self.firstElement.set(emptyArray, 99)
         #expect(result == emptyArray)
@@ -129,14 +129,14 @@ struct AffineTests {
     }
 
     @Test
-    func `modify in place`() {
+    func `An affine traversal updates its present focus in place`() {
         var array = [1, 2, 3]
         Self.firstElement.modify(&array) { $0 *= 10 }
         #expect(array == [10, 2, 3])
     }
 
     @Test
-    func `init from Lens`() {
+    func `Affine construction preserves the source lens focus behavior`() {
         let lens = TestLens<[Int], Int>(
             get: { $0.count },
             set: { _, _ in [] }
@@ -148,7 +148,7 @@ struct AffineTests {
     }
 
     @Test
-    func `init from Prism`() {
+    func `Affine construction preserves the source prism focus behavior`() {
         let prism = TestPrism<Int?, Int>(
             embed: { $0 },
             extract: { $0 }
@@ -162,7 +162,7 @@ struct AffineTests {
     }
 
     @Test
-    func `init from Isomorphism`() {
+    func `Affine construction preserves the source isomorphism focus behavior`() {
         let iso = TestIsomorphism<Int, String>(
             forward: { String($0) },
             backward: { Int($0)! }
@@ -175,7 +175,7 @@ struct AffineTests {
     }
 
     @Test
-    func `Lens + Prism = Affine`() {
+    func `Composing a lens with a prism produces an affine focus`() {
         struct Container: Equatable, Sendable {
             var value: Int?
         }
@@ -203,7 +203,7 @@ struct AffineTests {
     }
 
     @Test
-    func `Prism + Lens = Affine`() {
+    func `Composing a prism with a lens produces an affine focus`() {
         enum Wrapper: Equatable, Sendable {
             case value([Int])
             case empty

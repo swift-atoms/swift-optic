@@ -6,7 +6,7 @@ private struct IsomorphismBox<Value: Equatable>: Equatable {
 }
 
 @Suite
-struct `Isomorphism Tests` {
+struct `Isomorphism families obey inverse laws and support polymorphic mapping` {
     let isomorphism = Optic<(Int, Int), (Int, Int), String, String>.Isomorphism(
         forward: { "\($0.0):\($0.1)" },
         backward: { value in

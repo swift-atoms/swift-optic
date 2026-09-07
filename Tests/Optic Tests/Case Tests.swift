@@ -17,7 +17,7 @@ private enum Choice<Value>: Equatable where Value: Equatable {
 }
 
 @Suite
-private struct `Case Tests` {
+private struct `Case optics support borrowed folding and consuming matching` {
     let linear = Optic<LinearChoice, LinearChoice, Token, Token>.Case(
         prism: .init(
             match: { source in

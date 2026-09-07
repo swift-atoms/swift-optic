@@ -2,9 +2,9 @@ import Testing
 
 @testable import Optic
 
-@Suite("TestTraversal")
+@Suite
 @MainActor
-struct TraversalTests {
+struct `Traversals preserve focus order through updates composition and conversion` {
 
     @Test
     func `get extracts all focused values`() {
@@ -91,7 +91,7 @@ struct TraversalTests {
     }
 
     @Test
-    func `init from Affine`() {
+    func `Traversal construction preserves the source affine focus behavior`() {
         let firstAffine = TestAffine<[Int], Int>(
             extract: { $0.first },
             set: { array, value in
@@ -110,7 +110,7 @@ struct TraversalTests {
     }
 
     @Test
-    func `init from Lens`() {
+    func `Traversal construction preserves the source lens focus behavior`() {
         struct Point: Equatable, Sendable {
             var x: Int
             var y: Int
@@ -129,7 +129,7 @@ struct TraversalTests {
     }
 
     @Test
-    func `init from Prism`() {
+    func `Traversal construction preserves the source prism focus behavior`() {
         let somePrism = TestPrism<Int?, Int>(
             embed: { $0 },
             extract: { $0 }
@@ -144,7 +144,7 @@ struct TraversalTests {
     }
 
     @Test
-    func `init from Isomorphism`() {
+    func `Traversal construction preserves the source isomorphism focus behavior`() {
         let iso = TestIsomorphism<[Int], [Int]>(
             forward: { $0.reversed() },
             backward: { $0.reversed() }
@@ -158,7 +158,7 @@ struct TraversalTests {
     }
 
     @Test
-    func `nested array modification`() {
+    func `Composed traversals modify every word in nested arrays`() {
         struct Document: Equatable, Sendable {
             var sections: [[String]]
         }
