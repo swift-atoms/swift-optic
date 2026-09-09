@@ -7,6 +7,7 @@ private struct Person: Equatable {
     var route: Route
 }
 
+@dynamicMemberLookup
 private enum Route: Equatable {
     case home
     case user(Int)
@@ -147,6 +148,22 @@ private struct `Optic convenience operations preserve composition and focus beha
         #expect(user.extract(.user(42)) == 42)
         #expect(user ~= Route.user(42))
         #expect(!(user ~= Route.home))
+    }
+
+    @Test
+    func `instance dynamic members use the existing prism extraction`() {
+        let source = Route.user(42)
+        let value: Int? = source.user
+        #expect(value == 42)
+        #expect(source.user == Route.prisms.user.extract(source))
+        #expect(Route.home.user == nil)
+        #expect(Route.home.home != nil)
+
+        func apply(_ source: Route, extract: (Route) -> Int?) -> Int? {
+            extract(source)
+        }
+        #expect(apply(source, extract: \.user) == 42)
+        #expect(apply(.home, extract: \.user) == nil)
     }
 
     @Test
