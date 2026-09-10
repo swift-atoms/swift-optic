@@ -7,10 +7,6 @@ where
     Focus == Void,
     Replacement == Void
 {
-
-
-
-
     public static func fixed(_ value: Source) -> Self {
         .init(
             match: { source in

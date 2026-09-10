@@ -1,10 +1,10 @@
 import Either
 
-public struct Prisms<Represented: RawRepresentable>: Sendable {
+public struct Prisms<Represented: Swift.RawRepresentable>: Sendable {
     public init() {}
 }
 
-extension RawRepresentable
+extension Swift.RawRepresentable
 where
     Self: Copyable & Escapable,
     RawValue: Copyable & Escapable
@@ -17,10 +17,6 @@ where
     Represented: Copyable & Escapable,
     Represented.RawValue: Copyable & Escapable
 {
-
-
-
-
     public var rawValue: Optic<
         Represented.RawValue,
         Represented.RawValue,

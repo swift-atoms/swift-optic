@@ -7,11 +7,6 @@ where
     Focus: ~Copyable & Escapable,
     Replacement: ~Copyable & ~Escapable
 {
-
-
-
-
-
     public struct Case {
         public var prism: Optic<Source, Target, Focus, Replacement>.Prism
         public var fold: Optic<Source, Target, Focus, Replacement>.Fold
