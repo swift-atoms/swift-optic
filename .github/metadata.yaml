@@ -1,4 +1,3 @@
-# .github/metadata.yaml
 description: "Ownership-aware four-sort Isomorphism, Lens, Prism, Affine, Traversal, and Setter optics for Swift."
 topics:
   - primitives
