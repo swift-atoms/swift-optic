@@ -19,6 +19,8 @@ let package = Package(
         .library(name: "Optic Test Support", targets: ["Optic Test Support"]),
         .library(name: "Traversal Affine Macro", targets: ["Traversal Affine Macro"]),
         .library(name: "Traversal Affine Macro Core", targets: ["Traversal Affine Macro Core"]),
+        .library(name: "Case Macro", targets: ["Case Macro"]),
+        .library(name: "Case Macro Core", targets: ["Case Macro Core"]),
         .library(name: "Fold Macro", targets: ["Fold Macro"]),
         .library(name: "Fold Macro Core", targets: ["Fold Macro Core"]),
         .library(name: "Isomorphism Macro", targets: ["Isomorphism Macro"]),
@@ -102,6 +104,41 @@ let package = Package(
                 "Traversal Affine Macro",
                 .product(name: "Either", package: "swift-either"),
                 "Optic",
+            ]
+        ),
+        .target(
+            name: "Case Macro Core",
+            dependencies: [
+                .product(name: "Coproduct Macro Core", package: "swift-coproduct"),
+                .product(name: "SwiftSyntax", package: "swift-syntax"),
+                .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
+            ]
+        ),
+        .macro(
+            name: "Case Macro Plugin",
+            dependencies: [
+                "Case Macro Core",
+                .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+                .product(name: "SwiftSyntax", package: "swift-syntax"),
+                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+            ]
+        ),
+        .target(
+            name: "Case Macro",
+            dependencies: [
+                "Case Macro Plugin",
+                "Fold Macro",
+                "Optic",
+                "Prism Macro",
+            ]
+        ),
+        .testTarget(
+            name: "Case Macro Tests",
+            dependencies: [
+                "Case Macro",
+                "Case Macro Plugin",
+                "Fold Macro Plugin",
+                "Prism Macro Plugin",
             ]
         ),
         .target(

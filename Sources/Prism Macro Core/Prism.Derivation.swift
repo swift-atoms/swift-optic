@@ -38,19 +38,9 @@ extension Prism {
 
         public static func expansion(_ analysis: Coproduct.Analysis) -> [DeclSyntax] {
             let access = analysis.access.map { "\($0.name.text) " } ?? ""
-            var properties = analysis.cases.map {
+            let members = analysis.cases.map {
                 property($0, analysis: analysis, access: access)
-            }
-            if let rawType = rawType(of: analysis) {
-                properties.append(
-                    rawValueProperty(
-                        whole: analysis.whole.trimmedDescription,
-                        rawType: rawType,
-                        access: access
-                    )
-                )
-            }
-            let members = properties.joined(separator: "\n")
+            }.joined(separator: "\n")
 
             return ["""
                 \(raw: access)struct Prisms {
@@ -61,56 +51,6 @@ extension Prism {
                     Prisms()
                 }
                 """]
-        }
-
-        private static func rawType(of analysis: Coproduct.Analysis) -> String? {
-            guard
-                let inherited = analysis.declaration?
-                    .inheritanceClause?.inheritedTypes.first?.type,
-                let identifier = inherited.as(IdentifierTypeSyntax.self),
-                identifier.moduleSelector == nil,
-                identifier.genericArgumentClause == nil
-            else { return nil }
-
-            let standardRawTypes: Set<String> = [
-                "Character", "String",
-                "Int", "Int8", "Int16", "Int32", "Int64",
-                "UInt", "UInt8", "UInt16", "UInt32", "UInt64",
-                "Float", "Double",
-            ]
-            guard standardRawTypes.contains(identifier.name.text) else {
-                return nil
-            }
-            return inherited.trimmedDescription
-        }
-
-        private static func rawValueProperty(
-            whole: String,
-            rawType: String,
-            access: String
-        ) -> String {
-            """
-            /// Matches the enum's semantic raw-value representation.
-            ///
-            /// - Law: Lawfulness relies on the semantic `RawRepresentable`
-            ///   round-trip contract, which Swift does not mechanically enforce.
-            \(access)var rawValue: Optic<
-                \(rawType),
-                \(rawType),
-                \(whole),
-                \(whole)
-            >.Prism {
-                .init(
-                    match: { rawValue in
-                        guard let represented = \(whole)(rawValue: rawValue) else {
-                            return .left(rawValue)
-                        }
-                        return .right(represented)
-                    },
-                    embed: { $0.rawValue }
-                )
-            }
-            """
         }
 
         private static func property(
@@ -141,10 +81,13 @@ extension Prism {
                             match: { whole in
                                 \(matchBody(for: coproductCase, in: analysis, consuming: "whole"))
                             },
-                            embed: { .\(name)(\(constructorArgument("$0", at: 0, in: coproductCase))) }
+                            embed: { .\(name)(\(coproductCase.constructorArguments(["$0"]))) }
                         )
                     }
                     """
+                // Law: the enum is a functor in its single type parameter exactly when one case carries that
+                // parameter directly and no other case mentions it; that case then has a type-changing prism,
+                // `name(to:)`, whose embed maps the parameter.
                 if
                     let parameter = analysis.genericParameter,
                     coproductCase.isDirectReference(to: parameter),
@@ -166,7 +109,7 @@ extension Prism {
                                 match: { whole in
                                     \(matchBody(for: coproductCase, in: analysis, consuming: "whole"))
                                 },
-                                embed: { .\(name)(\(constructorArgument("$0", at: 0, in: coproductCase))) }
+                                embed: { .\(name)(\(coproductCase.constructorArguments(["$0"]))) }
                             )
                         }
                         """
@@ -175,19 +118,15 @@ extension Prism {
             default:
                 let embed: String
                 if analysis.isCopyableSuppressed {
-                    let projectedArguments = coproductCase.parameters.indices.map {
-                        constructorArgument("payload.\($0)", at: $0, in: coproductCase)
-                    }
+                    let projected = coproductCase.parameters.indices.map { "payload.\($0)" }
                     embed = """
                         { (payload: consuming \(payload)) in
-                            .\(name)(\(projectedArguments.joined(separator: ", ")))
+                            .\(name)(\(coproductCase.constructorArguments(projected)))
                         }
                         """
                 } else {
-                    let projectedArguments = coproductCase.parameters.indices.map {
-                        constructorArgument("$0.\($0)", at: $0, in: coproductCase)
-                    }
-                    embed = "{ .\(name)(\(projectedArguments.joined(separator: ", "))) }"
+                    let projected = coproductCase.parameters.indices.map { "$0.\($0)" }
+                    embed = "{ .\(name)(\(coproductCase.constructorArguments(projected))) }"
                 }
                 return """
                     \(access)var \(name): Optic<\(whole), \(whole), \(payload), \(payload)>.Prism {
@@ -225,16 +164,8 @@ extension Prism {
         private static func matchingBranch(
             _ coproductCase: Coproduct.Analysis.Case
         ) -> String {
-            let name = coproductCase.name.text
-            switch coproductCase.parameters.count {
-            case 0:
-                return "case .\(name): return .right(())"
-            case 1:
-                return "case let .\(name)(value): return .right(value)"
-            default:
-                let values = coproductCase.parameters.indices.map { "value\($0)" }
-                return "case let .\(name)(\(values.joined(separator: ", "))): return .right((\(tupleExpression(values, in: coproductCase))))"
-            }
+            let values = coproductCase.bindings()
+            return "case \(coproductCase.pattern()): return .right(\(coproductCase.payloadExpression(values)))"
         }
 
         private static func unmatchedBranch(
@@ -244,32 +175,8 @@ extension Prism {
             guard !coproductCase.parameters.isEmpty else {
                 return "case .\(name): return .left(.\(name))"
             }
-            let values = coproductCase.parameters.indices.map { "value\($0)" }
-            let arguments = values.enumerated().map { offset, value in
-                constructorArgument(value, at: offset, in: coproductCase)
-            }
-            return "case let .\(name)(\(values.joined(separator: ", "))): return .left(.\(name)(\(arguments.joined(separator: ", "))))"
-        }
-
-        private static func constructorArgument(
-            _ value: String,
-            at offset: Int,
-            in coproductCase: Coproduct.Analysis.Case
-        ) -> String {
-            coproductCase.constructorLabel(at: offset).map {
-                "\($0.text): \(value)"
-            } ?? value
-        }
-
-        private static func tupleExpression(
-            _ values: [String],
-            in coproductCase: Coproduct.Analysis.Case
-        ) -> String {
-            values.enumerated().map { offset, value in
-                coproductCase.tupleLabel(at: offset).map {
-                    "\($0.text): \(value)"
-                } ?? value
-            }.joined(separator: ", ")
+            let values = coproductCase.bindings()
+            return "case \(coproductCase.pattern()): return .left(.\(name)(\(coproductCase.constructorArguments(values))))"
         }
     }
 }

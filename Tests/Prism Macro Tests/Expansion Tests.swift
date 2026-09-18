@@ -56,8 +56,8 @@ func `prism derivation adds accessibility and preserves explicit dynamic lookup`
                 .init(
                     match: { whole in
                         switch whole {
-                        case let .leaf(value):
-                            return .right(value)
+                        case let .leaf(value0):
+                            return .right(value0)
                         }
                     },
                     embed: {

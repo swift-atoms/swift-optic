@@ -149,9 +149,11 @@ func `derived prism carries a noncopyable tuple payload`() {
     }
 }
 
+// The raw-value prism is a property of RawRepresentable itself, not of the derivation: the Optic library
+// provides it once for every raw-representable type.
 @Test
-func `raw enum derives its nominal raw-value prism`() {
-    let prism = RawChoice.prisms.rawValue
+func `a raw enum's raw-value prism comes from RawRepresentable`() {
+    let prism = Optic::Prisms<RawChoice>().rawValue
 
     guard case .right(.one) = prism.match(1) else {
         Issue.record("Expected a represented raw value to match")

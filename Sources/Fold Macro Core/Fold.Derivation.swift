@@ -70,21 +70,8 @@ extension Fold {
         }
 
         private static func visitingBranch(_ coproductCase: Coproduct.Analysis.Case) -> String {
-            let name = coproductCase.name.text
-            switch coproductCase.parameters.count {
-            case 0:
-                return "case .\(name): visit(()); return true"
-            case 1:
-                return "case let .\(name)(value): visit(value); return true"
-            default:
-                let values = coproductCase.parameters.indices.map { "value\($0)" }
-                let tuple = values.enumerated().map { offset, value in
-                    coproductCase.tupleLabel(at: offset).map {
-                        "\($0.text): \(value)"
-                    } ?? value
-                }.joined(separator: ", ")
-                return "case let .\(name)(\(values.joined(separator: ", "))): visit((\(tuple))); return true"
-            }
+            let values = coproductCase.bindings()
+            return "case \(coproductCase.pattern()): visit(\(coproductCase.payloadExpression(values))); return true"
         }
     }
 }
