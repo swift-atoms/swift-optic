@@ -2,11 +2,13 @@ import Traversal_Macro
 import Optic
 import Testing
 
+@Lenses
 @Traversals
 private struct Inventory: Sendable {
     var values: [Int]
 }
 
+@Lenses
 @Traversals
 private struct GenericInventory<Value: Sendable>: Sendable {
     var values: [Value]

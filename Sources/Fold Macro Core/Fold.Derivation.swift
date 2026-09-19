@@ -1,5 +1,5 @@
 public import SwiftSyntax
-public import Coproduct_Macro_Core
+public import Coproduct_Syntax
 import SwiftSyntaxBuilder
 
 extension Fold {

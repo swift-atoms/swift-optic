@@ -1,15 +1,15 @@
 import Either
 import Optic
 import Testing
-import Traversal_Affine_Macro
+import Prism_Macro
 
-@Affine
-private enum Result {
+@Prisms
+private enum AffineResult {
     case value(Int)
     case failure(String)
 }
 
-@Affine
+@Prisms
 private enum GenericResult<Value> {
     case value(Value)
     case empty
@@ -17,7 +17,7 @@ private enum GenericResult<Value> {
 
 @Test
 func `derived affine traversal updates only its matching case`() {
-    let traversal = Result.affine.value
+    let traversal = AffineResult.prisms.value.asAffine()
 
     guard case let .right(context) = traversal.decompose(.value(21)) else {
         Issue.record("Expected value to match")
@@ -41,7 +41,7 @@ func `derived affine traversal updates only its matching case`() {
 
 @Test
 func `derived affine traversal transforms a generic family`() {
-    let traversal = GenericResult<Int>.affine.value(to: String.self)
+    let traversal = GenericResult<Int>.prisms.value(to: String.self).asAffine()
 
     guard case .value("42") = traversal.map(.value(42), { "\($0)" }) else {
         Issue.record("Expected a transformed target value")

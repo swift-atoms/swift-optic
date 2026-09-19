@@ -1,3 +1,4 @@
+import Type_Algebra_Syntax
 public import SwiftSyntax
 import SwiftSyntaxBuilder
 
@@ -9,80 +10,9 @@ public enum Derivation {
 
         public init(_ structure: StructDeclSyntax) {
             self.structure = structure
-            var fields: [(name: String, type: String)] = []
-            var diagnostics: [String] = []
-
-            if structure.memberBlock.members.contains(where: {
-                $0.decl.is(InitializerDeclSyntax.self)
-            }) {
-                diagnostics.append(
-                    "@Isomorphism requires the synthesized memberwise initializer; structs with custom initializers must define their isomorphism explicitly."
-                )
-            }
-
-            for member in structure.memberBlock.members {
-                guard let variable = member.decl.as(VariableDeclSyntax.self) else { continue }
-                if variable.modifiers.contains(where: {
-                    ["static", "class"].contains($0.name.text)
-                }) {
-                    continue
-                }
-
-                for binding in variable.bindings {
-                    if let accessorBlock = binding.accessorBlock {
-                        let hasObserver = accessorBlock.tokens(viewMode: .sourceAccurate).contains {
-                            ["willSet", "didSet"].contains($0.text)
-                        }
-                        if hasObserver {
-                            diagnostics.append(
-                                "@Isomorphism does not support observed stored properties; define the isomorphism explicitly."
-                            )
-                        }
-                        continue
-                    }
-
-                    guard
-                        let identifier = binding.pattern.as(IdentifierPatternSyntax.self)
-                    else {
-                        diagnostics.append(
-                            "@Isomorphism requires each stored instance property to use a simple identifier pattern."
-                        )
-                        continue
-                    }
-                    let name = identifier.identifier.text
-                    guard let type = binding.typeAnnotation?.type.trimmedDescription else {
-                        diagnostics.append(
-                            "@Isomorphism requires stored property `\(name)` to have an explicit type annotation."
-                        )
-                        continue
-                    }
-                    if variable.modifiers.contains(where: { $0.name.text == "lazy" }) {
-                        diagnostics.append(
-                            "@Isomorphism does not support lazy stored property `\(name)` because it is not a memberwise initializer parameter."
-                        )
-                        continue
-                    }
-                    if
-                        variable.bindingSpecifier.tokenKind == .keyword(.let),
-                        binding.initializer != nil
-                    {
-                        diagnostics.append(
-                            "@Isomorphism does not support initialized constant `\(name)` because it is not a memberwise initializer parameter."
-                        )
-                        continue
-                    }
-                    if !variable.attributes.isEmpty {
-                        diagnostics.append(
-                            "@Isomorphism does not support attributes or property wrappers on stored property `\(name)`; define the isomorphism explicitly."
-                        )
-                        continue
-                    }
-                    fields.append((name, type))
-                }
-            }
-
-            self.fields = fields
-            self.diagnostics = diagnostics
+            let properties = StoredProperties(structure, requiresMemberwise: true)
+            self.fields = properties.fields.map { ($0.name, $0.type.trimmedDescription) }
+            self.diagnostics = properties.diagnostics.map { "@Isomorphism " + $0 + "." }
         }
     }
 

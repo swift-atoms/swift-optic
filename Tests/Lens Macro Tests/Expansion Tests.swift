@@ -34,7 +34,7 @@ func `lens derivation diagnoses a custom initializer`() {
     diagnostics: [
       DiagnosticSpec(
         message:
-          "@Lenses requires the synthesized memberwise initializer; structs with custom initializers must define their lenses explicitly.",
+          "@Lenses requires the synthesized memberwise initializer; structs with custom initializers must define their derivation explicitly.",
         line: 1,
         column: 1
       )

@@ -34,7 +34,7 @@ func `isomorphism derivation diagnoses a custom initializer`() {
     diagnostics: [
       DiagnosticSpec(
         message:
-          "@Isomorphism requires the synthesized memberwise initializer; structs with custom initializers must define their isomorphism explicitly.",
+          "@Isomorphism requires the synthesized memberwise initializer; structs with custom initializers must define their derivation explicitly.",
         line: 1,
         column: 1
       )

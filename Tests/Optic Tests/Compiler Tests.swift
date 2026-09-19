@@ -137,6 +137,7 @@ private struct `Optic composition preserves failure types and ownership constrai
             "-enable-upcoming-feature", "ExistentialAny",
             "-enable-upcoming-feature", "InternalImportsByDefault",
             "-enable-upcoming-feature", "MemberImportVisibility",
+            "-warnings-as-errors",
             "-enable-upcoming-feature", "NonisolatedNonsendingByDefault",
             "-enable-experimental-feature", "Lifetimes",
             "-enable-experimental-feature", "MoveOnlyTuples",

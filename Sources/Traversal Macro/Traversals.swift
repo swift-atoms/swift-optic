@@ -1,4 +1,5 @@
-import Optic
+@_exported import Lens_Macro
+@_exported import Optic
 
 @attached(member, names: named(Traversals), named(traversals))
 public macro Traversals() = #externalMacro(

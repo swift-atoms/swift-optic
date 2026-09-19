@@ -1,98 +1,45 @@
 public import SwiftSyntax
 import SwiftSyntaxBuilder
+import Type_Algebra_Syntax
 
 public enum Derivation {
     public static func expansion(of structure: StructDeclSyntax) -> [DeclSyntax] {
-        let whole = structure.name.text
-
-        let genericParameter = structure.genericParameterClause?.parameters.first
-        let parameter = structure.genericParameterClause?.parameters.count == 1
-            && structure.genericWhereClause == nil
-            && genericParameter?.inheritedType?.trimmedDescription == "Sendable"
-                ? genericParameter?.name.text
-                : nil
-        let fields = structure.memberBlock.members
-            .compactMap { $0.decl.as(VariableDeclSyntax.self) }
-            .flatMap(\.bindings)
-            .compactMap { binding -> (name: String, type: String, element: String?)? in
-                guard
-                    let name = binding.pattern.as(IdentifierPatternSyntax.self)?.identifier.text,
-                    let type = binding.typeAnnotation?.type
-                else { return nil }
-                return (
-                    name,
-                    type.trimmedDescription,
-                    type.as(ArrayTypeSyntax.self)?.element.trimmedDescription
-                )
-            }
-        let arrays = fields.compactMap { field -> (name: String, element: String)? in
-            guard let element = field.element else { return nil }
-            return (field.name, element)
+        let analysis = StoredProperties(structure, requiresMemberwise: true)
+        guard analysis.diagnostics.isEmpty else {
+            return [DeclSyntax(stringLiteral: "#error(\"@Traversals " + analysis.diagnostics.joined(separator: "; ") + "\")")]
         }
+        guard structure.attributes.contains(where: { $0.as(AttributeSyntax.self)?.attributeName.trimmedDescription == "Lenses" }) else {
+            return ["#error(\"@Traversals requires @Lenses on the same source declaration; it cannot attach a macro to its own type.\")"]
+        }
+        let whole = structure.name.text
+        let access = structure.modifiers.first { ["public", "package"].contains($0.name.text) }.map { "\($0.name.text) " } ?? ""
+        let generic = structure.genericParameterClause?.parameters.first
+        let parameter = structure.genericParameterClause?.parameters.count == 1 && structure.genericWhereClause == nil
+            && (generic?.inheritedType == nil || generic?.inheritedType?.trimmedDescription == "Sendable") ? generic?.name.text : nil
+        let constraint = generic?.inheritedType?.trimmedDescription == "Sendable" ? ": Sendable" : ""
+        let members = analysis.fields.compactMap { field -> String? in
+            guard let element = field.type.as(ArrayTypeSyntax.self)?.element.trimmedDescription else { return nil }
+            var member = """
+                \(access)var \(field.name): Optic<\(whole), \(whole), \(element), \(element)>.Traversal {
+                    Optic<\(whole), \(whole), [\(element)], [\(element)]>.Traversal(\(whole).lenses.\(field.name)).appending(.each)
+                }
+                """
+            if let parameter, element == parameter,
+                analysis.fields.filter({ $0.name != field.name }).allSatisfy({ !$0.type.tokens(viewMode: .sourceAccurate).contains { $0.text == parameter } }) {
+                member += """
 
-        let properties = arrays.map { field in
-            var declaration = """
-            var \(field.name): Optic<\(whole), \(whole), \(field.element), \(field.element)>.Traversal {
-                .init(decompose: { whole in
-                    .init(
-                        focuses: whole.\(field.name),
-                        reconstruct: { replacements in
-                            var target = whole
-                            target.\(field.name) = replacements
-                            return target
-                        }
-                    )
-                })
-            }
-            """
-            if
-                let parameter,
-                field.element == parameter,
-                fields.filter({ $0.name != field.name }).allSatisfy({ !references(parameter, in: $0.type) })
-            {
-                let arguments = fields.map { candidate in
-                    "\(candidate.name): \(candidate.name == field.name ? "replacements" : "whole.\(candidate.name)")"
-                }.joined(separator: ", ")
-                declaration += """
-
-                    func \(field.name)<Replacement: Sendable>(
-                        to _: Replacement.Type
-                    ) -> Optic<
-                        \(whole)<\(parameter)>,
-                        \(whole)<Replacement>,
-                        \(parameter),
-                        Replacement
-                    >.Traversal {
-                        .init(decompose: { whole in
-                            .init(
-                                focuses: whole.\(field.name),
-                                reconstruct: { replacements in
-                                    \(whole)<Replacement>(\(arguments))
-                                }
-                            )
-                        })
+                    \(access)func \(field.name)<Replacement\(constraint)>(to _: Replacement.Type) -> Optic<\(whole)<\(parameter)>, \(whole)<Replacement>, \(parameter), Replacement>.Traversal {
+                        Optic<\(whole)<\(parameter)>, \(whole)<Replacement>, [\(parameter)], [Replacement]>.Traversal(\(whole).lenses.\(field.name)(to: Replacement.self)).appending(.each)
                     }
                     """
             }
-            return declaration
-        }.joined(separator: "\n")
-
-        return ["""
-            struct Traversals {
-                \(raw: properties)
+            return member
+        }
+        return [DeclSyntax(stringLiteral: """
+            \(access)struct Traversals {
+                \(members.joined(separator: "\n"))
             }
-
-            static var traversals: Traversals {
-                Traversals()
-            }
-            """]
-    }
-
-    private static func references(_ name: String, in type: String) -> Bool {
-        type.split(whereSeparator: isTypeSeparator).contains { String($0) == name }
-    }
-
-    private static func isTypeSeparator(_ character: Character) -> Bool {
-        " <>[](),?!&.:".contains(character)
+            \(access)static var traversals: Traversals { .init() }
+            """)]
     }
 }

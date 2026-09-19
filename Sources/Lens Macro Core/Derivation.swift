@@ -1,3 +1,4 @@
+import Type_Algebra_Syntax
 public import SwiftSyntax
 import SwiftSyntaxBuilder
 
@@ -9,80 +10,9 @@ public enum Derivation {
 
         public init(_ structure: StructDeclSyntax) {
             self.structure = structure
-            var fields: [(name: String, type: String)] = []
-            var diagnostics: [String] = []
-
-            if structure.memberBlock.members.contains(where: {
-                $0.decl.is(InitializerDeclSyntax.self)
-            }) {
-                diagnostics.append(
-                    "@Lenses requires the synthesized memberwise initializer; structs with custom initializers must define their lenses explicitly."
-                )
-            }
-
-            for member in structure.memberBlock.members {
-                guard let variable = member.decl.as(VariableDeclSyntax.self) else { continue }
-                if variable.modifiers.contains(where: {
-                    ["static", "class"].contains($0.name.text)
-                }) {
-                    continue
-                }
-
-                for binding in variable.bindings {
-                    if let accessorBlock = binding.accessorBlock {
-                        let hasObserver = accessorBlock.tokens(viewMode: .sourceAccurate).contains {
-                            ["willSet", "didSet"].contains($0.text)
-                        }
-                        if hasObserver {
-                            diagnostics.append(
-                                "@Lenses does not support observed stored properties; define the lenses explicitly."
-                            )
-                        }
-                        continue
-                    }
-
-                    guard
-                        let identifier = binding.pattern.as(IdentifierPatternSyntax.self)
-                    else {
-                        diagnostics.append(
-                            "@Lenses requires each stored instance property to use a simple identifier pattern."
-                        )
-                        continue
-                    }
-                    let name = identifier.identifier.text
-                    guard let type = binding.typeAnnotation?.type.trimmedDescription else {
-                        diagnostics.append(
-                            "@Lenses requires stored property `\(name)` to have an explicit type annotation."
-                        )
-                        continue
-                    }
-                    if variable.modifiers.contains(where: { $0.name.text == "lazy" }) {
-                        diagnostics.append(
-                            "@Lenses does not support lazy stored property `\(name)` because it is not a memberwise initializer parameter."
-                        )
-                        continue
-                    }
-                    if
-                        variable.bindingSpecifier.tokenKind == .keyword(.let),
-                        binding.initializer != nil
-                    {
-                        diagnostics.append(
-                            "@Lenses does not support initialized constant `\(name)` because it is not a memberwise initializer parameter."
-                        )
-                        continue
-                    }
-                    if !variable.attributes.isEmpty {
-                        diagnostics.append(
-                            "@Lenses does not support attributes or property wrappers on stored property `\(name)`; define the lenses explicitly."
-                        )
-                        continue
-                    }
-                    fields.append((name, type))
-                }
-            }
-
-            self.fields = fields
-            self.diagnostics = diagnostics
+            let properties = StoredProperties(structure, requiresMemberwise: true)
+            self.fields = properties.fields.map { ($0.name, $0.type.trimmedDescription) }
+            self.diagnostics = properties.diagnostics.map { "@Lenses " + $0 + "." }
         }
     }
 
@@ -96,12 +26,12 @@ public enum Derivation {
         let access = structure.modifiers
             .first(where: { ["public", "package"].contains($0.name.text) })
             .map { "\($0.name.text) " } ?? ""
+        let generic = structure.genericParameterClause?.parameters.first
+        let constraint = generic?.inheritedType?.trimmedDescription
         let parameter = structure.genericParameterClause?.parameters.count == 1
-            && structure.genericWhereClause == nil
-            && structure.genericParameterClause?.parameters.first?.trimmedDescription
-                == structure.genericParameterClause?.parameters.first?.name.text
-                ? structure.genericParameterClause?.parameters.first?.name.text
-                : nil
+            && structure.genericWhereClause == nil && (constraint == nil || constraint == "Sendable")
+                ? generic?.name.text : nil
+        let replacementConstraint = constraint == "Sendable" ? ": Sendable" : ""
         let fields = analysis.fields
 
         let properties = fields.map { selected in
@@ -121,22 +51,23 @@ public enum Derivation {
 
             if
                 let parameter,
-                selected.type == parameter,
+                (selected.type == parameter || selected.type == "[\(parameter)]"),
                 fields.filter({ $0.name != selected.name }).allSatisfy({ !references(parameter, in: $0.type) })
             {
                 let target = "\(whole)<Replacement>"
+                let replacement = selected.type == parameter ? "Replacement" : "[Replacement]"
                 let transformedArguments = fields.map { field in
                     "\(field.name): \(field.name == selected.name ? "part" : "whole.\(field.name)")"
                 }.joined(separator: ", ")
                 declarations += """
 
-                    \(access)func \(selected.name)<Replacement>(
+                    \(access)func \(selected.name)<Replacement\(replacementConstraint)>(
                         to _: Replacement.Type
                     ) -> Optic<
                         \(whole)<\(parameter)>,
                         \(target),
-                        \(parameter),
-                        Replacement
+                        \(selected.type),
+                        \(replacement)
                     >.Lens {
                         .init(decompose: { whole in
                             (

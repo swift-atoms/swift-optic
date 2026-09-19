@@ -31,6 +31,7 @@ private struct `Prism accessibility compiler contracts` {
             "-enable-upcoming-feature", "ExistentialAny",
             "-enable-upcoming-feature", "InternalImportsByDefault",
             "-enable-upcoming-feature", "MemberImportVisibility",
+            "-warnings-as-errors",
             "-enable-upcoming-feature", "NonisolatedNonsendingByDefault",
             "-enable-upcoming-feature", "InferIsolatedConformances",
             "-enable-experimental-feature", "Lifetimes",

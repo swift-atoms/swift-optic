@@ -13,26 +13,22 @@ let package = Package(
         .visionOS(.v27),
     ],
     products: [
+        .library(name: "Optic Algebra Integration", targets: ["Optic Algebra Integration"]),
         .library(name: "Optic", targets: ["Optic"]),
 
         .library(name: "Optic Foundation Integration", targets: ["Optic Foundation Integration"]),
         .library(name: "Optic Test Support", targets: ["Optic Test Support"]),
-        .library(name: "Traversal Affine Macro", targets: ["Traversal Affine Macro"]),
-        .library(name: "Traversal Affine Macro Core", targets: ["Traversal Affine Macro Core"]),
         .library(name: "Case Macro", targets: ["Case Macro"]),
-        .library(name: "Case Macro Core", targets: ["Case Macro Core"]),
         .library(name: "Fold Macro", targets: ["Fold Macro"]),
-        .library(name: "Fold Macro Core", targets: ["Fold Macro Core"]),
         .library(name: "Isomorphism Macro", targets: ["Isomorphism Macro"]),
-        .library(name: "Isomorphism Macro Core", targets: ["Isomorphism Macro Core"]),
         .library(name: "Lens Macro", targets: ["Lens Macro"]),
-        .library(name: "Lens Macro Core", targets: ["Lens Macro Core"]),
         .library(name: "Prism Macro", targets: ["Prism Macro"]),
-        .library(name: "Prism Macro Core", targets: ["Prism Macro Core"]),
         .library(name: "Traversal Macro", targets: ["Traversal Macro"]),
-        .library(name: "Traversal Macro Core", targets: ["Traversal Macro Core"]),
     ],
     dependencies: [
+        .package(url: "https://github.com/swift-atoms/swift-bifunctor.git", branch: "main"),
+        .package(url: "https://github.com/swift-atoms/swift-algebra.git", branch: "main"),
+        .package(url: "https://github.com/swift-atoms/swift-product.git", branch: "main"),
         .package(
             url: "https://github.com/swift-atoms/swift-either.git",
             branch: "main"
@@ -41,6 +37,18 @@ let package = Package(
         .package(url: "https://github.com/swift-atoms/swift-coproduct.git", branch: "main"),
     ],
     targets: [
+        .testTarget(name: "Optic Algebra Integration Tests", dependencies: [
+            "Optic Algebra Integration",
+            "Lens Macro",
+            "Isomorphism Macro",
+            "Prism Macro",
+            .product(name: "Algebra Test Support", package: "swift-algebra"),
+        ]),
+        .target(name: "Optic Algebra Integration", dependencies: [
+            "Optic",
+            .product(name: "Algebra", package: "swift-algebra"),
+            .product(name: "Bifunctor", package: "swift-bifunctor"),
+        ]),
         .target(
             name: "Optic",
             dependencies: [
@@ -48,7 +56,7 @@ let package = Package(
             ],
             path: "Sources/Optic"
         ),
-        
+
         .target(
             name: "Optic Foundation Integration",
             dependencies: [
@@ -75,41 +83,9 @@ let package = Package(
             resources: [.copy("Fixtures")]
         ),
         .target(
-            name: "Traversal Affine Macro Core",
-            dependencies: [
-                .product(name: "SwiftSyntax", package: "swift-syntax"),
-                .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
-            ]
-        ),
-        .macro(
-            name: "Traversal Affine Macro Plugin",
-            dependencies: [
-                "Traversal Affine Macro Core",
-                .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
-                .product(name: "SwiftDiagnostics", package: "swift-syntax"),
-                .product(name: "SwiftSyntax", package: "swift-syntax"),
-                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-            ]
-        ),
-        .target(
-            name: "Traversal Affine Macro",
-            dependencies: [
-                "Traversal Affine Macro Plugin",
-                "Optic",
-            ]
-        ),
-        .testTarget(
-            name: "Traversal Affine Macro Tests",
-            dependencies: [
-                "Traversal Affine Macro",
-                .product(name: "Either", package: "swift-either"),
-                "Optic",
-            ]
-        ),
-        .target(
             name: "Case Macro Core",
             dependencies: [
-                .product(name: "Coproduct Macro Core", package: "swift-coproduct"),
+                .product(name: "Coproduct Syntax", package: "swift-coproduct"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
             ]
@@ -144,7 +120,7 @@ let package = Package(
         .target(
             name: "Fold Macro Core",
             dependencies: [
-                .product(name: "Coproduct Macro Core", package: "swift-coproduct"),
+                .product(name: "Coproduct Syntax", package: "swift-coproduct"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
             ]
@@ -177,6 +153,7 @@ let package = Package(
         .target(
             name: "Isomorphism Macro Core",
             dependencies: [
+                .product(name: "Type Algebra Syntax", package: "swift-algebra"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
             ]
@@ -212,6 +189,7 @@ let package = Package(
         .target(
             name: "Lens Macro Core",
             dependencies: [
+                .product(name: "Type Algebra Syntax", package: "swift-algebra"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
             ]
@@ -247,7 +225,7 @@ let package = Package(
         .target(
             name: "Prism Macro Core",
             dependencies: [
-                .product(name: "Coproduct Macro Core", package: "swift-coproduct"),
+                .product(name: "Coproduct Syntax", package: "swift-coproduct"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
             ]
@@ -283,6 +261,7 @@ let package = Package(
         .target(
             name: "Traversal Macro Core",
             dependencies: [
+                .product(name: "Type Algebra Syntax", package: "swift-algebra"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
             ]
@@ -300,6 +279,7 @@ let package = Package(
         .target(
             name: "Traversal Macro",
             dependencies: [
+                "Lens Macro",
                 "Traversal Macro Plugin",
                 "Optic",
             ]
@@ -326,4 +306,9 @@ for target in package.targets where ![.system, .binary, .plugin, .macro].contain
         .enableExperimentalFeature("MoveOnlyTuples"),
         .enableUpcomingFeature("InferIsolatedConformances"),
     ]
+}
+
+// Consumer compilation must reject visibility regressions, even when other packages suppress warnings.
+for target in package.targets where target.type == .test || target.name.hasSuffix("Consumer Fixtures") {
+    target.swiftSettings = (target.swiftSettings ?? []) + [.treatAllWarnings(as: .error)]
 }

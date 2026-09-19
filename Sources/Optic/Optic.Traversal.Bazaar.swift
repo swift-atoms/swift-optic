@@ -36,6 +36,7 @@ where
     public consuming func reconstruct(
         _ replacements: consuming [Replacement]
     ) -> Target {
-        _reconstruct(replacements)
+        precondition(replacements.count == focuses.count, "Traversal reconstruction must preserve focus cardinality")
+        return _reconstruct(replacements)
     }
 }
