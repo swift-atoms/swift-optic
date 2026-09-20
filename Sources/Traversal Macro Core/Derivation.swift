@@ -4,7 +4,7 @@ import Type_Algebra_Syntax
 
 public enum Derivation {
     public static func expansion(of structure: StructDeclSyntax) -> [DeclSyntax] {
-        let analysis = StoredProperties(structure, requiresMemberwise: true)
+        let analysis = Type.Syntax.Properties(structure, requiresMemberwise: true)
         guard analysis.diagnostics.isEmpty else {
             return [DeclSyntax(stringLiteral: "#error(\"@Traversals " + analysis.diagnostics.joined(separator: "; ") + "\")")]
         }

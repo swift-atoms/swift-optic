@@ -20,22 +20,6 @@ extension Prism {
             expansion(Coproduct.Analysis(declaration))
         }
 
-        public static func expansion(
-            whole: TypeSyntax,
-            access: DeclModifierSyntax?,
-            cases: [EnumCaseElementSyntax],
-            genericParameter: TokenSyntax?
-        ) -> [DeclSyntax] {
-            expansion(
-                Coproduct.Analysis(
-                    whole: whole,
-                    access: access,
-                    cases: cases,
-                    genericParameter: genericParameter
-                )
-            )
-        }
-
         public static func expansion(_ analysis: Coproduct.Analysis) -> [DeclSyntax] {
             let access = analysis.access.map { "\($0.name.text) " } ?? ""
             let members = analysis.cases.map {
@@ -62,21 +46,48 @@ extension Prism {
             let whole = analysis.whole.trimmedDescription
             let payload = coproductCase.payload.trimmedDescription
 
+            let embed: String
             switch coproductCase.parameters.count {
-            case 0:
-                return """
-                    \(access)var \(name): Optic<\(whole), \(whole), Void, Void>.Prism {
-                        .init(
-                            match: { whole in
-                                \(matchBody(for: coproductCase, in: analysis, consuming: "whole"))
-                            },
-                            embed: { _ in .\(name) }
-                        )
-                    }
-                    """
-            case 1:
-                var declaration = """
-                    \(access)var \(name): Optic<\(whole), \(whole), \(payload), \(payload)>.Prism {
+            case 0: embed = "{ _ in .\(name) }"
+            case 1: embed = "{ .\(name)(\(coproductCase.constructorArguments(["$0"]))) }"
+            default:
+                let binding = analysis.isCopyableSuppressed ? "payload" : "$0"
+                let projected = coproductCase.parameters.indices.map { "\(binding).\($0)" }
+                let constructor = ".\(name)(\(coproductCase.constructorArguments(projected)))"
+                embed = analysis.isCopyableSuppressed
+                    ? "{ (payload: consuming \(payload)) in \(constructor) }"
+                    : "{ \(constructor) }"
+            }
+            var declaration = """
+                \(access)var \(name): Optic<\(whole), \(whole), \(payload), \(payload)>.Prism {
+                    .init(
+                        match: { whole in
+                            \(matchBody(for: coproductCase, in: analysis, consuming: "whole"))
+                        },
+                        embed: \(embed)
+                    )
+                }
+                """
+            // Law: the enum is a functor in its single type parameter exactly when one case carries that
+            // parameter directly and no other case mentions it; that case then has a type-changing prism,
+            // `name(to:)`, whose embed maps the parameter.
+            if
+                let parameter = analysis.genericParameter,
+                coproductCase.isDirectReference(to: parameter),
+                analysis.cases
+                    .filter({ $0.name.text != name })
+                    .allSatisfy({ !$0.references(parameter) })
+            {
+                declaration += """
+
+                    \(access)func \(name)<Replacement>(
+                        to _: Replacement.Type
+                    ) -> Optic<
+                        \(whole)<\(parameter.text)>,
+                        \(whole)<Replacement>,
+                        \(parameter.text),
+                        Replacement
+                    >.Prism {
                         .init(
                             match: { whole in
                                 \(matchBody(for: coproductCase, in: analysis, consuming: "whole"))
@@ -85,60 +96,8 @@ extension Prism {
                         )
                     }
                     """
-                // Law: the enum is a functor in its single type parameter exactly when one case carries that
-                // parameter directly and no other case mentions it; that case then has a type-changing prism,
-                // `name(to:)`, whose embed maps the parameter.
-                if
-                    let parameter = analysis.genericParameter,
-                    coproductCase.isDirectReference(to: parameter),
-                    analysis.cases
-                        .filter({ $0.name.text != name })
-                        .allSatisfy({ !$0.references(parameter) })
-                {
-                    declaration += """
-
-                        \(access)func \(name)<Replacement>(
-                            to _: Replacement.Type
-                        ) -> Optic<
-                            \(whole)<\(parameter.text)>,
-                            \(whole)<Replacement>,
-                            \(parameter.text),
-                            Replacement
-                        >.Prism {
-                            .init(
-                                match: { whole in
-                                    \(matchBody(for: coproductCase, in: analysis, consuming: "whole"))
-                                },
-                                embed: { .\(name)(\(coproductCase.constructorArguments(["$0"]))) }
-                            )
-                        }
-                        """
-                }
-                return declaration
-            default:
-                let embed: String
-                if analysis.isCopyableSuppressed {
-                    let projected = coproductCase.parameters.indices.map { "payload.\($0)" }
-                    embed = """
-                        { (payload: consuming \(payload)) in
-                            .\(name)(\(coproductCase.constructorArguments(projected)))
-                        }
-                        """
-                } else {
-                    let projected = coproductCase.parameters.indices.map { "$0.\($0)" }
-                    embed = "{ .\(name)(\(coproductCase.constructorArguments(projected))) }"
-                }
-                return """
-                    \(access)var \(name): Optic<\(whole), \(whole), \(payload), \(payload)>.Prism {
-                        .init(
-                            match: { whole in
-                                \(matchBody(for: coproductCase, in: analysis, consuming: "whole"))
-                            },
-                            embed: \(embed)
-                        )
-                    }
-                    """
             }
+            return declaration
         }
 
         private static func matchBody(

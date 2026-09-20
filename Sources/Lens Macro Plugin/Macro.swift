@@ -12,9 +12,9 @@ public struct Macro: MemberMacro {
         guard let declaration = declaration.as(StructDeclSyntax.self) else {
             throw MacroExpansionErrorMessage("@Lenses applies to a struct declaration only.")
         }
-        let analysis = Derivation.Analysis(declaration)
+        let analysis = Derivation.Analysis(declaration, requiresMemberwise: true)
         if let diagnostic = analysis.diagnostics.first {
-            throw MacroExpansionErrorMessage(diagnostic)
+            throw MacroExpansionErrorMessage("@Lenses " + diagnostic + ".")
         }
         return Derivation.expansion(analysis)
     }

@@ -1,47 +1,28 @@
-import Type_Algebra_Syntax
+public import Type_Algebra_Syntax
 public import SwiftSyntax
 import SwiftSyntaxBuilder
 
 public enum Derivation {
-    public struct Analysis {
-        fileprivate let structure: StructDeclSyntax
-        fileprivate let fields: [(name: String, type: String)]
-        public let diagnostics: [String]
-
-        public init(_ structure: StructDeclSyntax) {
-            self.structure = structure
-            let properties = StoredProperties(structure, requiresMemberwise: true)
-            self.fields = properties.fields.map { ($0.name, $0.type.trimmedDescription) }
-            self.diagnostics = properties.diagnostics.map { "@Isomorphism " + $0 + "." }
-        }
-    }
+    public typealias Analysis = Type.Syntax.Properties
 
     public static func expansion(of structure: StructDeclSyntax) -> [DeclSyntax] {
-        expansion(Analysis(structure))
+        expansion(Analysis(structure, requiresMemberwise: true))
     }
 
     public static func expansion(_ analysis: Analysis) -> [DeclSyntax] {
-        let structure = analysis.structure
+        do { return try derive(analysis) }
+        catch { return [DeclSyntax(stringLiteral: "#error(\(String(reflecting: String(describing: error))))")] }
+    }
+
+    private static func derive(_ analysis: Analysis) throws -> [DeclSyntax] {
+        let structure = analysis.declaration
         let whole = structure.name.text
-        let fields = analysis.fields
+        let fields = analysis.fields.map { (name: $0.name, type: $0.type.trimmedDescription) }
 
-        let part: String
-        let forward: String
-        switch fields.count {
-        case 0:
-            part = "Void"
-            forward = "()"
-        case 1:
-            part = fields[0].type
-            forward = "$0.\(fields[0].name)"
-        default:
-            part = "(\(fields.map(\.type).joined(separator: ", ")))"
-            forward = "(\(fields.map { "$0.\($0.name)" }.joined(separator: ", ")))"
-        }
-
-        let arguments = fields.enumerated().map { index, field in
-            "\(field.name): \(fields.count == 1 ? "$0" : "$0.\(index)")"
-        }.joined(separator: ", ")
+        let record = try Type.Syntax.Record(fields.map { .init($0.name, type: $0.type) })
+        let part = record.tupleType
+        let forward = record.projecting("$0").expression
+        let backward = try record.constructing(whole, from: record.unpacking("$0"))
 
         let access = structure.modifiers
             .first(where: { ["public", "package"].contains($0.name.text) })
@@ -55,7 +36,7 @@ public enum Derivation {
             \(access)var memberwise: Optic<\(whole), \(whole), \(part), \(part)>.Isomorphism {
                 .init(
                     forward: { \(forward) },
-                    backward: { \(whole)(\(arguments)) }
+                    backward: { \(backward) }
                 )
             }
             """]
@@ -73,18 +54,11 @@ public enum Derivation {
             let replacement = "Replacement"
             let target = "\(whole)<\(replacement)>"
             let source = "\(whole)<\(parameter)>"
-            let replacementPart: String
-            switch fields.count {
-            case 0:
-                replacementPart = "Void"
-            case 1:
-                replacementPart = fields[0].type == parameter ? replacement : fields[0].type
-            default:
-                replacementPart = "(\(fields.map { $0.type == parameter ? replacement : $0.type }.joined(separator: ", ")))"
-            }
-            let replacementArguments = fields.enumerated().map { index, field in
-                "\(field.name): \(fields.count == 1 ? "$0" : "$0.\(index)")"
-            }.joined(separator: ", ")
+            let replacementRecord = try Type.Syntax.Record(fields.map {
+                .init($0.name, type: $0.type == parameter ? replacement : $0.type)
+            })
+            let replacementPart = replacementRecord.tupleType
+            let reconstruction = try replacementRecord.constructing(target, from: replacementRecord.unpacking("$0"))
 
             members.append("""
                 /// The type-changing stored-property/memberwise representation.
@@ -101,7 +75,7 @@ public enum Derivation {
                 >.Isomorphism {
                     .init(
                         forward: { \(forward) },
-                        backward: { \(target)(\(replacementArguments)) }
+                        backward: { \(reconstruction) }
                     )
                 }
                 """)
@@ -120,10 +94,6 @@ public enum Derivation {
     }
 
     private static func references(_ name: String, in type: String) -> Bool {
-        type.split(whereSeparator: isTypeSeparator).contains { String($0) == name }
-    }
-
-    private static func isTypeSeparator(_ character: Character) -> Bool {
-        " <>[](),?!&.:".contains(character)
+        !Type.Syntax.Expression.references(in: TypeSyntax(stringLiteral: type), parameters: [name]).isEmpty
     }
 }

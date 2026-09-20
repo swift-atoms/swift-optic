@@ -10,22 +10,6 @@ extension Fold {
             expansion(Coproduct.Analysis(declaration))
         }
 
-        public static func expansion(
-            whole: TypeSyntax,
-            access: DeclModifierSyntax?,
-            cases: [EnumCaseElementSyntax],
-            genericParameter: TokenSyntax?
-        ) -> [DeclSyntax] {
-            expansion(
-                Coproduct.Analysis(
-                    whole: whole,
-                    access: access,
-                    cases: cases,
-                    genericParameter: genericParameter
-                )
-            )
-        }
-
         public static func expansion(_ analysis: Coproduct.Analysis) -> [DeclSyntax] {
             let access = analysis.access.map { "\($0.name.text) " } ?? ""
             let members = analysis.cases.map {

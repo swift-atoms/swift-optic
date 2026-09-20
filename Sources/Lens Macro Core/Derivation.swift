@@ -1,27 +1,21 @@
-import Type_Algebra_Syntax
+public import Type_Algebra_Syntax
 public import SwiftSyntax
 import SwiftSyntaxBuilder
 
 public enum Derivation {
-    public struct Analysis {
-        fileprivate let structure: StructDeclSyntax
-        fileprivate let fields: [(name: String, type: String)]
-        public let diagnostics: [String]
-
-        public init(_ structure: StructDeclSyntax) {
-            self.structure = structure
-            let properties = StoredProperties(structure, requiresMemberwise: true)
-            self.fields = properties.fields.map { ($0.name, $0.type.trimmedDescription) }
-            self.diagnostics = properties.diagnostics.map { "@Lenses " + $0 + "." }
-        }
-    }
+    public typealias Analysis = Type.Syntax.Properties
 
     public static func expansion(of structure: StructDeclSyntax) -> [DeclSyntax] {
-        expansion(Analysis(structure))
+        expansion(Analysis(structure, requiresMemberwise: true))
     }
 
     public static func expansion(_ analysis: Analysis) -> [DeclSyntax] {
-        let structure = analysis.structure
+        do { return try derive(analysis) }
+        catch { return [DeclSyntax(stringLiteral: "#error(\(String(reflecting: String(describing: error))))")] }
+    }
+
+    private static func derive(_ analysis: Analysis) throws -> [DeclSyntax] {
+        let structure = analysis.declaration
         let whole = structure.name.text
         let access = structure.modifiers
             .first(where: { ["public", "package"].contains($0.name.text) })
@@ -32,18 +26,21 @@ public enum Derivation {
             && structure.genericWhereClause == nil && (constraint == nil || constraint == "Sendable")
                 ? generic?.name.text : nil
         let replacementConstraint = constraint == "Sendable" ? ": Sendable" : ""
-        let fields = analysis.fields
+        let fields = analysis.fields.map { (name: $0.name, type: $0.type.trimmedDescription) }
 
-        let properties = fields.map { selected in
-            let arguments = fields.map { field in
-                "\(field.name): \(field.name == selected.name ? "part" : "whole.\(field.name)")"
-            }.joined(separator: ", ")
+        let record = try Type.Syntax.Record(fields.map { .init($0.name, type: $0.type) })
+        let wholeValue = record.projecting("whole")
+        let input = Type.Syntax.Interpretation.Product.product([wholeValue, .value("part")])
+        let properties = try fields.map { selected in
+            let lens = try Type.Lens.coordinate(selected.name, in: record.algebra)
+            let focus = try wholeValue.applying(lens.get).expression
+            let reconstruction = try record.constructing(whole, from: input.applying(lens.put))
             var declarations = """
                 \(access)var \(selected.name): Optic<\(whole), \(whole), \(selected.type), \(selected.type)>.Lens {
                     .init(decompose: { whole in
                         (
-                            focus: whole.\(selected.name),
-                            reconstruct: { part in \(whole)(\(arguments)) }
+                            focus: \(focus),
+                            reconstruct: { part in \(reconstruction) }
                         )
                     })
                 }
@@ -56,9 +53,9 @@ public enum Derivation {
             {
                 let target = "\(whole)<Replacement>"
                 let replacement = selected.type == parameter ? "Replacement" : "[Replacement]"
-                let transformedArguments = fields.map { field in
-                    "\(field.name): \(field.name == selected.name ? "part" : "whole.\(field.name)")"
-                }.joined(separator: ", ")
+                let changed = try Type.Lens.coordinate(selected.name, in: record.algebra,
+                    replacingWith: .atom(.init(replacement, scope: ["Swift"])))
+                let transformed = try record.constructing(target, from: input.applying(changed.put))
                 declarations += """
 
                     \(access)func \(selected.name)<Replacement\(replacementConstraint)>(
@@ -71,8 +68,8 @@ public enum Derivation {
                     >.Lens {
                         .init(decompose: { whole in
                             (
-                                focus: whole.\(selected.name),
-                                reconstruct: { part in \(target)(\(transformedArguments)) }
+                                focus: \(focus),
+                                reconstruct: { part in \(transformed) }
                             )
                         })
                     }
@@ -93,10 +90,6 @@ public enum Derivation {
     }
 
     private static func references(_ name: String, in type: String) -> Bool {
-        type.split(whereSeparator: isTypeSeparator).contains { String($0) == name }
-    }
-
-    private static func isTypeSeparator(_ character: Character) -> Bool {
-        " <>[](),?!&.:".contains(character)
+        !Type.Syntax.Expression.references(in: TypeSyntax(stringLiteral: type), parameters: [name]).isEmpty
     }
 }
