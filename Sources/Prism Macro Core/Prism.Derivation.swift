@@ -68,9 +68,6 @@ extension Prism {
                     )
                 }
                 """
-            // Law: the enum is a functor in its single type parameter exactly when one case carries that
-            // parameter directly and no other case mentions it; that case then has a type-changing prism,
-            // `name(to:)`, whose embed maps the parameter.
             if
                 let parameter = analysis.genericParameter,
                 coproductCase.isDirectReference(to: parameter),

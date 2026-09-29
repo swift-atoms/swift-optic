@@ -7,7 +7,6 @@ public import Either
 extension Optic.Isomorphism where Source: Copyable & Escapable, Target: Copyable & Escapable,
     Focus: Copyable & Escapable, Replacement: Copyable & Escapable,
     Source == Target, Focus == Replacement {
-    /// Requires this optic's two inverse laws; preserves the supplied monoid's chosen operation.
     public func transporting(_ monoid: Algebra::Algebra.Monoid<Focus>) -> Algebra::Algebra.Monoid<Source> {
         monoid.transported(to: { self.backward($0) }, from: { self.forward($0) })
     }

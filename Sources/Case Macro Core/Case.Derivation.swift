@@ -3,8 +3,6 @@ public import Coproduct_Syntax
 import SwiftSyntaxBuilder
 
 extension Case {
-    // A case is its prism paired with its fold. The derivation composes the `Prisms` and `Folds` namespaces the
-    // @Prisms and @Folds macros declare on the same enum; it does not re-derive either optic.
     public enum Derivation {
         public static func expansion(
             of declaration: EnumDeclSyntax
