@@ -1,3 +1,4 @@
+#if os(macOS)
 import Foundation
 import Testing
 
@@ -160,3 +161,4 @@ private struct `Optic composition preserves failure types and ownership constrai
         )
     }
 }
+#endif

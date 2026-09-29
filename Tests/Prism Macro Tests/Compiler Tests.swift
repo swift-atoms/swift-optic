@@ -1,3 +1,4 @@
+#if os(macOS)
 import Foundation
 import Testing
 
@@ -87,3 +88,4 @@ private struct `Prism accessibility compiler contracts` {
         return (process.terminationStatus, diagnostic)
     }
 }
+#endif
