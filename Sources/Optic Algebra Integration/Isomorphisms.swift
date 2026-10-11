@@ -1,6 +1,6 @@
 public import Optic
 public import Algebra
-public import Bifunctor
+import Bifunctor
 public import Pair
 public import Either
 

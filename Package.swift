@@ -54,7 +54,8 @@ let package = Package(
             dependencies: [
                 .product(name: "Either", package: "swift-either"),
             ],
-            path: "Sources/Optic"
+            path: "Sources/Optic",
+            swiftSettings: [.enableExperimentalFeature("MoveOnlyTuples")]
         ),
 
         .target(
@@ -79,7 +80,8 @@ let package = Package(
                 .target(name: "Optic Test Support"),
             ],
             path: "Tests/Optic Tests",
-            resources: [.copy("Fixtures")]
+            resources: [.copy("Fixtures")],
+            swiftSettings: [.enableExperimentalFeature("MoveOnlyTuples")]
         ),
         .target(
             name: "Case Macro Core",
@@ -255,7 +257,8 @@ let package = Package(
                 .product(name: "SwiftSyntaxMacroExpansion", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacrosGenericTestSupport", package: "swift-syntax"),
             ],
-            resources: [.copy("Fixtures")]
+            resources: [.copy("Fixtures")],
+            swiftSettings: [.enableExperimentalFeature("MoveOnlyTuples")]
         ),
         .target(
             name: "Traversal Macro Core",
@@ -295,19 +298,14 @@ let package = Package(
 )
 
 for target in package.targets where ![.system, .binary, .plugin, .macro].contains(target.type) {
-    target.swiftSettings = [
+    target.swiftSettings = (target.swiftSettings ?? []) + [
         .strictMemorySafety(),
         .enableUpcomingFeature("ExistentialAny"),
         .enableUpcomingFeature("InternalImportsByDefault"),
         .enableUpcomingFeature("MemberImportVisibility"),
         .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
-        .enableExperimentalFeature("Lifetimes"),
-        .enableExperimentalFeature("MoveOnlyTuples"),
         .enableUpcomingFeature("InferIsolatedConformances"),
+        .enableExperimentalFeature("Lifetimes"),
+        .treatAllWarnings(as: .error),
     ]
-}
-
-// Consumer compilation must reject visibility regressions, even when other packages suppress warnings.
-for target in package.targets where target.type == .test || target.name.hasSuffix("Consumer Fixtures") {
-    target.swiftSettings = (target.swiftSettings ?? []) + [.treatAllWarnings(as: .error)]
 }
