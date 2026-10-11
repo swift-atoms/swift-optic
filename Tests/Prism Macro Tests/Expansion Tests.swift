@@ -7,7 +7,7 @@ import Testing
 
 private let prismMacros: [String: MacroSpec] = [
     "Prisms": MacroSpec(
-        type: Prism_Macro_Plugin.Macro.self,
+        type: Prism_Macro_Plugin::Macro.self,
         conformances: ["__OpticPrismAccessible"]
     )
 ]

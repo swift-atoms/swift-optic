@@ -1,6 +1,6 @@
 import Either
 
-extension Swift.Optional: __OpticPrismAccessible where Wrapped: Copyable & Escapable {
+extension Swift::Optional: __OpticPrismAccessible where Wrapped: Copyable & Escapable {
     @dynamicMemberLookup
     public struct Prisms {
         public init() {}

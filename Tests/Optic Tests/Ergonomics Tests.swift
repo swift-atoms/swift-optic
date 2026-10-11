@@ -169,7 +169,7 @@ private struct `Optic convenience operations preserve composition and focus beha
     @Test
     func `optional and result prisms preserve unmatched sources`() {
         let some = Optional<Int>.prisms.some
-        let success = Swift.Result<Int, TestFailure>.prisms.success
+        let success = Swift::Result<Int, TestFailure>.prisms.success
 
         #expect(some.extract(.some(42)) == 42)
         guard case .left(.none) = some.match(.none) else {

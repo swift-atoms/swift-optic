@@ -2,7 +2,9 @@ public import SwiftSyntax
 import SwiftSyntaxBuilder
 import Type_Algebra_Syntax
 
-public enum Derivation {
+public enum Derivation {}
+
+extension Derivation {
     public static func expansion(of structure: StructDeclSyntax) -> [DeclSyntax] {
         let analysis = Type.Syntax.Properties(structure, requiresMemberwise: true)
         guard analysis.diagnostics.isEmpty else {

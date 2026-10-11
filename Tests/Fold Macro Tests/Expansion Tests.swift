@@ -5,7 +5,7 @@ import Testing
 @testable import Fold_Macro_Plugin
 
 private let foldMacros: [String: MacroSpec] = [
-    "Folds": MacroSpec(type: Fold_Macro_Plugin.Macro.self)
+    "Folds": MacroSpec(type: Fold_Macro_Plugin::Macro.self)
 ]
 
 @Test

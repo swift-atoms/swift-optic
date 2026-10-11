@@ -1,6 +1,6 @@
 import Either
 
-extension Swift.Result: __OpticPrismAccessible where Success: Copyable & Escapable {
+extension Swift::Result: __OpticPrismAccessible where Success: Copyable & Escapable {
     public struct Prisms {
         public init() {}
     }

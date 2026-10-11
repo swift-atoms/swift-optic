@@ -422,7 +422,7 @@ struct `Prisms support conditional and switch pattern matching` {
     }
 }
 
-enum TestError: Swift.Error, Hashable, Sendable {
+enum TestError: Swift::Error, Hashable, Sendable {
     case test
     case other
 }

@@ -6,7 +6,7 @@ import Testing
 @testable import Lens_Macro_Plugin
 
 private let lensMacros: [String: MacroSpec] = [
-  "Lenses": MacroSpec(type: Lens_Macro_Plugin.Macro.self)
+  "Lenses": MacroSpec(type: Lens_Macro_Plugin::Macro.self)
 ]
 
 @Test

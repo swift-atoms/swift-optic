@@ -15,7 +15,7 @@ where
 
 
 
-    public struct Partial<ForwardFailure: Swift.Error, BackwardFailure: Swift.Error> {
+    public struct Partial<ForwardFailure: Swift::Error, BackwardFailure: Swift::Error> {
         public let adapter: Optic<Source, Source, Focus, Focus>
             .Adapter<ForwardFailure, BackwardFailure>
 

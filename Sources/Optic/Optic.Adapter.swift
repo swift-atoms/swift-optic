@@ -10,8 +10,8 @@ where
 
 
     public struct Adapter<
-        ForwardFailure: Swift.Error,
-        BackwardFailure: Swift.Error
+        ForwardFailure: Swift::Error,
+        BackwardFailure: Swift::Error
     > {
         public var forward:
             (consuming Source) throws(ForwardFailure) -> Focus

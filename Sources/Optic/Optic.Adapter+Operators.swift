@@ -23,7 +23,7 @@ public func >>> <
     Replacement: ~Copyable & Escapable,
     NextFocus: ~Copyable & Escapable,
     NextReplacement: ~Copyable & ~Escapable,
-    NextBackwardFailure: Swift.Error
+    NextBackwardFailure: Swift::Error
 >(
     lhs: Optic<Source, Target, Focus, Replacement>.Adapter<Never, Never>,
     rhs: Optic<Focus, Replacement, NextFocus, NextReplacement>
@@ -41,7 +41,7 @@ public func >>> <
     Replacement: ~Copyable & Escapable,
     NextFocus: ~Copyable & Escapable,
     NextReplacement: ~Copyable & ~Escapable,
-    BackwardFailure: Swift.Error
+    BackwardFailure: Swift::Error
 >(
     lhs: Optic<Source, Target, Focus, Replacement>.Adapter<Never, BackwardFailure>,
     rhs: Optic<Focus, Replacement, NextFocus, NextReplacement>.Adapter<Never, Never>
@@ -58,8 +58,8 @@ public func >>> <
     Replacement: ~Copyable & Escapable,
     NextFocus: ~Copyable & Escapable,
     NextReplacement: ~Copyable & ~Escapable,
-    BackwardFailure: Swift.Error,
-    NextBackwardFailure: Swift.Error
+    BackwardFailure: Swift::Error,
+    NextBackwardFailure: Swift::Error
 >(
     lhs: Optic<Source, Target, Focus, Replacement>.Adapter<Never, BackwardFailure>,
     rhs: Optic<Focus, Replacement, NextFocus, NextReplacement>
@@ -77,7 +77,7 @@ public func >>> <
     Replacement: ~Copyable & Escapable,
     NextFocus: ~Copyable & Escapable,
     NextReplacement: ~Copyable & ~Escapable,
-    NextForwardFailure: Swift.Error
+    NextForwardFailure: Swift::Error
 >(
     lhs: Optic<Source, Target, Focus, Replacement>.Adapter<Never, Never>,
     rhs: Optic<Focus, Replacement, NextFocus, NextReplacement>
@@ -95,8 +95,8 @@ public func >>> <
     Replacement: ~Copyable & Escapable,
     NextFocus: ~Copyable & Escapable,
     NextReplacement: ~Copyable & ~Escapable,
-    NextForwardFailure: Swift.Error,
-    NextBackwardFailure: Swift.Error
+    NextForwardFailure: Swift::Error,
+    NextBackwardFailure: Swift::Error
 >(
     lhs: Optic<Source, Target, Focus, Replacement>.Adapter<Never, Never>,
     rhs: Optic<Focus, Replacement, NextFocus, NextReplacement>
@@ -114,8 +114,8 @@ public func >>> <
     Replacement: ~Copyable & Escapable,
     NextFocus: ~Copyable & Escapable,
     NextReplacement: ~Copyable & ~Escapable,
-    BackwardFailure: Swift.Error,
-    NextForwardFailure: Swift.Error
+    BackwardFailure: Swift::Error,
+    NextForwardFailure: Swift::Error
 >(
     lhs: Optic<Source, Target, Focus, Replacement>.Adapter<Never, BackwardFailure>,
     rhs: Optic<Focus, Replacement, NextFocus, NextReplacement>
@@ -133,9 +133,9 @@ public func >>> <
     Replacement: ~Copyable & Escapable,
     NextFocus: ~Copyable & Escapable,
     NextReplacement: ~Copyable & ~Escapable,
-    BackwardFailure: Swift.Error,
-    NextForwardFailure: Swift.Error,
-    NextBackwardFailure: Swift.Error
+    BackwardFailure: Swift::Error,
+    NextForwardFailure: Swift::Error,
+    NextBackwardFailure: Swift::Error
 >(
     lhs: Optic<Source, Target, Focus, Replacement>.Adapter<Never, BackwardFailure>,
     rhs: Optic<Focus, Replacement, NextFocus, NextReplacement>
@@ -156,7 +156,7 @@ public func >>> <
     Replacement: ~Copyable & Escapable,
     NextFocus: ~Copyable & Escapable,
     NextReplacement: ~Copyable & ~Escapable,
-    ForwardFailure: Swift.Error
+    ForwardFailure: Swift::Error
 >(
     lhs: Optic<Source, Target, Focus, Replacement>.Adapter<ForwardFailure, Never>,
     rhs: Optic<Focus, Replacement, NextFocus, NextReplacement>.Adapter<Never, Never>
@@ -173,8 +173,8 @@ public func >>> <
     Replacement: ~Copyable & Escapable,
     NextFocus: ~Copyable & Escapable,
     NextReplacement: ~Copyable & ~Escapable,
-    ForwardFailure: Swift.Error,
-    NextBackwardFailure: Swift.Error
+    ForwardFailure: Swift::Error,
+    NextBackwardFailure: Swift::Error
 >(
     lhs: Optic<Source, Target, Focus, Replacement>.Adapter<ForwardFailure, Never>,
     rhs: Optic<Focus, Replacement, NextFocus, NextReplacement>
@@ -192,8 +192,8 @@ public func >>> <
     Replacement: ~Copyable & Escapable,
     NextFocus: ~Copyable & Escapable,
     NextReplacement: ~Copyable & ~Escapable,
-    ForwardFailure: Swift.Error,
-    BackwardFailure: Swift.Error
+    ForwardFailure: Swift::Error,
+    BackwardFailure: Swift::Error
 >(
     lhs: Optic<Source, Target, Focus, Replacement>
         .Adapter<ForwardFailure, BackwardFailure>,
@@ -211,9 +211,9 @@ public func >>> <
     Replacement: ~Copyable & Escapable,
     NextFocus: ~Copyable & Escapable,
     NextReplacement: ~Copyable & ~Escapable,
-    ForwardFailure: Swift.Error,
-    BackwardFailure: Swift.Error,
-    NextBackwardFailure: Swift.Error
+    ForwardFailure: Swift::Error,
+    BackwardFailure: Swift::Error,
+    NextBackwardFailure: Swift::Error
 >(
     lhs: Optic<Source, Target, Focus, Replacement>
         .Adapter<ForwardFailure, BackwardFailure>,
@@ -235,8 +235,8 @@ public func >>> <
     Replacement: ~Copyable & Escapable,
     NextFocus: ~Copyable & Escapable,
     NextReplacement: ~Copyable & ~Escapable,
-    ForwardFailure: Swift.Error,
-    NextForwardFailure: Swift.Error
+    ForwardFailure: Swift::Error,
+    NextForwardFailure: Swift::Error
 >(
     lhs: Optic<Source, Target, Focus, Replacement>.Adapter<ForwardFailure, Never>,
     rhs: Optic<Focus, Replacement, NextFocus, NextReplacement>
@@ -254,9 +254,9 @@ public func >>> <
     Replacement: ~Copyable & Escapable,
     NextFocus: ~Copyable & Escapable,
     NextReplacement: ~Copyable & ~Escapable,
-    ForwardFailure: Swift.Error,
-    NextForwardFailure: Swift.Error,
-    NextBackwardFailure: Swift.Error
+    ForwardFailure: Swift::Error,
+    NextForwardFailure: Swift::Error,
+    NextBackwardFailure: Swift::Error
 >(
     lhs: Optic<Source, Target, Focus, Replacement>.Adapter<ForwardFailure, Never>,
     rhs: Optic<Focus, Replacement, NextFocus, NextReplacement>
@@ -277,9 +277,9 @@ public func >>> <
     Replacement: ~Copyable & Escapable,
     NextFocus: ~Copyable & Escapable,
     NextReplacement: ~Copyable & ~Escapable,
-    ForwardFailure: Swift.Error,
-    BackwardFailure: Swift.Error,
-    NextForwardFailure: Swift.Error
+    ForwardFailure: Swift::Error,
+    BackwardFailure: Swift::Error,
+    NextForwardFailure: Swift::Error
 >(
     lhs: Optic<Source, Target, Focus, Replacement>
         .Adapter<ForwardFailure, BackwardFailure>,
@@ -301,10 +301,10 @@ public func >>> <
     Replacement: ~Copyable & Escapable,
     NextFocus: ~Copyable & Escapable,
     NextReplacement: ~Copyable & ~Escapable,
-    ForwardFailure: Swift.Error,
-    BackwardFailure: Swift.Error,
-    NextForwardFailure: Swift.Error,
-    NextBackwardFailure: Swift.Error
+    ForwardFailure: Swift::Error,
+    BackwardFailure: Swift::Error,
+    NextForwardFailure: Swift::Error,
+    NextBackwardFailure: Swift::Error
 >(
     lhs: Optic<Source, Target, Focus, Replacement>
         .Adapter<ForwardFailure, BackwardFailure>,
@@ -328,8 +328,8 @@ public func >>> <
     Replacement: ~Copyable & Escapable,
     NextFocus: ~Copyable & Escapable,
     NextReplacement: ~Copyable & ~Escapable,
-    ForwardFailure: Swift.Error,
-    BackwardFailure: Swift.Error
+    ForwardFailure: Swift::Error,
+    BackwardFailure: Swift::Error
 >(
     lhs: Optic<Source, Target, Focus, Replacement>.Isomorphism,
     rhs: Optic<Focus, Replacement, NextFocus, NextReplacement>
@@ -347,8 +347,8 @@ public func >>> <
     Replacement: ~Copyable & Escapable,
     NextFocus: ~Copyable & Escapable,
     NextReplacement: ~Copyable & ~Escapable,
-    ForwardFailure: Swift.Error,
-    BackwardFailure: Swift.Error
+    ForwardFailure: Swift::Error,
+    BackwardFailure: Swift::Error
 >(
     lhs: Optic<Source, Target, Focus, Replacement>
         .Adapter<ForwardFailure, BackwardFailure>,

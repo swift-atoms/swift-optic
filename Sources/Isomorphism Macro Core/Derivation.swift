@@ -2,7 +2,9 @@ public import Type_Algebra_Syntax
 public import SwiftSyntax
 import SwiftSyntaxBuilder
 
-public enum Derivation {
+public enum Derivation {}
+
+extension Derivation {
     public typealias Analysis = Type.Syntax.Properties
 
     public static func expansion(of structure: StructDeclSyntax) -> [DeclSyntax] {

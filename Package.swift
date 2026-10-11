@@ -38,14 +38,14 @@ let package = Package(
     ],
     targets: [
         .testTarget(name: "Optic Algebra Integration Tests", dependencies: [
-            "Optic Algebra Integration",
-            "Lens Macro",
-            "Isomorphism Macro",
-            "Prism Macro",
+            .target(name: "Optic Algebra Integration"),
+            .target(name: "Lens Macro"),
+            .target(name: "Isomorphism Macro"),
+            .target(name: "Prism Macro"),
             .product(name: "Algebra Test Support", package: "swift-algebra"),
         ]),
         .target(name: "Optic Algebra Integration", dependencies: [
-            "Optic",
+            .target(name: "Optic"),
             .product(name: "Algebra", package: "swift-algebra"),
             .product(name: "Bifunctor", package: "swift-bifunctor"),
         ]),
@@ -77,7 +77,6 @@ let package = Package(
                 .target(name: "Optic"),
                 .product(name: "Either", package: "swift-either"),
                 .target(name: "Optic Test Support"),
-                .target(name: "Optic Foundation Integration"),
             ],
             path: "Tests/Optic Tests",
             resources: [.copy("Fixtures")]
@@ -93,7 +92,7 @@ let package = Package(
         .macro(
             name: "Case Macro Plugin",
             dependencies: [
-                "Case Macro Core",
+                .target(name: "Case Macro Core"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
@@ -102,19 +101,19 @@ let package = Package(
         .target(
             name: "Case Macro",
             dependencies: [
-                "Case Macro Plugin",
-                "Fold Macro",
-                "Optic",
-                "Prism Macro",
+                .target(name: "Case Macro Plugin"),
+                .target(name: "Fold Macro"),
+                .target(name: "Optic"),
+                .target(name: "Prism Macro"),
             ]
         ),
         .testTarget(
             name: "Case Macro Tests",
             dependencies: [
-                "Case Macro",
-                "Case Macro Plugin",
-                "Fold Macro Plugin",
-                "Prism Macro Plugin",
+                .target(name: "Case Macro"),
+                .target(name: "Case Macro Plugin"),
+                .target(name: "Fold Macro Plugin"),
+                .target(name: "Prism Macro Plugin"),
             ]
         ),
         .target(
@@ -128,7 +127,7 @@ let package = Package(
         .macro(
             name: "Fold Macro Plugin",
             dependencies: [
-                "Fold Macro Core",
+                .target(name: "Fold Macro Core"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
@@ -137,15 +136,15 @@ let package = Package(
         .target(
             name: "Fold Macro",
             dependencies: [
-                "Fold Macro Plugin",
-                "Optic",
+                .target(name: "Fold Macro Plugin"),
+                .target(name: "Optic"),
             ]
         ),
         .testTarget(
             name: "Fold Macro Tests",
             dependencies: [
-                "Fold Macro",
-                "Fold Macro Plugin",
+                .target(name: "Fold Macro"),
+                .target(name: "Fold Macro Plugin"),
                 .product(name: "SwiftSyntaxMacroExpansion", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacrosGenericTestSupport", package: "swift-syntax"),
             ]
@@ -161,7 +160,7 @@ let package = Package(
         .macro(
             name: "Isomorphism Macro Plugin",
             dependencies: [
-                "Isomorphism Macro Core",
+                .target(name: "Isomorphism Macro Core"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
                 .product(name: "SwiftDiagnostics", package: "swift-syntax"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
@@ -171,16 +170,16 @@ let package = Package(
         .target(
             name: "Isomorphism Macro",
             dependencies: [
-                "Isomorphism Macro Plugin",
-                "Optic",
+                .target(name: "Isomorphism Macro Plugin"),
+                .target(name: "Optic"),
             ]
         ),
         .testTarget(
             name: "Isomorphism Macro Tests",
             dependencies: [
-                "Isomorphism Macro",
-                "Isomorphism Macro Plugin",
-                "Optic",
+                .target(name: "Isomorphism Macro"),
+                .target(name: "Isomorphism Macro Plugin"),
+                .target(name: "Optic"),
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacroExpansion", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacrosGenericTestSupport", package: "swift-syntax"),
@@ -197,7 +196,7 @@ let package = Package(
         .macro(
             name: "Lens Macro Plugin",
             dependencies: [
-                "Lens Macro Core",
+                .target(name: "Lens Macro Core"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
                 .product(name: "SwiftDiagnostics", package: "swift-syntax"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
@@ -207,16 +206,16 @@ let package = Package(
         .target(
             name: "Lens Macro",
             dependencies: [
-                "Lens Macro Plugin",
-                "Optic",
+                .target(name: "Lens Macro Plugin"),
+                .target(name: "Optic"),
             ]
         ),
         .testTarget(
             name: "Lens Macro Tests",
             dependencies: [
-                "Lens Macro",
-                "Lens Macro Plugin",
-                "Optic",
+                .target(name: "Lens Macro"),
+                .target(name: "Lens Macro Plugin"),
+                .target(name: "Optic"),
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacroExpansion", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacrosGenericTestSupport", package: "swift-syntax"),
@@ -233,7 +232,7 @@ let package = Package(
         .macro(
             name: "Prism Macro Plugin",
             dependencies: [
-                "Prism Macro Core",
+                .target(name: "Prism Macro Core"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
@@ -242,16 +241,16 @@ let package = Package(
         .target(
             name: "Prism Macro",
             dependencies: [
-                "Prism Macro Plugin",
+                .target(name: "Prism Macro Plugin"),
                 .product(name: "Either", package: "swift-either"),
-                "Optic",
+                .target(name: "Optic"),
             ]
         ),
         .testTarget(
             name: "Prism Macro Tests",
             dependencies: [
-                "Prism Macro",
-                "Prism Macro Plugin",
+                .target(name: "Prism Macro"),
+                .target(name: "Prism Macro Plugin"),
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacroExpansion", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacrosGenericTestSupport", package: "swift-syntax"),
@@ -269,7 +268,7 @@ let package = Package(
         .macro(
             name: "Traversal Macro Plugin",
             dependencies: [
-                "Traversal Macro Core",
+                .target(name: "Traversal Macro Core"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
                 .product(name: "SwiftDiagnostics", package: "swift-syntax"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
@@ -279,16 +278,16 @@ let package = Package(
         .target(
             name: "Traversal Macro",
             dependencies: [
-                "Lens Macro",
-                "Traversal Macro Plugin",
-                "Optic",
+                .target(name: "Lens Macro"),
+                .target(name: "Traversal Macro Plugin"),
+                .target(name: "Optic"),
             ]
         ),
         .testTarget(
             name: "Traversal Macro Tests",
             dependencies: [
-                "Traversal Macro",
-                "Optic",
+                .target(name: "Traversal Macro"),
+                .target(name: "Optic"),
             ]
         ),
     ],

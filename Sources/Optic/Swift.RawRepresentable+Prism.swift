@@ -1,10 +1,10 @@
 import Either
 
-public struct Prisms<Represented: Swift.RawRepresentable>: Sendable {
+public struct Prisms<Represented: Swift::RawRepresentable>: Sendable {
     public init() {}
 }
 
-extension Swift.RawRepresentable
+extension Swift::RawRepresentable
 where
     Self: Copyable & Escapable,
     RawValue: Copyable & Escapable

@@ -1,6 +1,6 @@
 import Either
 
-extension Swift.Optional.Prisms {
+extension Swift::Optional.Prisms {
     public var none: Optic<Optional, Optional, Void, Void>.Prism {
         .init(
             match: { source in

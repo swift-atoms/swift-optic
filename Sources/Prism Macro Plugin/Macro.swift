@@ -2,7 +2,9 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 import Prism_Macro_Core
 
-public struct Macro: MemberMacro, ExtensionMacro {
+public struct Macro: MemberMacro, ExtensionMacro {}
+
+extension Macro {
     public static func expansion(
         of _: AttributeSyntax,
         providingMembersOf declaration: some DeclGroupSyntax,

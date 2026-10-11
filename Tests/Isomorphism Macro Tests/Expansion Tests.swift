@@ -6,7 +6,7 @@ import Testing
 @testable import Isomorphism_Macro_Plugin
 
 private let isomorphismMacros: [String: MacroSpec] = [
-  "Isomorphism": MacroSpec(type: Isomorphism_Macro_Plugin.Macro.self)
+  "Isomorphism": MacroSpec(type: Isomorphism_Macro_Plugin::Macro.self)
 ]
 
 @Test

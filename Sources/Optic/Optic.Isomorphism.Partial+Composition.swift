@@ -22,8 +22,8 @@ where
 
     public func appending<
         NextFocus: ~Copyable & Escapable,
-        NextForwardFailure: Swift.Error,
-        NextBackwardFailure: Swift.Error
+        NextForwardFailure: Swift::Error,
+        NextBackwardFailure: Swift::Error
     >(
         _ next: Optic<Focus, Focus, NextFocus, NextFocus>
             .Isomorphism.Partial<NextForwardFailure, NextBackwardFailure>
@@ -51,8 +51,8 @@ where
 
     public func appending<
         NextFocus: ~Copyable & Escapable,
-        NextForwardFailure: Swift.Error,
-        NextBackwardFailure: Swift.Error
+        NextForwardFailure: Swift::Error,
+        NextBackwardFailure: Swift::Error
     >(
         _ next: Optic<Focus, Focus, NextFocus, NextFocus>
             .Isomorphism.Partial<NextForwardFailure, NextBackwardFailure>
@@ -90,8 +90,8 @@ where
 {
     public func appending<
         NextFocus: ~Copyable & Escapable,
-        ForwardFailure: Swift.Error,
-        BackwardFailure: Swift.Error
+        ForwardFailure: Swift::Error,
+        BackwardFailure: Swift::Error
     >(
         _ next: Optic<Focus, Focus, NextFocus, NextFocus>
             .Isomorphism.Partial<ForwardFailure, BackwardFailure>

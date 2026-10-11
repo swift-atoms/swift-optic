@@ -15,7 +15,7 @@ private func composeFirstFailure<
     Input: ~Copyable & ~Escapable,
     Intermediate: ~Copyable & Escapable,
     Output: ~Copyable & Escapable,
-    Failure: Swift.Error
+    Failure: Swift::Error
 >(
     _ first: @escaping
         (consuming Input) throws(Failure) -> Intermediate,
@@ -28,7 +28,7 @@ private func composeSecondFailure<
     Input: ~Copyable & ~Escapable,
     Intermediate: ~Copyable & Escapable,
     Output: ~Copyable & Escapable,
-    Failure: Swift.Error
+    Failure: Swift::Error
 >(
     _ first: @escaping (consuming Input) -> Intermediate,
     _ second: @escaping
@@ -41,8 +41,8 @@ private func composeFailures<
     Input: ~Copyable & ~Escapable,
     Intermediate: ~Copyable & Escapable,
     Output: ~Copyable & Escapable,
-    FirstFailure: Swift.Error,
-    SecondFailure: Swift.Error
+    FirstFailure: Swift::Error,
+    SecondFailure: Swift::Error
 >(
     _ first: @escaping
         (consuming Input) throws(FirstFailure) -> Intermediate,
@@ -70,8 +70,8 @@ private func composeBackwardFailures<
     Input: ~Copyable & ~Escapable,
     Intermediate: ~Copyable & Escapable,
     Output: ~Copyable & Escapable,
-    FirstFailure: Swift.Error,
-    SecondFailure: Swift.Error
+    FirstFailure: Swift::Error,
+    SecondFailure: Swift::Error
 >(
     _ first: @escaping
         (consuming Intermediate) throws(FirstFailure) -> Output,
@@ -122,7 +122,7 @@ where
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
-        NextBackwardFailure: Swift.Error
+        NextBackwardFailure: Swift::Error
     >(
         _ next: Optic<Focus, Replacement, NextFocus, NextReplacement>
             .Adapter<Never, NextBackwardFailure>
@@ -155,7 +155,7 @@ where
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
-        NextBackwardFailure: Swift.Error
+        NextBackwardFailure: Swift::Error
     >(
         _ next: Optic<Focus, Replacement, NextFocus, NextReplacement>
             .Adapter<Never, NextBackwardFailure>
@@ -172,7 +172,7 @@ where
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
-        NextForwardFailure: Swift.Error
+        NextForwardFailure: Swift::Error
     >(
         _ next: Optic<Focus, Replacement, NextFocus, NextReplacement>
             .Adapter<NextForwardFailure, Never>
@@ -189,8 +189,8 @@ where
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
-        NextForwardFailure: Swift.Error,
-        NextBackwardFailure: Swift.Error
+        NextForwardFailure: Swift::Error,
+        NextBackwardFailure: Swift::Error
     >(
         _ next: Optic<Focus, Replacement, NextFocus, NextReplacement>
             .Adapter<NextForwardFailure, NextBackwardFailure>
@@ -207,7 +207,7 @@ where
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
-        NextForwardFailure: Swift.Error
+        NextForwardFailure: Swift::Error
     >(
         _ next: Optic<Focus, Replacement, NextFocus, NextReplacement>
             .Adapter<NextForwardFailure, Never>
@@ -224,8 +224,8 @@ where
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
-        NextForwardFailure: Swift.Error,
-        NextBackwardFailure: Swift.Error
+        NextForwardFailure: Swift::Error,
+        NextBackwardFailure: Swift::Error
     >(
         _ next: Optic<Focus, Replacement, NextFocus, NextReplacement>
             .Adapter<NextForwardFailure, NextBackwardFailure>
@@ -261,7 +261,7 @@ where
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
-        NextBackwardFailure: Swift.Error
+        NextBackwardFailure: Swift::Error
     >(
         _ next: Optic<Focus, Replacement, NextFocus, NextReplacement>
             .Adapter<Never, NextBackwardFailure>
@@ -293,7 +293,7 @@ where
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
-        NextBackwardFailure: Swift.Error
+        NextBackwardFailure: Swift::Error
     >(
         _ next: Optic<Focus, Replacement, NextFocus, NextReplacement>
             .Adapter<Never, NextBackwardFailure>
@@ -312,7 +312,7 @@ where
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
-        NextForwardFailure: Swift.Error
+        NextForwardFailure: Swift::Error
     >(
         _ next: Optic<Focus, Replacement, NextFocus, NextReplacement>
             .Adapter<NextForwardFailure, Never>
@@ -329,8 +329,8 @@ where
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
-        NextForwardFailure: Swift.Error,
-        NextBackwardFailure: Swift.Error
+        NextForwardFailure: Swift::Error,
+        NextBackwardFailure: Swift::Error
     >(
         _ next: Optic<Focus, Replacement, NextFocus, NextReplacement>
             .Adapter<NextForwardFailure, NextBackwardFailure>
@@ -350,7 +350,7 @@ where
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
-        NextForwardFailure: Swift.Error
+        NextForwardFailure: Swift::Error
     >(
         _ next: Optic<Focus, Replacement, NextFocus, NextReplacement>
             .Adapter<NextForwardFailure, Never>
@@ -369,8 +369,8 @@ where
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
-        NextForwardFailure: Swift.Error,
-        NextBackwardFailure: Swift.Error
+        NextForwardFailure: Swift::Error,
+        NextBackwardFailure: Swift::Error
     >(
         _ next: Optic<Focus, Replacement, NextFocus, NextReplacement>
             .Adapter<NextForwardFailure, NextBackwardFailure>
@@ -411,8 +411,8 @@ where
     public func appending<
         NextFocus: ~Copyable & Escapable,
         NextReplacement: ~Copyable & ~Escapable,
-        ForwardFailure: Swift.Error,
-        BackwardFailure: Swift.Error
+        ForwardFailure: Swift::Error,
+        BackwardFailure: Swift::Error
     >(
         _ next: Optic<Focus, Replacement, NextFocus, NextReplacement>
             .Adapter<ForwardFailure, BackwardFailure>
