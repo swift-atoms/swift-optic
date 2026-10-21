@@ -24,7 +24,7 @@ extension Route: Optic<Route, Route, Route, Route>.Prism.Accessible {
                 match: {
                     switch $0 {
                     case .home: return .right(())
-                    case let .user(id): return .left(.user(id))
+                    case .user(let id): return .left(.user(id))
                     }
                 },
                 embed: { _ in .home }
@@ -36,7 +36,7 @@ extension Route: Optic<Route, Route, Route, Route>.Prism.Accessible {
                 match: {
                     switch $0 {
                     case .home: return .left(.home)
-                    case let .user(id): return .right(id)
+                    case .user(let id): return .right(id)
                     }
                 },
                 embed: Route.user

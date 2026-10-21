@@ -104,7 +104,7 @@ private struct `Optic capabilities preserve input ownership and result lifetimes
         >.Affine(
             decompose: { source in
                 switch consume source {
-                case let .value(value):
+                case .value(let value):
                     .right(
                         (
                             focus: LinearResult(value: value),
@@ -136,7 +136,7 @@ private struct `Optic capabilities preserve input ownership and result lifetimes
         >.Affine(
             decompose: { source in
                 switch consume source {
-                case let .value(value):
+                case .value(let value):
                     .right(
                         (
                             focus: LinearResult(value: value),

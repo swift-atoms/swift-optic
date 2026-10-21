@@ -6,7 +6,7 @@ extension Swift::Optional.Prisms {
             match: { source in
                 switch source {
                 case .none: return .right(())
-                case let .some(wrapped): return .left(.some(wrapped))
+                case .some(let wrapped): return .left(.some(wrapped))
                 }
             },
             embed: { _ in .none }
@@ -18,7 +18,7 @@ extension Swift::Optional.Prisms {
             match: { source in
                 switch source {
                 case .none: return .left(.none)
-                case let .some(wrapped): return .right(wrapped)
+                case .some(let wrapped): return .right(wrapped)
                 }
             },
             embed: Optional.some
@@ -39,18 +39,18 @@ extension Swift::Optional.Prisms {
                 switch source {
                 case .none:
                     return .left(.none)
-                case let .some(wrapped):
+                case .some(let wrapped):
                     let result = prism.match(wrapped)
                     switch result {
-                    case let .left(unmatched): return .left(.some(unmatched))
-                    case let .right(member): return .right(.some(member))
+                    case .left(let unmatched): return .left(.some(unmatched))
+                    case .right(let member): return .right(.some(member))
                     }
                 }
             },
             embed: { member in
                 switch member {
                 case .none: return .none
-                case let .some(member): return .some(prism.embed(member))
+                case .some(let member): return .some(prism.embed(member))
                 }
             }
         )

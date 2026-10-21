@@ -53,7 +53,7 @@ func `derived prisms embed extract and reject other cases`() {
         Issue.record("Expected none to match")
         return
     }
-    guard case let .right(name) = Choice.prisms.name.match(.name("Blob")) else {
+    guard case .right(let name) = Choice.prisms.name.match(.name("Blob")) else {
         Issue.record("Expected name to match")
         return
     }
@@ -64,7 +64,7 @@ func `derived prisms embed extract and reject other cases`() {
     }
 
     let pair = Choice.prisms.pair.embed((42, "Blob"))
-    guard case let .pair(number, name) = pair else {
+    guard case .pair(let number, let name) = pair else {
         Issue.record("Expected pair")
         return
     }
@@ -72,7 +72,7 @@ func `derived prisms embed extract and reject other cases`() {
     #expect(name == "Blob")
 
     let labeled = Choice.prisms.labeled.embed((code: 7, note: "seven"))
-    guard case let .labeled(code, note) = labeled else {
+    guard case .labeled(let code, let note) = labeled else {
         Issue.record("Expected labeled payload")
         return
     }
@@ -84,7 +84,7 @@ func `derived prisms embed extract and reject other cases`() {
 func `derived prism transforms a generic family`() {
     let prism = GenericChoice<Int>.prisms.value(to: String.self)
 
-    guard case let .right(value) = prism.match(.value(payload: 42)) else {
+    guard case .right(let value) = prism.match(.value(payload: 42)) else {
         Issue.record("Expected value to match")
         return
     }
@@ -116,7 +116,7 @@ func `type changing prism distinguishes a generic reference from a member name`(
 @Test
 func `prism match and embed obey partial round trip laws`() {
     let embedded = Choice.prisms.labeled.embed((code: 42, note: "Blob"))
-    guard case let .right(payload) = Choice.prisms.labeled.match(embedded) else {
+    guard case .right(let payload) = Choice.prisms.labeled.match(embedded) else {
         Issue.record("Expected an embedded focus to match")
         return
     }
@@ -124,7 +124,7 @@ func `prism match and embed obey partial round trip laws`() {
     #expect(payload.note == "Blob")
 
     let rejected = Choice.pair(7, "seven")
-    guard case let .left(.pair(number, word)) = Choice.prisms.labeled.match(rejected) else {
+    guard case .left(.pair(let number, let word)) = Choice.prisms.labeled.match(rejected) else {
         Issue.record("Expected a rejected source to be reconstructed")
         return
     }
@@ -317,7 +317,7 @@ func `accessibility does not constrain a noncopyable generic payload`() {
     let source = prism.embed(LinearToken(value: 42))
     let extracted = prism.extract(source)
     switch consume extracted {
-    case let .some(token): #expect(token.value == 42)
+    case .some(let token): #expect(token.value == 42)
     case .none: Issue.record("Expected the generic noncopyable payload")
     }
 }

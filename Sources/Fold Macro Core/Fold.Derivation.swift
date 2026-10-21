@@ -1,5 +1,5 @@
-public import SwiftSyntax
 public import Coproduct_Syntax
+public import SwiftSyntax
 import SwiftSyntaxBuilder
 
 extension Fold {
@@ -19,7 +19,8 @@ extension Fold.Derivation {
             property($0, analysis: analysis, access: access)
         }.joined(separator: "\n")
 
-        return ["""
+        return [
+            """
             \(raw: access)struct Folds {
                 \(raw: members)
             }
@@ -27,7 +28,8 @@ extension Fold.Derivation {
             \(raw: access)static var folds: Folds {
                 Folds()
             }
-            """]
+            """
+        ]
     }
 
     private static func property(
@@ -37,7 +39,8 @@ extension Fold.Derivation {
     ) -> String {
         let name = coproductCase.name.text
         let whole = analysis.whole.trimmedDescription
-        let payload = coproductCase.parameters.isEmpty
+        let payload =
+            coproductCase.parameters.isEmpty
             ? "Void"
             : coproductCase.payload.trimmedDescription
         let branches = analysis.cases.map { candidate in

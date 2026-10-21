@@ -37,22 +37,28 @@ let package = Package(
         .package(url: "https://github.com/swift-atoms/swift-coproduct.git", branch: "main"),
     ],
     targets: [
-        .testTarget(name: "Optic Algebra Integration Tests", dependencies: [
-            .target(name: "Optic Algebra Integration"),
-            .target(name: "Lens Macro"),
-            .target(name: "Isomorphism Macro"),
-            .target(name: "Prism Macro"),
-            .product(name: "Algebra Test Support", package: "swift-algebra"),
-        ]),
-        .target(name: "Optic Algebra Integration", dependencies: [
-            .target(name: "Optic"),
-            .product(name: "Algebra", package: "swift-algebra"),
-            .product(name: "Bifunctor", package: "swift-bifunctor"),
-        ]),
+        .testTarget(
+            name: "Optic Algebra Integration Tests",
+            dependencies: [
+                .target(name: "Optic Algebra Integration"),
+                .target(name: "Lens Macro"),
+                .target(name: "Isomorphism Macro"),
+                .target(name: "Prism Macro"),
+                .product(name: "Algebra Test Support", package: "swift-algebra"),
+            ]
+        ),
+        .target(
+            name: "Optic Algebra Integration",
+            dependencies: [
+                .target(name: "Optic"),
+                .product(name: "Algebra", package: "swift-algebra"),
+                .product(name: "Bifunctor", package: "swift-bifunctor"),
+            ]
+        ),
         .target(
             name: "Optic",
             dependencies: [
-                .product(name: "Either", package: "swift-either"),
+                .product(name: "Either", package: "swift-either")
             ],
             path: "Sources/Optic",
             swiftSettings: [.enableExperimentalFeature("MoveOnlyTuples")]
@@ -61,14 +67,14 @@ let package = Package(
         .target(
             name: "Optic Foundation Integration",
             dependencies: [
-                .target(name: "Optic"),
+                .target(name: "Optic")
             ],
             path: "Sources/Optic Foundation Integration"
         ),
         .target(
             name: "Optic Test Support",
             dependencies: [
-                .target(name: "Optic"),
+                .target(name: "Optic")
             ],
             path: "Tests/Support"
         ),
@@ -298,14 +304,15 @@ let package = Package(
 )
 
 for target in package.targets where ![.system, .binary, .plugin, .macro].contains(target.type) {
-    target.swiftSettings = (target.swiftSettings ?? []) + [
-        .strictMemorySafety(),
-        .enableUpcomingFeature("ExistentialAny"),
-        .enableUpcomingFeature("InternalImportsByDefault"),
-        .enableUpcomingFeature("MemberImportVisibility"),
-        .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
-        .enableUpcomingFeature("InferIsolatedConformances"),
-        .enableExperimentalFeature("Lifetimes"),
-        .treatAllWarnings(as: .error),
-    ]
+    target.swiftSettings =
+        (target.swiftSettings ?? []) + [
+            .strictMemorySafety(),
+            .enableUpcomingFeature("ExistentialAny"),
+            .enableUpcomingFeature("InternalImportsByDefault"),
+            .enableUpcomingFeature("MemberImportVisibility"),
+            .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+            .enableUpcomingFeature("InferIsolatedConformances"),
+            .enableExperimentalFeature("Lifetimes"),
+            .treatAllWarnings(as: .error),
+        ]
 }

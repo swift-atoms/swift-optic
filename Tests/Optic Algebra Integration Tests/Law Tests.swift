@@ -1,12 +1,16 @@
-import Pair
-import Optic_Algebra_Integration
-import Lens_Macro
-import Isomorphism_Macro
-import Prism_Macro
 import Algebra_Test_Support
+import Isomorphism_Macro
+import Lens_Macro
+import Optic_Algebra_Integration
+import Pair
+import Prism_Macro
 import Testing
+
 @Lenses @Isomorphism private struct Count: Equatable { let value: Int }
-@Prisms private enum Choice: Equatable { case none; case value(Int) }
+@Prisms private enum Choice: Equatable {
+    case none
+    case value(Int)
+}
 @Test func lensAndIsomorphismLawsTransportTheChosenAlgebra() {
     let values = [-2, 0, 3].map { Count(value: $0) }
     let lens = Count.lenses.value
@@ -24,13 +28,15 @@ import Testing
     #expect(monoid.combining(Count(value: 2), Count(value: 3)).value == 5)
 }
 @Test func namedIsomorphismsReuseExistingProductsAndSums() {
-    let distribute: Optic<Pair<Int, Either<String, Bool>>, Pair<Int, Either<String, Bool>>, Either<Pair<Int, String>, Pair<Int, Bool>>, Either<Pair<Int, String>, Pair<Int, Bool>>>.Isomorphism = AlgebraicIsomorphisms.distributivity()
+    let distribute: Optic<Pair<Int, Either<String, Bool>>, Pair<Int, Either<String, Bool>>, Either<Pair<Int, String>, Pair<Int, Bool>>, Either<Pair<Int, String>, Pair<Int, Bool>>>.Isomorphism =
+        AlgebraicIsomorphisms.distributivity()
     for source in [Pair(2, Either<String, Bool>.left("x")), Pair(3, .right(true))] {
         let rebuilt = distribute.backward(distribute.forward(source))
         #expect(rebuilt.first == source.first)
         #expect(rebuilt.second == source.second)
     }
-    let associating: Optic<Pair<Pair<Int, String>, Bool>, Pair<Pair<Int, String>, Bool>, Pair<Int, Pair<String, Bool>>, Pair<Int, Pair<String, Bool>>>.Isomorphism = AlgebraicIsomorphisms.productAssociativity()
+    let associating: Optic<Pair<Pair<Int, String>, Bool>, Pair<Pair<Int, String>, Bool>, Pair<Int, Pair<String, Bool>>, Pair<Int, Pair<String, Bool>>>.Isomorphism =
+        AlgebraicIsomorphisms.productAssociativity()
     let source = Pair(Pair(1, "x"), true)
     let rebuilt = associating.backward(associating.forward(source))
     #expect(rebuilt.first.first == 1 && rebuilt.first.second == "x" && rebuilt.second)
@@ -56,7 +62,8 @@ import Testing
 @Test func sumUnitsAndAssociativityRoundTripBothDirections() {
     let zero: Optic<Either<Never, Int>, Either<Never, Int>, Int, Int>.Isomorphism = AlgebraicIsomorphisms.leftZero()
     #expect(zero.forward(zero.backward(42)) == 42)
-    let iso: Optic<Either<Either<Int, String>, Bool>, Either<Either<Int, String>, Bool>, Either<Int, Either<String, Bool>>, Either<Int, Either<String, Bool>>>.Isomorphism = AlgebraicIsomorphisms.sumAssociativity()
+    let iso: Optic<Either<Either<Int, String>, Bool>, Either<Either<Int, String>, Bool>, Either<Int, Either<String, Bool>>, Either<Int, Either<String, Bool>>>.Isomorphism =
+        AlgebraicIsomorphisms.sumAssociativity()
     let sources: [Either<Either<Int, String>, Bool>] = [.left(.left(1)), .left(.right("x")), .right(true)]
     for value in sources { #expect(iso.backward(iso.forward(value)) == value) }
     let targets: [Either<Int, Either<String, Bool>>] = [.left(1), .right(.left("x")), .right(.right(true))]

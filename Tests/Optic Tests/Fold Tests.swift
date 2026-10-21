@@ -27,7 +27,7 @@ private func requireEscapable<Value: Escapable>(_: Value) {}
 private struct `Folds preserve borrowed focus visits through weakening and composition` {
     let value = Optic<LinearChoice, LinearChoice, Token, Token>.Fold { source, visit in
         switch source {
-        case let .value(token):
+        case .value(let token):
             visit(token)
             return true
         case .other:
@@ -38,7 +38,7 @@ private struct `Folds preserve borrowed focus visits through weakening and compo
     let copyableValue = Optic<Choice<Int>, Choice<Int>, Int, Int>.Prism(
         match: {
             switch $0 {
-            case let .value(value): .right(value)
+            case .value(let value): .right(value)
             case .empty: .left(.empty)
             }
         },
@@ -75,10 +75,11 @@ private struct `Folds preserve borrowed focus visits through weakening and compo
         #expect(fold.matches(.value(1)))
         #expect(!fold.matches(.empty))
         for source in [Choice<Int>.value(2), .empty] {
-            let matched: Int? = switch copyableValue.match(source) {
-            case let .right(focus): focus
-            case .left: nil
-            }
+            let matched: Int? =
+                switch copyableValue.match(source) {
+                case .right(let focus): focus
+                case .left: nil
+                }
             #expect(fold.extract(source) == matched)
         }
     }

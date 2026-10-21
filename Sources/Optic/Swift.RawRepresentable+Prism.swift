@@ -17,12 +17,14 @@ where
     Represented: Copyable & Escapable,
     Represented.RawValue: Copyable & Escapable
 {
-    public var rawValue: Optic<
-        Represented.RawValue,
-        Represented.RawValue,
-        Represented,
-        Represented
-    >.Prism {
+    public var rawValue:
+        Optic<
+            Represented.RawValue,
+            Represented.RawValue,
+            Represented,
+            Represented
+        >.Prism
+    {
         .init(
             match: { rawValue in
                 guard let represented = Represented(rawValue: rawValue) else {

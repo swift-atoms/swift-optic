@@ -1,6 +1,6 @@
+import Fold_Macro_Core
 import SwiftSyntax
 import SwiftSyntaxMacros
-import Fold_Macro_Core
 
 public struct Macro: MemberMacro {}
 

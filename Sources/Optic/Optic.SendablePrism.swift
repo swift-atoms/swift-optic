@@ -1,6 +1,9 @@
 extension Optic
-where Source: Copyable & Escapable, Target == Source,
-    Focus: Copyable & Escapable, Replacement == Focus
+where
+    Source: Copyable & Escapable,
+    Target == Source,
+    Focus: Copyable & Escapable,
+    Replacement == Focus
 {
     public struct SendablePrism: Swift::Sendable {
         public let embed: @Sendable (Focus) -> Source

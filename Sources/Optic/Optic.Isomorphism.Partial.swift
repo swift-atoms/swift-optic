@@ -6,18 +6,10 @@ where
     Focus == Replacement
 {
 
-
-
-
-
-
-
-
-
-
     public struct Partial<ForwardFailure: Swift::Error, BackwardFailure: Swift::Error> {
-        public let adapter: Optic<Source, Source, Focus, Focus>
-            .Adapter<ForwardFailure, BackwardFailure>
+        public let adapter:
+            Optic<Source, Source, Focus, Focus>
+                .Adapter<ForwardFailure, BackwardFailure>
 
         public init(
             forward: @escaping (consuming Source) throws(ForwardFailure) -> Focus,
@@ -47,8 +39,9 @@ where
         adapter.backward
     }
 
-    public var reversed: Optic<Focus, Focus, Source, Source>
-        .Isomorphism.Partial<BackwardFailure, ForwardFailure>
+    public var reversed:
+        Optic<Focus, Focus, Source, Source>
+            .Isomorphism.Partial<BackwardFailure, ForwardFailure>
     {
         .init(forward: backward, backward: forward)
     }

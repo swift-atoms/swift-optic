@@ -33,10 +33,11 @@ private struct `Traversal families preserve focus order and outer structure` {
         let source = Inventory(values: [1, 2, 3], label: "numbers")
         let target = traversal.map(source) { "value=\($0)" }
         #expect(
-            target == Inventory(
-                values: ["value=1", "value=2", "value=3"],
-                label: "numbers"
-            )
+            target
+                == Inventory(
+                    values: ["value=1", "value=2", "value=3"],
+                    label: "numbers"
+                )
         )
     }
 

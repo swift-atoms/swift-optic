@@ -1,6 +1,6 @@
+import Case_Macro_Core
 import SwiftSyntax
 import SwiftSyntaxMacros
-import Case_Macro_Core
 
 public struct Macro: MemberMacro {}
 

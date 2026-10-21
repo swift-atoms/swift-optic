@@ -1,5 +1,5 @@
-public import SwiftSyntax
 public import Coproduct_Syntax
+public import SwiftSyntax
 import SwiftSyntaxBuilder
 
 extension Case {
@@ -26,7 +26,8 @@ extension Case.Derivation {
                 """
         }.joined(separator: "\n")
 
-        return ["""
+        return [
+            """
             \(raw: access)struct Cases {
                 \(raw: members)
             }
@@ -34,6 +35,7 @@ extension Case.Derivation {
             \(raw: access)static var cases: Cases {
                 Cases()
             }
-            """]
+            """
+        ]
     }
 }

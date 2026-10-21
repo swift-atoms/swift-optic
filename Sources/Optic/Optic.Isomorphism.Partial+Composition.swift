@@ -13,12 +13,12 @@ where
     >(
         _ next: Optic<Focus, Focus, NextFocus, NextFocus>
             .Isomorphism.Partial<Never, Never>
-    ) -> Optic<Source, Source, NextFocus, NextFocus>
+    )
+        -> Optic<Source, Source, NextFocus, NextFocus>
         .Isomorphism.Partial<Never, Never>
     where ForwardFailure == Never, BackwardFailure == Never {
         .init(adapter: adapter.appending(next.adapter))
     }
-
 
     public func appending<
         NextFocus: ~Copyable & Escapable,
@@ -27,27 +27,24 @@ where
     >(
         _ next: Optic<Focus, Focus, NextFocus, NextFocus>
             .Isomorphism.Partial<NextForwardFailure, NextBackwardFailure>
-    ) -> Optic<Source, Source, NextFocus, NextFocus>
+    )
+        -> Optic<Source, Source, NextFocus, NextFocus>
         .Isomorphism.Partial<NextForwardFailure, NextBackwardFailure>
     where ForwardFailure == Never, BackwardFailure == Never {
         .init(adapter: adapter.appending(next.adapter))
     }
-
 
     public func appending<
         NextFocus: ~Copyable & Escapable
     >(
         _ next: Optic<Focus, Focus, NextFocus, NextFocus>
             .Isomorphism.Partial<Never, Never>
-    ) -> Optic<Source, Source, NextFocus, NextFocus>
-        .Isomorphism.Partial<ForwardFailure, BackwardFailure> {
+    )
+        -> Optic<Source, Source, NextFocus, NextFocus>
+        .Isomorphism.Partial<ForwardFailure, BackwardFailure>
+    {
         .init(adapter: adapter.appending(next.adapter))
     }
-
-
-
-
-
 
     public func appending<
         NextFocus: ~Copyable & Escapable,
@@ -56,11 +53,13 @@ where
     >(
         _ next: Optic<Focus, Focus, NextFocus, NextFocus>
             .Isomorphism.Partial<NextForwardFailure, NextBackwardFailure>
-    ) -> Optic<Source, Source, NextFocus, NextFocus>
+    )
+        -> Optic<Source, Source, NextFocus, NextFocus>
         .Isomorphism.Partial<
             Either<ForwardFailure, NextForwardFailure>,
             Either<BackwardFailure, NextBackwardFailure>
-        > {
+        >
+    {
         .init(adapter: adapter.appending(next.adapter))
     }
 }
@@ -74,7 +73,8 @@ where
 {
     public func appending<NextFocus: ~Copyable & Escapable>(
         _ next: Optic<Focus, Focus, NextFocus, NextFocus>.Isomorphism
-    ) -> Optic<Source, Source, NextFocus, NextFocus>
+    )
+        -> Optic<Source, Source, NextFocus, NextFocus>
         .Isomorphism.Partial<ForwardFailure, BackwardFailure>
     {
         appending(next.partial)
@@ -95,7 +95,8 @@ where
     >(
         _ next: Optic<Focus, Focus, NextFocus, NextFocus>
             .Isomorphism.Partial<ForwardFailure, BackwardFailure>
-    ) -> Optic<Source, Source, NextFocus, NextFocus>
+    )
+        -> Optic<Source, Source, NextFocus, NextFocus>
         .Isomorphism.Partial<ForwardFailure, BackwardFailure>
     {
         partial.appending(next)

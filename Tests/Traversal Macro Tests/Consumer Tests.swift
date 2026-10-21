@@ -1,6 +1,6 @@
-import Traversal_Macro
 import Optic
 import Testing
+import Traversal_Macro
 
 @Lenses
 @Traversals

@@ -8,14 +8,6 @@ where
     Replacement: ~Copyable & ~Escapable
 {
 
-
-
-
-
-
-
-
-
     public struct Fold {
         public var visit: (borrowing Source, (borrowing Focus) -> Void) -> Bool
 
@@ -74,14 +66,12 @@ where
             switch consume result {
             case .left:
                 return false
-            case let .right(focus):
+            case .right(let focus):
                 body(focus)
                 return true
             }
         }
     }
-
-
 
     public init(_ affine: Optic<Source, Target, Focus, Replacement>.Affine) {
         self.init { source, body in
@@ -89,13 +79,12 @@ where
             switch consume decomposition {
             case .left:
                 return false
-            case let .right((focus, _)):
+            case .right((let focus, _)):
                 body(focus)
                 return true
             }
         }
     }
-
 
     public init(_ lens: Optic<Source, Target, Focus, Replacement>.Lens) {
         self.init { source, body in

@@ -40,7 +40,7 @@ where
         let result = match(source)
         switch consume result {
         case .left: return nil
-        case let .right(focus): return focus
+        case .right(let focus): return focus
         }
     }
 }
@@ -53,8 +53,8 @@ where Replacement: Escapable {
     ) -> Target {
         let result = match(source)
         switch consume result {
-        case let .left(target): return target
-        case let .right(focus): return embed(transform(focus))
+        case .left(let target): return target
+        case .right(let focus): return embed(transform(focus))
         }
     }
 }
@@ -72,7 +72,7 @@ extension Optic.Affine {
         let decomposition = decompose(source)
         switch consume decomposition {
         case .left: return nil
-        case let .right((focus, _)): return focus
+        case .right((let focus, _)): return focus
         }
     }
 }

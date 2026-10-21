@@ -1,6 +1,9 @@
 extension Optic
-where Source: Copyable & Escapable, Target: Copyable & Escapable,
-    Focus: Copyable & Escapable, Replacement: Copyable & Escapable
+where
+    Source: Copyable & Escapable,
+    Target: Copyable & Escapable,
+    Focus: Copyable & Escapable,
+    Replacement: Copyable & Escapable
 {
     public struct SendableLens: Swift::Sendable {
         public let get: @Sendable (Source) -> Focus

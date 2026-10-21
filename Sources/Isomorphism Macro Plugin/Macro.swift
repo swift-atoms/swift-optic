@@ -1,6 +1,6 @@
+import Isomorphism_Macro_Core
 import SwiftSyntax
 import SwiftSyntaxMacros
-import Isomorphism_Macro_Core
 
 public struct Macro: MemberMacro {}
 

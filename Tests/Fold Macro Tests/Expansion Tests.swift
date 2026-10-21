@@ -16,8 +16,8 @@ func `fold derivation diagnoses a non enum attachment`() {
         struct Choice {}
         """,
         expandedSource: """
-        struct Choice {}
-        """,
+            struct Choice {}
+            """,
         diagnostics: [
             DiagnosticSpec(
                 message: "@Folds applies to an enum declaration only.",

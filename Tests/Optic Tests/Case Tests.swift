@@ -22,15 +22,15 @@ private struct `Case optics support borrowed folding and consuming matching` {
         prism: .init(
             match: { source in
                 switch consume source {
-                case let .value(token): .right(token)
-                case let .other(token): .left(.other(token))
+                case .value(let token): .right(token)
+                case .other(let token): .left(.other(token))
                 }
             },
             embed: { token in .value(token) }
         ),
         fold: .init { source, visit in
             switch source {
-            case let .value(token):
+            case .value(let token):
                 visit(token)
                 return true
             case .other:
@@ -51,7 +51,7 @@ private struct `Case optics support borrowed folding and consuming matching` {
         #expect(matches)
         #expect(seen == 4)
         switch consume matched {
-        case let .right(token): #expect(token.value == 4)
+        case .right(let token): #expect(token.value == 4)
         case .left: Issue.record("expected the value case")
         }
     }
@@ -62,7 +62,7 @@ private struct `Case optics support borrowed folding and consuming matching` {
             .init(
                 match: {
                     switch $0 {
-                    case let .value(value): .right(value)
+                    case .value(let value): .right(value)
                     case .empty: .left(.empty)
                     }
                 },

@@ -34,7 +34,7 @@ func `a derived case pairs its prism with its fold`() {
     #expect(seen == "Blob")
 
     switch Choice.cases.pair.match(.pair(1, "one")) {
-    case let .right(pair):
+    case .right(let pair):
         #expect(pair.0 == 1)
         #expect(pair.1 == "one")
     case .left:

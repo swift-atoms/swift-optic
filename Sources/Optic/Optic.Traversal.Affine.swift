@@ -8,22 +8,24 @@ where
     Replacement: ~Copyable & ~Escapable
 {
     public struct Affine {
-        public var decompose: (consuming Source) -> Either<
-            Target,
-            (
-                focus: Focus,
-                reconstruct: (consuming Replacement) -> Target
-            )
-        >
-
-        public init(
-            decompose: @escaping (consuming Source) -> Either<
+        public var decompose:
+            (consuming Source) -> Either<
                 Target,
                 (
                     focus: Focus,
                     reconstruct: (consuming Replacement) -> Target
                 )
             >
+
+        public init(
+            decompose:
+                @escaping (consuming Source) -> Either<
+                    Target,
+                    (
+                        focus: Focus,
+                        reconstruct: (consuming Replacement) -> Target
+                    )
+                >
         ) {
             self.decompose = decompose
         }
@@ -60,8 +62,6 @@ where
     Target: ~Copyable & Escapable,
     Focus: ~Copyable & Escapable,
 
-
-
     Replacement: ~Copyable & Escapable
 {
     public func map(
@@ -70,9 +70,9 @@ where
     ) -> Target {
         let decomposition = decompose(source)
         switch consume decomposition {
-        case let .left(target):
+        case .left(let target):
             return target
-        case let .right((focus, reconstruct)):
+        case .right((let focus, let reconstruct)):
             return reconstruct(transform(focus))
         }
     }

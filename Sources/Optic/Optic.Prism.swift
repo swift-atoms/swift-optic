@@ -12,15 +12,6 @@ where
         public var match: (consuming Source) -> Either<Target, Focus>
         public var embed: (consuming Replacement) -> Target
 
-
-
-
-
-
-
-
-
-
         public init(
             match: @escaping (consuming Source) -> Either<Target, Focus>,
             embed: @escaping (consuming Replacement) -> Target

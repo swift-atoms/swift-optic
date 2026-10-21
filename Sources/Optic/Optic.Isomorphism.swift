@@ -9,13 +9,6 @@ where
         public var forward: (consuming Source) -> Focus
         public var backward: (consuming Replacement) -> Target
 
-
-
-
-
-
-
-
         public init(
             forward: @escaping (consuming Source) -> Focus,
             backward: @escaping (consuming Replacement) -> Target

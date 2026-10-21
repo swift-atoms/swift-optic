@@ -1,6 +1,6 @@
-public import Type_Algebra_Syntax
 public import SwiftSyntax
 import SwiftSyntaxBuilder
+public import Type_Algebra_Syntax
 
 public enum Derivation {}
 
@@ -12,8 +12,7 @@ extension Derivation {
     }
 
     public static func expansion(_ analysis: Analysis) -> [DeclSyntax] {
-        do { return try derive(analysis) }
-        catch { return [DeclSyntax(stringLiteral: "#error(\(String(reflecting: String(describing: error))))")] }
+        do { return try derive(analysis) } catch { return [DeclSyntax(stringLiteral: "#error(\(String(reflecting: String(describing: error))))")] }
     }
 
     private static func derive(_ analysis: Analysis) throws -> [DeclSyntax] {
@@ -26,10 +25,12 @@ extension Derivation {
         let forward = record.projecting("$0").expression
         let backward = try record.constructing(whole, from: record.unpacking("$0"))
 
-        let access = structure.modifiers
+        let access =
+            structure.modifiers
             .first(where: { ["public", "package"].contains($0.name.text) })
             .map { "\($0.name.text) " } ?? ""
-        var members: [String] = ["""
+        var members: [String] = [
+            """
             /// The exact stored-property/memberwise representation.
             ///
             /// This is derived only when construction uses Swift's synthesized
@@ -41,10 +42,10 @@ extension Derivation {
                     backward: { \(backward) }
                 )
             }
-            """]
+            """
+        ]
 
-        if
-            let parameter = structure.genericParameterClause?.parameters.first?.name.text,
+        if let parameter = structure.genericParameterClause?.parameters.first?.name.text,
             structure.genericParameterClause?.parameters.count == 1,
             structure.genericParameterClause?.parameters.first?.trimmedDescription == parameter,
             structure.genericWhereClause == nil,
@@ -56,13 +57,16 @@ extension Derivation {
             let replacement = "Replacement"
             let target = "\(whole)<\(replacement)>"
             let source = "\(whole)<\(parameter)>"
-            let replacementRecord = try Type.Syntax.Record(fields.map {
-                .init($0.name, type: $0.type == parameter ? replacement : $0.type)
-            })
+            let replacementRecord = try Type.Syntax.Record(
+                fields.map {
+                    .init($0.name, type: $0.type == parameter ? replacement : $0.type)
+                }
+            )
             let replacementPart = replacementRecord.tupleType
             let reconstruction = try replacementRecord.constructing(target, from: replacementRecord.unpacking("$0"))
 
-            members.append("""
+            members.append(
+                """
                 /// The type-changing stored-property/memberwise representation.
                 ///
                 /// This belongs to the family formed by replacing the sole bare
@@ -80,11 +84,13 @@ extension Derivation {
                         backward: { \(reconstruction) }
                     )
                 }
-                """)
+                """
+            )
         }
 
         let properties = members.joined(separator: "\n\n")
-        return ["""
+        return [
+            """
             \(raw: access)struct Isomorphisms {
                 \(raw: properties)
             }
@@ -92,7 +98,8 @@ extension Derivation {
             \(raw: access)static var isomorphisms: Isomorphisms {
                 Isomorphisms()
             }
-            """]
+            """
+        ]
     }
 
     private static func references(_ name: String, in type: String) -> Bool {

@@ -34,12 +34,12 @@ private func observe(
     _ result: consuming Either<LinearChoice, Token>
 ) -> Observation {
     switch consume result {
-    case let .right(token):
+    case .right(let token):
         .value(token.value)
-    case let .left(choice):
+    case .left(let choice):
         switch consume choice {
-        case let .value(token): .value(token.value)
-        case let .other(token): .other(token.value)
+        case .value(let token): .value(token.value)
+        case .other(let token): .other(token.value)
         }
     }
 }
@@ -52,7 +52,7 @@ private struct `Prism families obey matching laws and preserve input ownership` 
     let prism = Optic<Choice<Int>, Choice<String>, Int, String>.Prism(
         match: {
             switch $0 {
-            case let .value(value): .right(value)
+            case .value(let value): .right(value)
             case .empty: .left(.empty)
             }
         },
@@ -64,7 +64,7 @@ private struct `Prism families obey matching laws and preserve input ownership` 
         let prism = Optic<Choice<Int>, Choice<Int>, Int, Int>.Prism(
             match: {
                 switch $0 {
-                case let .value(value): .right(value)
+                case .value(let value): .right(value)
                 case .empty: .left(.empty)
                 }
             },
@@ -77,7 +77,7 @@ private struct `Prism families obey matching laws and preserve input ownership` 
 
     @Test
     func `matching a focus preserves its source value`() {
-        guard case let .right(value) = prism.match(.value(2)) else {
+        guard case .right(let value) = prism.match(.value(2)) else {
             Issue.record("Expected a matching focus")
             return
         }
@@ -91,7 +91,7 @@ private struct `Prism families obey matching laws and preserve input ownership` 
 
     @Test
     func `nonmatching source reconstructs the transformed target`() {
-        guard case let .left(target) = prism.match(.empty) else {
+        guard case .left(let target) = prism.match(.empty) else {
             Issue.record("Expected a reconstructed target")
             return
         }
@@ -103,14 +103,14 @@ private struct `Prism families obey matching laws and preserve input ownership` 
         let prism = Optic<Choice<Int>, Choice<Int>, Int, Int>.Prism(
             match: {
                 switch $0 {
-                case let .value(value): .right(value)
+                case .value(let value): .right(value)
                 case .empty: .left(.empty)
                 }
             },
             embed: Choice<Int>.value
         )
 
-        guard case let .right(value) = prism.match(prism.embed(42)) else {
+        guard case .right(let value) = prism.match(prism.embed(42)) else {
             Issue.record("Expected an embedded value to match")
             return
         }
@@ -122,7 +122,7 @@ private struct `Prism families obey matching laws and preserve input ownership` 
         let prism = Optic<Choice<Int>, Choice<Int>, Int, Int>.Prism(
             match: {
                 switch $0 {
-                case let .value(value): .right(value)
+                case .value(let value): .right(value)
                 case .empty: .left(.empty)
                 }
             },
@@ -130,7 +130,7 @@ private struct `Prism families obey matching laws and preserve input ownership` 
         )
         let source = Choice.value(42)
 
-        guard case let .right(value) = prism.match(source) else {
+        guard case .right(let value) = prism.match(source) else {
             Issue.record("Expected the source to match")
             return
         }
@@ -142,8 +142,8 @@ private struct `Prism families obey matching laws and preserve input ownership` 
         let prism = Optic<LinearChoice, LinearChoice, Token, Token>.Prism(
             match: { source in
                 switch consume source {
-                case let .value(token): .right(token)
-                case let .other(token): .left(.other(token))
+                case .value(let token): .right(token)
+                case .other(let token): .left(.other(token))
                 }
             },
             embed: { token in .value(token) }
@@ -171,20 +171,20 @@ private struct `Prism families obey matching laws and preserve input ownership` 
         >.Prism(
             match: { source in
                 switch source {
-                case let .value(token): .right(token.value)
-                case let .other(token): .left(.other(token.value))
+                case .value(let token): .right(token.value)
+                case .other(let token): .left(.other(token.value))
                 }
             },
             embed: { token in .value(token.value) }
         )
 
         switch prism.match(.value(ScopedToken(value: 1))) {
-        case let .right(value): #expect(value == 1)
+        case .right(let value): #expect(value == 1)
         case .left: Issue.record("Expected the scoped source to match")
         }
         switch prism.match(.other(ScopedToken(value: 2))) {
         case .right: Issue.record("Expected the scoped source not to match")
-        case let .left(value): #expect(value == .other(2))
+        case .left(let value): #expect(value == .other(2))
         }
         #expect(prism.embed(ScopedToken(value: 3)) == .value(3))
         requireCopyable(prism)

@@ -1,6 +1,6 @@
+import Lens_Macro_Core
 import SwiftSyntax
 import SwiftSyntaxMacros
-import Lens_Macro_Core
 
 public struct Macro: MemberMacro {}
 

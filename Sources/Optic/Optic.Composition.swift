@@ -121,14 +121,14 @@ where
             match: { source in
                 let outer = first.match(source)
                 switch consume outer {
-                case let .left(target):
+                case .left(let target):
                     return .left(target)
-                case let .right(focus):
+                case .right(let focus):
                     let inner = second.match(focus)
                     switch consume inner {
-                    case let .left(replacement):
+                    case .left(let replacement):
                         return .left(first.embed(replacement))
-                    case let .right(nextFocus):
+                    case .right(let nextFocus):
                         return .right(nextFocus)
                     }
                 }
@@ -176,14 +176,14 @@ where
         .init { source in
             let outer = first.decompose(source)
             switch consume outer {
-            case let .left(target):
+            case .left(let target):
                 return .left(target)
-            case let .right((focus, reconstruct)):
+            case .right((let focus, let reconstruct)):
                 let inner = second.decompose(focus)
                 switch consume inner {
-                case let .left(replacement):
+                case .left(let replacement):
                     return .left(reconstruct(replacement))
-                case let .right((nextFocus, nextReconstruct)):
+                case .right((let nextFocus, let nextReconstruct)):
                     return .right(
                         (
                             focus: nextFocus,
@@ -278,9 +278,9 @@ where
         self.init { source in
             let result = prism.match(source)
             switch consume result {
-            case let .left(target):
+            case .left(let target):
                 return .left(target)
-            case let .right(focus):
+            case .right(let focus):
                 return .right((focus: focus, reconstruct: prism.embed))
             }
         }

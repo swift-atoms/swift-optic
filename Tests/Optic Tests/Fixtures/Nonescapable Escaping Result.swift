@@ -1,5 +1,5 @@
-import Either
 import ArrowFixture
+import Either
 
 struct ScopedSource: ~Escapable {
     let value: Int
@@ -31,8 +31,8 @@ func proveStoredMatchRequiresEscapableTarget() {
     _ = Family<TargetProbeSource, ScopedTarget, Int, ScopedReplacement>.TargetRelaxedPrism(
         match: { source in
             switch source {
-            case let .value(value): .right(value)
-            case let .other(source): .left(ScopedTarget(value: source.value))
+            case .value(let value): .right(value)
+            case .other(let source): .left(ScopedTarget(value: source.value))
             }
         },
         embed: { replacement in
@@ -45,8 +45,8 @@ func proveStoredMatchRequiresEscapableFocus() {
     _ = Family<FocusProbeSource, Int, ScopedFocus, Int>.FocusRelaxedPrism(
         match: { source in
             switch source {
-            case let .value(focus): .right(focus)
-            case let .other(source): .left(source.value)
+            case .value(let focus): .right(focus)
+            case .other(let source): .left(source.value)
             }
         },
         embed: { replacement in

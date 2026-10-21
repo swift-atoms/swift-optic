@@ -20,8 +20,8 @@ func `prism derivation diagnoses a non enum attachment`() {
         struct Choice {}
         """,
         expandedSource: """
-        struct Choice {}
-        """,
+            struct Choice {}
+            """,
         diagnostics: [
             DiagnosticSpec(
                 message: "@Prisms applies to an enum declaration only.",
@@ -47,34 +47,34 @@ func `prism derivation adds accessibility and preserves explicit dynamic lookup`
         }
         """,
         expandedSource: """
-        @dynamicMemberLookup
-        public enum Node {
-            case leaf(Int)
+            @dynamicMemberLookup
+            public enum Node {
+                case leaf(Int)
 
-            public struct Prisms {
-                public var leaf: Optic<Node, Node, Int, Int>.Prism {
-                .init(
-                    match: { whole in
-                        switch whole {
-                        case let .leaf(value0):
-                            return .right(value0)
+                public struct Prisms {
+                    public var leaf: Optic<Node, Node, Int, Int>.Prism {
+                    .init(
+                        match: { whole in
+                            switch whole {
+                            case let .leaf(value0):
+                                return .right(value0)
+                            }
+                        },
+                        embed: {
+                            .leaf($0)
                         }
-                    },
-                    embed: {
-                        .leaf($0)
+                    )
                     }
-                )
+                }
+
+                public static var prisms: Prisms {
+                    Prisms()
                 }
             }
 
-            public static var prisms: Prisms {
-                Prisms()
+            extension Node: __OpticPrismAccessible {
             }
-        }
-
-        extension Node: __OpticPrismAccessible {
-        }
-        """,
+            """,
         macroSpecs: prismMacros,
         failureHandler: { failure in
             Issue.record(Comment(rawValue: failure.message))
@@ -90,20 +90,20 @@ func `prism derivation does not opt into dynamic lookup or copyability`() {
         enum Linear: ~Copyable {}
         """,
         expandedSource: """
-        enum Linear: ~Copyable {
+            enum Linear: ~Copyable {
 
-            struct Prisms {
+                struct Prisms {
 
+                }
+
+                static var prisms: Prisms {
+                    Prisms()
+                }
             }
 
-            static var prisms: Prisms {
-                Prisms()
+            extension Linear: __OpticPrismAccessible {
             }
-        }
-
-        extension Linear: __OpticPrismAccessible {
-        }
-        """,
+            """,
         macroSpecs: prismMacros,
         failureHandler: { failure in
             Issue.record(Comment(rawValue: failure.message))

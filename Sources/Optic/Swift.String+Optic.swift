@@ -7,12 +7,14 @@ extension Swift::String {
 }
 
 extension Swift::String.Isomorphisms {
-    public var substring: Optic<
-        Substring,
-        Substring,
-        String,
-        String
-    >.Isomorphism {
+    public var substring:
+        Optic<
+            Substring,
+            Substring,
+            String,
+            String
+        >.Isomorphism
+    {
         .init(
             forward: { String($0) },
             backward: { Substring($0) }

@@ -105,7 +105,10 @@ extension `Setters transform focuses while preserving setter laws and compositio
         let f: @Sendable (String) -> String = { $0.uppercased() }
         let g: @Sendable (String) -> String = { $0 + "!" }
 
-        let sequential = `Setters transform focuses while preserving setter laws and composition`.nameSetter.over(`Setters transform focuses while preserving setter laws and composition`.nameSetter.over(alice, f), g)
+        let sequential = `Setters transform focuses while preserving setter laws and composition`.nameSetter.over(
+            `Setters transform focuses while preserving setter laws and composition`.nameSetter.over(alice, f),
+            g
+        )
         let composed = `Setters transform focuses while preserving setter laws and composition`.nameSetter.over(alice) { g(f($0)) }
         #expect(sequential == composed)
     }

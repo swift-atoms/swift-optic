@@ -1,6 +1,6 @@
+import Prism_Macro_Core
 import SwiftSyntax
 import SwiftSyntaxMacros
-import Prism_Macro_Core
 
 public struct Macro: MemberMacro, ExtensionMacro {}
 

@@ -6,16 +6,18 @@ where
     Replacement: Copyable & Escapable
 {
     public struct Setter {
-        public var modify: (
-            consuming Source,
-            (consuming Focus) -> Replacement
-        ) -> Target
-
-        public init(
-            modify: @escaping (
+        public var modify:
+            (
                 consuming Source,
                 (consuming Focus) -> Replacement
             ) -> Target
+
+        public init(
+            modify:
+                @escaping (
+                    consuming Source,
+                    (consuming Focus) -> Replacement
+                ) -> Target
         ) {
             self.modify = modify
         }
@@ -57,8 +59,7 @@ where Replacement: Escapable {
     public func set(
         _ source: consuming Source,
         to replacement: Replacement
-    ) -> Target
-    {
+    ) -> Target {
         modify(source) { _ in replacement }
     }
 }

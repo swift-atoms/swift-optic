@@ -1,7 +1,7 @@
 import Either
 import Optic
-import Testing
 import Prism_Macro
+import Testing
 
 @Prisms
 private enum AffineResult {
@@ -19,7 +19,7 @@ private enum GenericResult<Value> {
 func `derived affine traversal updates only its matching case`() {
     let traversal = AffineResult.prisms.value.asAffine()
 
-    guard case let .right(context) = traversal.decompose(.value(21)) else {
+    guard case .right(let context) = traversal.decompose(.value(21)) else {
         Issue.record("Expected value to match")
         return
     }

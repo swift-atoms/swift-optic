@@ -1,5 +1,5 @@
-public import SwiftSyntax
 public import Coproduct_Syntax
+public import SwiftSyntax
 import SwiftSyntaxBuilder
 
 extension Prism {
@@ -29,15 +29,18 @@ extension Prism.Derivation {
             property($0, analysis: analysis, access: access)
         }.joined(separator: "\n")
 
-        return ["""
+        return [
+            """
             \(raw: access)struct Prisms {
                 \(raw: members)
             }
-            """, """
+            """,
+            """
             \(raw: access)static var prisms: Prisms {
                 Prisms()
             }
-            """]
+            """,
+        ]
     }
 
     private static func property(
@@ -57,7 +60,8 @@ extension Prism.Derivation {
             let binding = analysis.isCopyableSuppressed ? "payload" : "$0"
             let projected = coproductCase.parameters.indices.map { "\(binding).\($0)" }
             let constructor = ".\(name)(\(coproductCase.constructorArguments(projected)))"
-            embed = analysis.isCopyableSuppressed
+            embed =
+                analysis.isCopyableSuppressed
                 ? "{ (payload: consuming \(payload)) in \(constructor) }"
                 : "{ \(constructor) }"
         }
@@ -71,8 +75,7 @@ extension Prism.Derivation {
                 )
             }
             """
-        if
-            let parameter = analysis.genericParameter,
+        if let parameter = analysis.genericParameter,
             coproductCase.isDirectReference(to: parameter),
             analysis.cases
                 .filter({ $0.name.text != name })
@@ -110,7 +113,8 @@ extension Prism.Derivation {
                 ? matchingBranch(coproductCase)
                 : unmatchedBranch(coproductCase)
         }.joined(separator: "\n")
-        let switchValue = analysis.isCopyableSuppressed
+        let switchValue =
+            analysis.isCopyableSuppressed
             ? "consume \(value)"
             : value
         return """

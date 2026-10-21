@@ -6,16 +6,18 @@ where
     Replacement: ~Copyable & ~Escapable
 {
     public struct Lens {
-        public var decompose: (consuming Source) -> (
-            focus: Focus,
-            reconstruct: (consuming Replacement) -> Target
-        )
-
-        public init(
-            decompose: @escaping (consuming Source) -> (
+        public var decompose:
+            (consuming Source) -> (
                 focus: Focus,
                 reconstruct: (consuming Replacement) -> Target
             )
+
+        public init(
+            decompose:
+                @escaping (consuming Source) -> (
+                    focus: Focus,
+                    reconstruct: (consuming Replacement) -> Target
+                )
         ) {
             self.decompose = decompose
         }

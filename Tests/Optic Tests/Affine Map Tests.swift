@@ -17,7 +17,7 @@ private struct `Affine mapping transforms matching focuses and nonmatching targe
     >.Affine(
         decompose: {
             switch $0 {
-            case let .value(value):
+            case .value(let value):
                 .right((focus: value, reconstruct: AffineChoice<String>.value))
             case .empty:
                 .left(.empty)

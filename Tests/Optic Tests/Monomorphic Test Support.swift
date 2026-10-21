@@ -27,16 +27,16 @@ func expectPrismLaws<Whole: Equatable, Part: Equatable>(
     whole: Whole,
     part: Part
 ) {
-    guard case let .right(matched) = prism.match(prism.embed(part)) else {
+    guard case .right(let matched) = prism.match(prism.embed(part)) else {
         Issue.record("Expected an embedded focus to match")
         return
     }
     #expect(matched == part)
 
     switch prism.match(whole) {
-    case let .left(unmatched):
+    case .left(let unmatched):
         #expect(unmatched == whole)
-    case let .right(matched):
+    case .right(let matched):
         #expect(prism.embed(matched) == whole)
     }
 }

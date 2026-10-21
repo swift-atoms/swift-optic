@@ -7,8 +7,7 @@ extension Optic.Traversal {
     >(
         _ first: Self,
         _ second: Optic<Focus, Replacement, NextFocus, NextReplacement>.Traversal
-    ) -> Optic<Source, Target, NextFocus, NextReplacement>.Traversal
-    {
+    ) -> Optic<Source, Target, NextFocus, NextReplacement>.Traversal {
         .init { source in
             let outer = first.decompose(source)
             let inners = outer.focuses.map(second.decompose)
@@ -37,8 +36,7 @@ extension Optic.Traversal {
         NextReplacement: Copyable & Escapable
     >(
         _ next: Optic<Focus, Replacement, NextFocus, NextReplacement>.Traversal
-    ) -> Optic<Source, Target, NextFocus, NextReplacement>.Traversal
-    {
+    ) -> Optic<Source, Target, NextFocus, NextReplacement>.Traversal {
         Self.composing(self, next)
     }
 
@@ -126,9 +124,9 @@ where Target: Copyable {
         self.init { source in
             let result = prism.match(source)
             switch result {
-            case let .left(target):
+            case .left(let target):
                 return .init(focuses: [], reconstruct: { _ in target })
-            case let .right(focus):
+            case .right(let focus):
                 return .init(
                     focuses: [focus],
                     reconstruct: { replacements in
@@ -144,9 +142,9 @@ where Target: Copyable {
         self.init { source in
             let decomposition = affine.decompose(source)
             switch decomposition {
-            case let .left(target):
+            case .left(let target):
                 return .init(focuses: [], reconstruct: { _ in target })
-            case let .right((focus, reconstruct)):
+            case .right((let focus, let reconstruct)):
                 return .init(
                     focuses: [focus],
                     reconstruct: { replacements in

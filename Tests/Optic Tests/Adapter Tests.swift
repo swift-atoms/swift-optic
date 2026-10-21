@@ -65,12 +65,10 @@ private struct `Adapters preserve directional behavior and composition failure o
             forward: { Int($0)! },
             backward: fallibleBackward
         )
-        let exactForward:
-            Optic<Int, Int, String, String>.Adapter<FirstFailure, Never> =
-                forwardOnly
-        let exactBackward:
-            Optic<String, String, Int, Int>.Adapter<Never, SecondFailure> =
-                backwardOnly
+        let exactForward: Optic<Int, Int, String, String>.Adapter<FirstFailure, Never> =
+            forwardOnly
+        let exactBackward: Optic<String, String, Int, Int>.Adapter<Never, SecondFailure> =
+            backwardOnly
 
         #expect(try exactForward.forward(42) == "42")
         #expect(exactForward.backward("42") == 42)
@@ -91,9 +89,8 @@ private struct `Adapters preserve directional behavior and composition failure o
             },
             backward: { String($0) }
         )
-        let composed:
-            Optic<Int, Int, Int, Int>.Adapter<SecondFailure, Never> =
-                first >>> second
+        let composed: Optic<Int, Int, Int, Int>.Adapter<SecondFailure, Never> =
+            first >>> second
 
         #expect(try composed.forward(42) == 42)
         #expect(composed.backward(42) == 42)
@@ -123,10 +120,11 @@ private struct `Adapters preserve directional behavior and composition failure o
                     return value
                 }
             )
-        let composed: Optic<Int, Int, Double, String>.Adapter<
-            Either<FirstFailure, SecondFailure>,
-            Either<FirstFailure, SecondFailure>
-        > = first >>> second
+        let composed:
+            Optic<Int, Int, Double, String>.Adapter<
+                Either<FirstFailure, SecondFailure>,
+                Either<FirstFailure, SecondFailure>
+            > = first >>> second
 
         do {
             _ = try composed.forward(-1)
@@ -168,9 +166,8 @@ private struct `Adapters preserve directional behavior and composition failure o
             forward: String.init,
             backward: { Int($0)! }
         )
-        let adapter:
-            Optic<Int, Int, String, String>.Adapter<Never, Never> =
-                isomorphism.adapter
+        let adapter: Optic<Int, Int, String, String>.Adapter<Never, Never> =
+            isomorphism.adapter
         let fallible = Optic<String, String, Int, Int>.Adapter(
             forward: { value throws(SecondFailure) in
                 guard let value = Int(value) else { throw .forward }
@@ -178,9 +175,8 @@ private struct `Adapters preserve directional behavior and composition failure o
             },
             backward: { String($0) }
         )
-        let composed:
-            Optic<Int, Int, Int, Int>.Adapter<SecondFailure, Never> =
-                isomorphism >>> fallible
+        let composed: Optic<Int, Int, Int, Int>.Adapter<SecondFailure, Never> =
+            isomorphism >>> fallible
 
         #expect(adapter.forward(42) == "42")
         #expect(try composed.forward(42) == 42)
