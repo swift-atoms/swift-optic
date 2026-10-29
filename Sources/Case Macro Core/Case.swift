@@ -1,3 +1,1 @@
-#if CaseMacro
-    public enum Case {}
-#endif
+public enum Case {}

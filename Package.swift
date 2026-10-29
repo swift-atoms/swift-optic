@@ -25,15 +25,6 @@ let package = Package(
         .library(name: "Prism Macro", targets: ["Prism Macro"]),
         .library(name: "Traversal Macro", targets: ["Traversal Macro"]),
     ],
-    traits: [
-        .trait(name: "CaseMacro", description: "Case Macro and the dependencies only it needs"),
-        .trait(name: "FoldMacro", description: "Fold Macro and the dependencies only it needs"),
-        .trait(name: "IsomorphismMacro", description: "Isomorphism Macro and the dependencies only it needs"),
-        .trait(name: "LensMacro", description: "Lens Macro and the dependencies only it needs"),
-        .trait(name: "OpticAlgebraIntegration", description: "Optic Algebra Integration and the dependencies only it needs"),
-        .trait(name: "PrismMacro", description: "Prism Macro and the dependencies only it needs"),
-        .trait(name: "TraversalMacro", description: "Traversal Macro and the dependencies only it needs"),
-    ],
     dependencies: [
         .package(url: "https://github.com/swift-atoms/swift-bifunctor.git", branch: "main"),
         .package(url: "https://github.com/swift-atoms/swift-algebra.git", branch: "main"),
@@ -60,8 +51,8 @@ let package = Package(
             name: "Optic Algebra Integration",
             dependencies: [
                 .target(name: "Optic"),
-                .product(name: "Algebra", package: "swift-algebra", condition: .when(traits: ["OpticAlgebraIntegration"])),
-                .product(name: "Bifunctor", package: "swift-bifunctor", condition: .when(traits: ["OpticAlgebraIntegration"])),
+                .product(name: "Algebra", package: "swift-algebra"),
+                .product(name: "Bifunctor", package: "swift-bifunctor"),
             ]
         ),
         .target(
@@ -101,7 +92,7 @@ let package = Package(
         .target(
             name: "Case Macro Core",
             dependencies: [
-                .product(name: "Coproduct Syntax", package: "swift-coproduct", condition: .when(traits: ["CaseMacro"])),
+                .product(name: "Coproduct Syntax", package: "swift-coproduct"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
             ]
@@ -136,7 +127,7 @@ let package = Package(
         .target(
             name: "Fold Macro Core",
             dependencies: [
-                .product(name: "Coproduct Syntax", package: "swift-coproduct", condition: .when(traits: ["CaseMacro", "FoldMacro"])),
+                .product(name: "Coproduct Syntax", package: "swift-coproduct"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
             ]
@@ -169,7 +160,7 @@ let package = Package(
         .target(
             name: "Isomorphism Macro Core",
             dependencies: [
-                .product(name: "Type Algebra Syntax", package: "swift-algebra", condition: .when(traits: ["IsomorphismMacro"])),
+                .product(name: "Type Algebra Syntax", package: "swift-algebra"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
             ]
@@ -205,7 +196,7 @@ let package = Package(
         .target(
             name: "Lens Macro Core",
             dependencies: [
-                .product(name: "Type Algebra Syntax", package: "swift-algebra", condition: .when(traits: ["LensMacro", "TraversalMacro"])),
+                .product(name: "Type Algebra Syntax", package: "swift-algebra"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
             ]
@@ -241,7 +232,7 @@ let package = Package(
         .target(
             name: "Prism Macro Core",
             dependencies: [
-                .product(name: "Coproduct Syntax", package: "swift-coproduct", condition: .when(traits: ["CaseMacro", "PrismMacro"])),
+                .product(name: "Coproduct Syntax", package: "swift-coproduct"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
             ]
@@ -278,7 +269,7 @@ let package = Package(
         .target(
             name: "Traversal Macro Core",
             dependencies: [
-                .product(name: "Type Algebra Syntax", package: "swift-algebra", condition: .when(traits: ["TraversalMacro"])),
+                .product(name: "Type Algebra Syntax", package: "swift-algebra"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
             ]
