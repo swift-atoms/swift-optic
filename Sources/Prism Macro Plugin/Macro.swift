@@ -1,30 +1,32 @@
-import Prism_Macro_Core
-import SwiftSyntax
-import SwiftSyntaxMacros
+#if CaseMacro || PrismMacro
+    import Prism_Macro_Core
+    import SwiftSyntax
+    import SwiftSyntaxMacros
 
-public struct Macro: MemberMacro, ExtensionMacro {}
+    public struct Macro: MemberMacro, ExtensionMacro {}
 
-extension Macro {
-    public static func expansion(
-        of _: AttributeSyntax,
-        providingMembersOf declaration: some DeclGroupSyntax,
-        conformingTo _: [TypeSyntax],
-        in _: some MacroExpansionContext
-    ) throws -> [DeclSyntax] {
-        guard let declaration = declaration.as(EnumDeclSyntax.self) else {
-            throw MacroExpansionErrorMessage("@Prisms applies to an enum declaration only.")
+    extension Macro {
+        public static func expansion(
+            of _: AttributeSyntax,
+            providingMembersOf declaration: some DeclGroupSyntax,
+            conformingTo _: [TypeSyntax],
+            in _: some MacroExpansionContext
+        ) throws -> [DeclSyntax] {
+            guard let declaration = declaration.as(EnumDeclSyntax.self) else {
+                throw MacroExpansionErrorMessage("@Prisms applies to an enum declaration only.")
+            }
+            return Prism.Derivation.expansion(of: declaration)
         }
-        return Prism.Derivation.expansion(of: declaration)
-    }
 
-    public static func expansion(
-        of _: AttributeSyntax,
-        attachedTo declaration: some DeclGroupSyntax,
-        providingExtensionsOf type: some TypeSyntaxProtocol,
-        conformingTo protocols: [TypeSyntax],
-        in _: some MacroExpansionContext
-    ) throws -> [ExtensionDeclSyntax] {
-        guard declaration.is(EnumDeclSyntax.self), !protocols.isEmpty else { return [] }
-        return Prism.Derivation.extensions(of: type)
+        public static func expansion(
+            of _: AttributeSyntax,
+            attachedTo declaration: some DeclGroupSyntax,
+            providingExtensionsOf type: some TypeSyntaxProtocol,
+            conformingTo protocols: [TypeSyntax],
+            in _: some MacroExpansionContext
+        ) throws -> [ExtensionDeclSyntax] {
+            guard declaration.is(EnumDeclSyntax.self), !protocols.isEmpty else { return [] }
+            return Prism.Derivation.extensions(of: type)
+        }
     }
-}
+#endif

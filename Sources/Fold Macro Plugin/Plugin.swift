@@ -1,7 +1,9 @@
-import SwiftCompilerPlugin
-import SwiftSyntaxMacros
+#if CaseMacro || FoldMacro
+    import SwiftCompilerPlugin
+    import SwiftSyntaxMacros
 
-@main
-struct Plugin: CompilerPlugin {
-    let providingMacros: [any SwiftSyntaxMacros.Macro.Type] = [Macro.self]
-}
+    @main
+    struct Plugin: CompilerPlugin {
+        let providingMacros: [any SwiftSyntaxMacros.Macro.Type] = [Macro.self]
+    }
+#endif
