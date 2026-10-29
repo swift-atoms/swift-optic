@@ -102,8 +102,8 @@ let package = Package(
             name: "Case Macro Core",
             dependencies: [
                 .product(name: "Coproduct Syntax", package: "swift-coproduct", condition: .when(traits: ["CaseMacro"])),
-                .product(name: "SwiftSyntax", package: "swift-syntax", condition: .when(traits: ["CaseMacro"])),
-                .product(name: "SwiftSyntaxBuilder", package: "swift-syntax", condition: .when(traits: ["CaseMacro"])),
+                .product(name: "SwiftSyntax", package: "swift-syntax"),
+                .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
             ]
         ),
         .macro(
@@ -137,8 +137,8 @@ let package = Package(
             name: "Fold Macro Core",
             dependencies: [
                 .product(name: "Coproduct Syntax", package: "swift-coproduct", condition: .when(traits: ["CaseMacro", "FoldMacro"])),
-                .product(name: "SwiftSyntax", package: "swift-syntax", condition: .when(traits: ["CaseMacro", "FoldMacro"])),
-                .product(name: "SwiftSyntaxBuilder", package: "swift-syntax", condition: .when(traits: ["CaseMacro", "FoldMacro"])),
+                .product(name: "SwiftSyntax", package: "swift-syntax"),
+                .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
             ]
         ),
         .macro(
@@ -170,8 +170,8 @@ let package = Package(
             name: "Isomorphism Macro Core",
             dependencies: [
                 .product(name: "Type Algebra Syntax", package: "swift-algebra", condition: .when(traits: ["IsomorphismMacro"])),
-                .product(name: "SwiftSyntax", package: "swift-syntax", condition: .when(traits: ["IsomorphismMacro"])),
-                .product(name: "SwiftSyntaxBuilder", package: "swift-syntax", condition: .when(traits: ["IsomorphismMacro"])),
+                .product(name: "SwiftSyntax", package: "swift-syntax"),
+                .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
             ]
         ),
         .macro(
@@ -206,8 +206,8 @@ let package = Package(
             name: "Lens Macro Core",
             dependencies: [
                 .product(name: "Type Algebra Syntax", package: "swift-algebra", condition: .when(traits: ["LensMacro", "TraversalMacro"])),
-                .product(name: "SwiftSyntax", package: "swift-syntax", condition: .when(traits: ["LensMacro", "TraversalMacro"])),
-                .product(name: "SwiftSyntaxBuilder", package: "swift-syntax", condition: .when(traits: ["LensMacro", "TraversalMacro"])),
+                .product(name: "SwiftSyntax", package: "swift-syntax"),
+                .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
             ]
         ),
         .macro(
@@ -242,8 +242,8 @@ let package = Package(
             name: "Prism Macro Core",
             dependencies: [
                 .product(name: "Coproduct Syntax", package: "swift-coproduct", condition: .when(traits: ["CaseMacro", "PrismMacro"])),
-                .product(name: "SwiftSyntax", package: "swift-syntax", condition: .when(traits: ["CaseMacro", "PrismMacro"])),
-                .product(name: "SwiftSyntaxBuilder", package: "swift-syntax", condition: .when(traits: ["CaseMacro", "PrismMacro"])),
+                .product(name: "SwiftSyntax", package: "swift-syntax"),
+                .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
             ]
         ),
         .macro(
@@ -259,7 +259,7 @@ let package = Package(
             name: "Prism Macro",
             dependencies: [
                 .target(name: "Prism Macro Plugin"),
-                .product(name: "Either", package: "swift-either", condition: .when(traits: ["CaseMacro", "PrismMacro"])),
+                .product(name: "Either", package: "swift-either"),
                 .target(name: "Optic"),
             ]
         ),
@@ -279,8 +279,8 @@ let package = Package(
             name: "Traversal Macro Core",
             dependencies: [
                 .product(name: "Type Algebra Syntax", package: "swift-algebra", condition: .when(traits: ["TraversalMacro"])),
-                .product(name: "SwiftSyntax", package: "swift-syntax", condition: .when(traits: ["TraversalMacro"])),
-                .product(name: "SwiftSyntaxBuilder", package: "swift-syntax", condition: .when(traits: ["TraversalMacro"])),
+                .product(name: "SwiftSyntax", package: "swift-syntax"),
+                .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
             ]
         ),
         .macro(
