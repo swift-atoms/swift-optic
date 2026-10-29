@@ -25,6 +25,15 @@ let package = Package(
         .library(name: "Prism Macro", targets: ["Prism Macro"]),
         .library(name: "Traversal Macro", targets: ["Traversal Macro"]),
     ],
+    traits: [
+        .trait(name: "CaseMacro", description: "Case Macro and the dependencies only it needs"),
+        .trait(name: "FoldMacro", description: "Fold Macro and the dependencies only it needs"),
+        .trait(name: "IsomorphismMacro", description: "Isomorphism Macro and the dependencies only it needs"),
+        .trait(name: "LensMacro", description: "Lens Macro and the dependencies only it needs"),
+        .trait(name: "OpticAlgebraIntegration", description: "Optic Algebra Integration and the dependencies only it needs"),
+        .trait(name: "PrismMacro", description: "Prism Macro and the dependencies only it needs"),
+        .trait(name: "TraversalMacro", description: "Traversal Macro and the dependencies only it needs"),
+    ],
     dependencies: [
         .package(url: "https://github.com/swift-atoms/swift-bifunctor.git", branch: "main"),
         .package(url: "https://github.com/swift-atoms/swift-algebra.git", branch: "main"),
@@ -35,15 +44,6 @@ let package = Package(
         ),
         .package(url: "https://github.com/swiftlang/swift-syntax.git", "604.0.0"..<"605.0.0"),
         .package(url: "https://github.com/swift-atoms/swift-coproduct.git", branch: "main"),
-    ],
-    traits: [
-        .trait(name: "CaseMacro", description: "Case Macro and the dependencies only it needs"),
-        .trait(name: "FoldMacro", description: "Fold Macro and the dependencies only it needs"),
-        .trait(name: "IsomorphismMacro", description: "Isomorphism Macro and the dependencies only it needs"),
-        .trait(name: "LensMacro", description: "Lens Macro and the dependencies only it needs"),
-        .trait(name: "OpticAlgebraIntegration", description: "Optic Algebra Integration and the dependencies only it needs"),
-        .trait(name: "PrismMacro", description: "Prism Macro and the dependencies only it needs"),
-        .trait(name: "TraversalMacro", description: "Traversal Macro and the dependencies only it needs"),
     ],
     targets: [
         .testTarget(
