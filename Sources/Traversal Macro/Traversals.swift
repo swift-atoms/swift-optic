@@ -1,9 +1,11 @@
-@_exported import Lens_Macro
-@_exported import Optic
+#if TraversalMacro
+    @_exported import Lens_Macro
+    @_exported import Optic
 
-@attached(member, names: named(Traversals), named(traversals))
-public macro Traversals() =
-    #externalMacro(
-        module: "Traversal_Macro_Plugin",
-        type: "Macro"
-    )
+    @attached(member, names: named(Traversals), named(traversals))
+    public macro Traversals() =
+        #externalMacro(
+            module: "Traversal_Macro_Plugin",
+            type: "Macro"
+        )
+#endif

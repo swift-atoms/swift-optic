@@ -1,1 +1,3 @@
-public enum Fold {}
+#if CaseMacro || FoldMacro
+    public enum Fold {}
+#endif

@@ -1,1 +1,3 @@
-public enum Prism {}
+#if CaseMacro || PrismMacro
+    public enum Prism {}
+#endif
