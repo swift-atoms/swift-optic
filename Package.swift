@@ -28,7 +28,6 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/swift-atoms/swift-bifunctor.git", branch: "main"),
         .package(url: "https://github.com/swift-atoms/swift-algebra.git", branch: "main"),
-        .package(url: "https://github.com/swift-atoms/swift-product.git", branch: "main"),
         .package(
             url: "https://github.com/swift-atoms/swift-either.git",
             branch: "main"
