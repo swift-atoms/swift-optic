@@ -6,12 +6,12 @@ private struct AdapterBox<Value: Equatable>: Equatable {
     var value: Value
 }
 
-private enum FirstFailure: Error, Equatable {
+private enum FirstFailure: Swift.Error, Equatable {
     case forward
     case backward
 }
 
-private enum SecondFailure: Error, Equatable {
+private enum SecondFailure: Swift.Error, Equatable {
     case forward
     case backward
 }

@@ -1,10 +1,10 @@
 import Either
 import Optic
 
-enum FirstForward: Error { case failed }
-enum FirstBackward: Error { case failed }
-enum SecondForward: Error { case failed }
-enum SecondBackward: Error { case failed }
+enum FirstForward: Swift.Error { case failed }
+enum FirstBackward: Swift.Error { case failed }
+enum SecondForward: Swift.Error { case failed }
+enum SecondBackward: Swift.Error { case failed }
 
 func firstForward(_ value: Int) throws(FirstForward) -> String {
     guard value >= 0 else { throw .failed }
