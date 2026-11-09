@@ -112,6 +112,23 @@ private struct `Folds preserve borrowed focus visits through weakening and compo
     }
 
     @Test
+    func `a composed fold reports a visit when any outer focus matches, not only the last`() {
+        let pair = Optic<[Choice<Int>], [Choice<Int>], Choice<Int>, Choice<Int>>.Fold { source, visit in
+            for element in source { visit(element) }
+            return !source.isEmpty
+        }
+        let composed = pair >>> Optic<Choice<Int>, Choice<Int>, Int, Int>.Fold(copyableValue)
+        var seen: [Int] = []
+        let visited = composed([.value(1), .empty]) { seen.append($0) }
+
+        #expect(visited)
+        #expect(seen == [1])
+        #expect(composed.matches([.empty, .value(2)]))
+        #expect(!composed.matches([.empty, .empty]))
+        #expect(!composed.matches([]))
+    }
+
+    @Test
     func `a nonescapable focus is lent to the visitor`() {
         let fold = Optic<Int, Int, ScopedToken, ScopedToken>.Fold { source, visit in
             visit(ScopedToken(value: source))

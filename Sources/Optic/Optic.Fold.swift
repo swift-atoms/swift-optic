@@ -111,7 +111,7 @@ where
         .init { source, body in
             var visited = false
             _ = first.visit(source) { focus in
-                visited = second.visit(focus, body)
+                if second.visit(focus, body) { visited = true }
             }
             return visited
         }
