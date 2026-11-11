@@ -1,4 +1,5 @@
 import Field_Macro_Core
+import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -6,13 +7,19 @@ public struct Macro: MemberMacro, ExtensionMacro {}
 
 extension Macro {
     public static func expansion(
-        of _: AttributeSyntax,
+        of node: AttributeSyntax,
         providingMembersOf declaration: some DeclGroupSyntax,
         conformingTo _: [TypeSyntax],
-        in _: some MacroExpansionContext
-    ) throws -> [DeclSyntax] {
+        in context: some MacroExpansionContext
+    ) -> [DeclSyntax] {
         guard let declaration = declaration.as(StructDeclSyntax.self) else {
-            throw MacroExpansionErrorMessage("@Fields applies to a struct declaration only.")
+            context.diagnose(
+                Diagnostic(
+                    node: node,
+                    message: MacroExpansionErrorMessage("@Fields applies to a struct declaration only.")
+                )
+            )
+            return []
         }
         return Field.Derivation.expansion(of: declaration)
     }
@@ -23,7 +30,7 @@ extension Macro {
         providingExtensionsOf type: some TypeSyntaxProtocol,
         conformingTo _: [TypeSyntax],
         in _: some MacroExpansionContext
-    ) throws -> [ExtensionDeclSyntax] {
+    ) -> [ExtensionDeclSyntax] {
         guard declaration.is(StructDeclSyntax.self) else { return [] }
         return Field.Derivation.extensions(of: type)
     }

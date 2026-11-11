@@ -29,7 +29,7 @@ func `field derivation numbers stored variables and skips what is not stored`() 
                 var doubled: Int { count * 2 }
 
                 struct Fields {
-                    let count = Optic.Field(1, get: { (whole: Counter) in
+                    let count = Optic.Field(identity: .init(positions: [1]), get: { (whole: Counter) in
                             whole.count
                         }, modify: { (whole: inout Counter, transform) in
                             transform(&whole.count)

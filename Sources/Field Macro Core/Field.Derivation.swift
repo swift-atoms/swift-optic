@@ -17,7 +17,9 @@ extension Field.Derivation {
 
     /// One field per stored instance `var`, in declaration order. A `let`, a computed property and
     /// a static property are not stored parts that can be changed in place, so they get no field,
-    /// but a `let` still counts for the positions of the properties after it.
+    /// but a `let` still counts for the positions of the properties after it. So does a property
+    /// with an attribute: a property wrapper or an attached macro may make it read-only, which
+    /// this derivation cannot see, so it gets no field and keeps its position.
     public static func expansion(of structure: StructDeclSyntax) -> [DeclSyntax] {
         let whole = structure.name.text
         let access =
@@ -31,9 +33,10 @@ extension Field.Derivation {
             for binding in variable.bindings {
                 guard let name = binding.pattern.as(IdentifierPatternSyntax.self)?.identifier.text else { continue }
                 defer { position += 1 }
-                guard variable.bindingSpecifier.tokenKind == .keyword(.var) else { continue }
+                guard variable.bindingSpecifier.tokenKind == .keyword(.var), variable.attributes.isEmpty
+                else { continue }
                 members.append(
-                    "\(access)let \(name) = Optic.Field(\(position), "
+                    "\(access)let \(name) = Optic.Field(identity: .init(positions: [\(position)]), "
                         + "get: { (whole: \(whole)) in whole.\(name) }, "
                         + "modify: { (whole: inout \(whole), transform) in transform(&whole.\(name)) })"
                 )

@@ -6,10 +6,6 @@
 public struct __OpticFieldIdentity: Swift::Hashable, Swift::Sendable {
     public let positions: [Swift::Int]
 
-    public init(_ position: Swift::Int) {
-        self.positions = [position]
-    }
-
     public init(positions: [Swift::Int]) {
         self.positions = positions
     }

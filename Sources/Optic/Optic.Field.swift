@@ -16,14 +16,12 @@ where
     /// part, a change that does nothing leaves the whole as it was, and of two changes the last
     /// one wins.
     public struct Field {
-        public typealias Identity = __OpticFieldIdentity
-
-        public let identity: Identity
+        public let identity: __OpticFieldIdentity
         public let get: (Source) -> Focus
         public let modify: (inout Source, (inout Focus) -> Swift::Void) -> Swift::Void
 
         public init(
-            identity: Identity,
+            identity: __OpticFieldIdentity,
             get: @escaping (Source) -> Focus,
             modify: @escaping (inout Source, (inout Focus) -> Swift::Void) -> Swift::Void
         ) {
@@ -35,16 +33,35 @@ where
 }
 
 extension Optic.Field {
-    /// A field for the stored property at `position` in its type's declaration order.
-    public init(
-        _ position: Swift::Int,
-        get: @escaping (Source) -> Focus,
-        modify: @escaping (inout Source, (inout Focus) -> Swift::Void) -> Swift::Void
-    ) {
-        self.init(identity: .init(position), get: get, modify: modify)
-    }
+    public typealias Identity = __OpticFieldIdentity
 
     public func set(_ source: inout Source, to replacement: Focus) {
         modify(&source) { $0 = replacement }
+    }
+
+    /// The same part as a lens: `set` copies the whole, changes the part in the copy and returns it.
+    public var lens: Optic<Source, Source, Focus, Focus>.Lens {
+        .init(
+            get: get,
+            set: { [modify] source, replacement in
+                var whole = source
+                modify(&whole) { $0 = replacement }
+                return whole
+            }
+        )
+    }
+
+    /// The part of this field's part that `next` focuses. Its identity is this field's positions
+    /// followed by `next`'s.
+    public func appending<Part: Copyable & Escapable>(
+        _ next: Optic<Focus, Focus, Part, Part>.Field
+    ) -> Optic<Source, Source, Part, Part>.Field {
+        .init(
+            identity: identity.appending(next.identity),
+            get: { [get] source in next.get(get(source)) },
+            modify: { [modify] source, transform in
+                modify(&source) { focus in next.modify(&focus, transform) }
+            }
+        )
     }
 }

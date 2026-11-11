@@ -20,6 +20,18 @@ private struct Mixed: Equatable {
     var changes = 0
 }
 
+@propertyWrapper
+private struct ReadOnly {
+    var wrappedValue: Int { 1 }
+}
+
+@Fields
+private struct Wrapped {
+    var before = 0
+    @ReadOnly var constant
+    var after = 0
+}
+
 @Fields
 private struct Inner: Equatable {
     var isOn = false
@@ -37,7 +49,7 @@ private struct Box<Value> {
 }
 
 @Fields
-public struct PublicCounter {
+public struct Tally {
     public var count = 0
 
     public init() {}
@@ -83,6 +95,15 @@ func `a constant keeps its position and a computed or static property takes none
 }
 
 @Test
+func `a property with an attribute gets no field and keeps its position`() {
+    var wrapped = Wrapped()
+    Wrapped.fields.after.set(&wrapped, to: 2)
+    #expect(wrapped.after == 2)
+    #expect(Wrapped.fields.before.identity.positions == [0])
+    #expect(Wrapped.fields.after.identity.positions == [2])
+}
+
+@Test
 func `a change through a field runs the property's observers once`() {
     var mixed = Mixed(id: 1)
     Mixed.fields.observed.set(&mixed, to: 5)
@@ -108,8 +129,8 @@ func `a generic struct derives a field for its parameter`() {
 
 @Test
 func `a public struct derives public fields`() {
-    var counter = PublicCounter()
-    PublicCounter.fields.count.set(&counter, to: 3)
+    var counter = Tally()
+    Tally.fields.count.set(&counter, to: 3)
     #expect(counter.count == 3)
 }
 
