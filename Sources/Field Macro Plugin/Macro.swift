@@ -31,7 +31,7 @@ extension Macro {
         conformingTo _: [TypeSyntax],
         in _: some MacroExpansionContext
     ) -> [ExtensionDeclSyntax] {
-        guard declaration.is(StructDeclSyntax.self) else { return [] }
-        return Field.Derivation.extensions(of: type)
+        guard let declaration = declaration.as(StructDeclSyntax.self) else { return [] }
+        return Field.Derivation.extensions(of: type, declaredBy: declaration)
     }
 }

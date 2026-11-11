@@ -32,6 +32,12 @@ private struct Wrapped {
     var after = 0
 }
 
+@MainActor
+@Fields
+private struct Isolated {
+    var count = 0
+}
+
 @Fields
 private struct Inner: Equatable {
     var isOn = false
@@ -101,6 +107,15 @@ func `a property with an attribute gets no field and keeps its position`() {
     #expect(wrapped.after == 2)
     #expect(Wrapped.fields.before.identity.positions == [0])
     #expect(Wrapped.fields.after.identity.positions == [2])
+}
+
+@MainActor
+@Test
+func `a struct isolated to a global actor derives fields with the same isolation`() {
+    var isolated = Isolated()
+    Isolated.fields.count.set(&isolated, to: 4)
+    #expect(isolated.count == 4)
+    #expect(read(isolated) { $0.count } == 4)
 }
 
 @Test

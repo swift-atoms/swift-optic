@@ -7,10 +7,12 @@ extension Field {
 
 extension Field.Derivation {
     public static func extensions(
-        of type: some TypeSyntaxProtocol
+        of type: some TypeSyntaxProtocol,
+        declaredBy structure: StructDeclSyntax
     ) -> [ExtensionDeclSyntax] {
+        let conformance = isolation(of: structure).map { "\($0) __OpticFieldAccessible" } ?? "__OpticFieldAccessible"
         let declaration: DeclSyntax = """
-            extension \(type.trimmed): __OpticFieldAccessible {}
+            extension \(type.trimmed): \(raw: conformance) {}
             """
         return declaration.as(ExtensionDeclSyntax.self).map { [$0] } ?? []
     }
@@ -43,18 +45,29 @@ extension Field.Derivation {
             }
         }
         let initializer = access.isEmpty ? "" : "\n\(access)init() {}"
+        let isolated = isolation(of: structure).map { "\($0) " } ?? ""
         return [
             """
-            \(raw: access)struct Fields {
+            \(raw: isolated)\(raw: access)struct Fields {
                 \(raw: members.joined(separator: "\n"))\(raw: initializer)
             }
             """,
             """
-            \(raw: access)static var fields: Fields {
+            \(raw: isolated)\(raw: access)static var fields: Fields {
                 Fields()
             }
             """,
         ]
+    }
+
+    /// The global actor the struct is isolated to, as written: an attribute whose name ends in
+    /// `Actor`, such as `@MainActor`. A nested type does not take its enclosing type's isolation,
+    /// so the namespace, its accessor and the conformance are given the same one.
+    private static func isolation(of structure: StructDeclSyntax) -> Swift::String? {
+        structure.attributes
+            .compactMap { $0.as(AttributeSyntax.self)?.attributeName.trimmedDescription }
+            .first { $0.hasSuffix("Actor") }
+            .map { "@\($0)" }
     }
 
     private static func stored(_ variable: VariableDeclSyntax) -> Swift::Bool {
