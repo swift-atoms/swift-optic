@@ -19,6 +19,7 @@ let package = Package(
         .library(name: "Optic Foundation Integration", targets: ["Optic Foundation Integration"]),
         .library(name: "Optic Test Support", targets: ["Optic Test Support"]),
         .library(name: "Case Macro", targets: ["Case Macro"]),
+        .library(name: "Field Macro", targets: ["Field Macro"]),
         .library(name: "Fold Macro", targets: ["Fold Macro"]),
         .library(name: "Isomorphism Macro", targets: ["Isomorphism Macro"]),
         .library(name: "Lens Macro", targets: ["Lens Macro"]),
@@ -121,6 +122,40 @@ let package = Package(
                 .target(name: "Case Macro Plugin"),
                 .target(name: "Fold Macro Plugin"),
                 .target(name: "Prism Macro Plugin"),
+            ]
+        ),
+        .target(
+            name: "Field Macro Core",
+            dependencies: [
+                .product(name: "SwiftSyntax", package: "swift-syntax"),
+                .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
+            ]
+        ),
+        .macro(
+            name: "Field Macro Plugin",
+            dependencies: [
+                .target(name: "Field Macro Core"),
+                .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+                .product(name: "SwiftSyntax", package: "swift-syntax"),
+                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+            ]
+        ),
+        .target(
+            name: "Field Macro",
+            dependencies: [
+                .target(name: "Field Macro Plugin"),
+                .target(name: "Optic"),
+            ]
+        ),
+        .testTarget(
+            name: "Field Macro Tests",
+            dependencies: [
+                .target(name: "Field Macro"),
+                .target(name: "Field Macro Plugin"),
+                .target(name: "Optic"),
+                .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
+                .product(name: "SwiftSyntaxMacroExpansion", package: "swift-syntax"),
+                .product(name: "SwiftSyntaxMacrosGenericTestSupport", package: "swift-syntax"),
             ]
         ),
         .target(

@@ -8,6 +8,7 @@ Use this package to read, replace, match or transform part of a value without wr
   - `Optic.Isomorphism`: going forward then backward returns the original value, and so does going backward then forward.
   - `Optic.Lens`: reading after a set returns the new part, setting the current part changes nothing, and of two sets the last one wins.
   - `Optic.Prism`: matching an embedded part gives that part back, and embedding a matched part gives back the source.
+  - `Optic.Field`: the lens laws, stated for a change made in place: reading after a change gives the changed part, a change that does nothing leaves the whole as it was, and of two changes the last one wins.
   - `Optic.Setter` and `Optic.Traversal`: mapping with the identity changes nothing, and two maps in a row equal one map with the composed function.
   - `Optic.Isomorphism.Partial` keeps the inverse laws only where both directions succeed, and composing two of them narrows that domain.
 - A miss is not an error, and the transform is never called on one. `match` returns the source, rebuilt as `Target`, on the left. `map` and `modify` on an `Optic.Prism`, and `map`, `modify` and `set` on an `Optic.Affine` or an `Optic.Setter` built from either, return the source unchanged. When the inner optic of a composed prism or affine misses, the outer one rebuilds the whole, so the left side always holds a complete `Target`.
@@ -25,6 +26,10 @@ Use this package to read, replace, match or transform part of a value without wr
   - no other member mentions the parameter.
 
   `@Lenses` and `@Traversals` also accept a parameter constrained to `Sendable`. `@Isomorphism` accepts only an unconstrained parameter, and at least one property must have exactly the parameter's type.
+- `Optic.Field` is a stored part of a value. It changes the part where it is stored, where `Optic.Lens.set` rebuilds the whole from a copy, and it carries an identity: positions known when the program is compiled, so two fields can be compared without comparing closures. `appending(_:)` composes two fields and appends their positions. `lens` gives the same part as an `Optic.Lens`.
+- `@Fields` derives one field for each stored instance `var` of a struct, as a member of `Fields`, and makes the struct conform to `Optic.Field.Accessible`. It needs no type annotation and no memberwise initializer, because it never rebuilds the struct.
+  - A field's position is its property's place among the stored instance properties, in declaration order. A `let` gets no field but keeps its position; a computed, `lazy` or static property takes none.
+  - Generic code takes a part of any such type as a function of the namespace, `(Whole.Fields) -> Optic<Whole, Whole, Part, Part>.Field`, which a caller writes as `{ $0.name }`.
 - `@Prisms` makes the enum conform to `Optic.Prism.Accessible`, so an `Optic.Prism` whose focus is that enum can reach the enum's cases by member name. Reading a case directly off a value as an optional also requires that the enum be declared `@dynamicMemberLookup` and that both the enum and the payload be copyable. A member the enum already declares takes precedence over the case of the same name.
 - `Prisms<Represented>.rawValue` matches every raw value that has a case. Any other raw value comes back unchanged on the left.
 - `transporting(_:)` gives a lawful `Algebra.Monoid` only when the isomorphism is lawful.
