@@ -55,14 +55,12 @@ func `prism derivation adds accessibility and preserves explicit dynamic lookup`
                     public var leaf: Optic<Node, Node, Int, Int>.Prism {
                     .init(
                         match: { whole in
-                            switch whole {
-                            case let .leaf(value0):
+                            if case let .leaf(value0) = whole {
                                 return .right(value0)
                             }
+                            return .left(whole)
                         },
-                        embed: {
-                            .leaf($0)
-                        }
+                        embed: Node.leaf
                     )
                     }
                 }

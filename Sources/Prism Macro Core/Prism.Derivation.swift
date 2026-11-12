@@ -55,6 +55,8 @@ extension Prism.Derivation {
         let embed: String
         switch coproductCase.parameters.count {
         case 0: embed = "{ _ in .\(name) }"
+        case 1 where analysis.cases.count == 1 && !analysis.isCopyableSuppressed:
+            embed = "\(whole).\(name)"
         case 1: embed = "{ .\(name)(\(coproductCase.constructorArguments(["$0"]))) }"
         default:
             let binding = analysis.isCopyableSuppressed ? "payload" : "$0"
@@ -69,7 +71,7 @@ extension Prism.Derivation {
             \(access)var \(name): Optic<\(whole), \(whole), \(payload), \(payload)>.Prism {
                 .init(
                     match: { whole in
-                        \(matchBody(for: coproductCase, in: analysis, consuming: "whole"))
+                        \(matchBody(for: coproductCase, in: analysis, consuming: "whole", rebuildsWhole: true))
                     },
                     embed: \(embed)
                 )
@@ -93,7 +95,7 @@ extension Prism.Derivation {
                 >.Prism {
                     .init(
                         match: { whole in
-                            \(matchBody(for: coproductCase, in: analysis, consuming: "whole"))
+                            \(matchBody(for: coproductCase, in: analysis, consuming: "whole", rebuildsWhole: false))
                         },
                         embed: { .\(name)(\(coproductCase.constructorArguments(["$0"]))) }
                     )
@@ -106,8 +108,16 @@ extension Prism.Derivation {
     private static func matchBody(
         for selected: Coproduct.Analysis.Case,
         in analysis: Coproduct.Analysis,
-        consuming value: String
+        consuming value: String,
+        rebuildsWhole: Bool
     ) -> String {
+        if rebuildsWhole, analysis.cases.count == 1, !analysis.isCopyableSuppressed {
+            let values = selected.bindings()
+            return """
+                if case \(selected.pattern()) = \(value) { return .right(\(selected.payloadExpression(values))) }
+                return .left(\(value))
+                """
+        }
         let branches = analysis.cases.map { coproductCase in
             coproductCase.name.text == selected.name.text
                 ? matchingBranch(coproductCase)

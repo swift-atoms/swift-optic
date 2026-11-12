@@ -321,3 +321,30 @@ func `accessibility does not constrain a noncopyable generic payload`() {
     case .none: Issue.record("Expected the generic noncopyable payload")
     }
 }
+
+@Prisms
+private enum Single: Equatable {
+    case only(Int)
+}
+
+@Prisms
+private enum Uninhabited {
+    case only(Never)
+}
+
+@Test
+func `a single case matches and embeds`() {
+    let prism = Single.prisms.only
+    #expect(prism.extract(.only(3)) == 3)
+    #expect(prism.embed(4) == .only(4))
+    switch prism.match(.only(5)) {
+    case .left: Issue.record("the only case did not match")
+    case .right(let focus): #expect(focus == 5)
+    }
+}
+
+@Test
+func `a single case with an uninhabited payload has a prism`() {
+    let prism: Optic<Uninhabited, Uninhabited, Never, Never>.Prism = Uninhabited.prisms.only
+    _ = prism
+}
