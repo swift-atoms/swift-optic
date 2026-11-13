@@ -348,3 +348,20 @@ func `a single case with an uninhabited payload has a prism`() {
     let prism: Optic<Uninhabited, Uninhabited, Never, Never>.Prism = Uninhabited.prisms.only
     _ = prism
 }
+
+@MainActor
+@Prisms
+private enum MainActorChoice: Equatable {
+    case name(String)
+    case count(Int)
+}
+
+private nonisolated func nameOutsideTheActor(_ choice: MainActorChoice) -> String? {
+    MainActorChoice.prisms.name.extract(choice)
+}
+
+@Test
+func `prisms of a main-actor enum are reached from nonisolated code`() {
+    #expect(nameOutsideTheActor(.name("a")) == "a")
+    #expect(nameOutsideTheActor(.count(1)) == nil)
+}

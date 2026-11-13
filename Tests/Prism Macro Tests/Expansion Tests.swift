@@ -51,7 +51,7 @@ func `prism derivation adds accessibility and preserves explicit dynamic lookup`
             public enum Node {
                 case leaf(Int)
 
-                public struct Prisms {
+                public nonisolated struct Prisms {
                     public var leaf: Optic<Node, Node, Int, Int>.Prism {
                     .init(
                         match: { whole in
@@ -65,12 +65,12 @@ func `prism derivation adds accessibility and preserves explicit dynamic lookup`
                     }
                 }
 
-                public static var prisms: Prisms {
+                public nonisolated static var prisms: Prisms {
                     Prisms()
                 }
             }
 
-            extension Node: __OpticPrismAccessible {
+            extension Node: nonisolated __OpticPrismAccessible {
             }
             """,
         macroSpecs: prismMacros,
@@ -90,16 +90,16 @@ func `prism derivation does not opt into dynamic lookup or copyability`() {
         expandedSource: """
             enum Linear: ~Copyable {
 
-                struct Prisms {
+                nonisolated struct Prisms {
 
                 }
 
-                static var prisms: Prisms {
+                nonisolated static var prisms: Prisms {
                     Prisms()
                 }
             }
 
-            extension Linear: __OpticPrismAccessible {
+            extension Linear: nonisolated __OpticPrismAccessible {
             }
             """,
         macroSpecs: prismMacros,

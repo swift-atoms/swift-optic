@@ -12,7 +12,7 @@ extension Prism.Derivation {
     ) -> [ExtensionDeclSyntax] {
 
         let declaration: DeclSyntax = """
-            extension \(type.trimmed): __OpticPrismAccessible {}
+            extension \(type.trimmed): nonisolated __OpticPrismAccessible {}
             """
         return declaration.as(ExtensionDeclSyntax.self).map { [$0] } ?? []
     }
@@ -31,12 +31,12 @@ extension Prism.Derivation {
 
         return [
             """
-            \(raw: access)struct Prisms {
+            \(raw: access)nonisolated struct Prisms {
                 \(raw: members)
             }
             """,
             """
-            \(raw: access)static var prisms: Prisms {
+            \(raw: access)nonisolated static var prisms: Prisms {
                 Prisms()
             }
             """,
