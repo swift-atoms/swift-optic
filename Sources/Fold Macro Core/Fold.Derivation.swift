@@ -16,7 +16,7 @@ extension Fold.Derivation {
     public static func expansion(_ analysis: Coproduct.Analysis) -> [DeclSyntax] {
         let access = analysis.access.map { "\($0.name.text) " } ?? ""
         let members = analysis.cases.map {
-            property($0, analysis: analysis, access: access)
+            $0.conditional(property($0, analysis: analysis, access: access))
         }.joined(separator: "\n")
 
         return [
@@ -44,9 +44,11 @@ extension Fold.Derivation {
             ? "Void"
             : coproductCase.payload.trimmedDescription
         let branches = analysis.cases.map { candidate in
-            candidate.name.text == name
-                ? visitingBranch(candidate)
-                : "case .\(candidate.name.text): return false"
+            candidate.conditional(
+                candidate.name.text == name
+                    ? visitingBranch(candidate)
+                    : "case .\(candidate.name.text): return false"
+            )
         }.joined(separator: "\n")
         return """
             \(access)var \(name): Optic<\(whole), \(whole), \(payload), \(payload)>.Fold {

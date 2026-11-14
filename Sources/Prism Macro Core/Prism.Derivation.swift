@@ -26,7 +26,7 @@ extension Prism.Derivation {
     public static func expansion(_ analysis: Coproduct.Analysis) -> [DeclSyntax] {
         let access = analysis.access.map { "\($0.name.text) " } ?? ""
         let members = analysis.cases.map {
-            property($0, analysis: analysis, access: access)
+            $0.conditional(property($0, analysis: analysis, access: access))
         }.joined(separator: "\n")
 
         return [
@@ -55,7 +55,7 @@ extension Prism.Derivation {
         let embed: String
         switch coproductCase.parameters.count {
         case 0: embed = "{ _ in .\(name) }"
-        case 1 where analysis.cases.count == 1 && !analysis.isCopyableSuppressed:
+        case 1 where analysis.isSingleCase && !analysis.isCopyableSuppressed:
             embed = "\(whole).\(name)"
         case 1: embed = "{ .\(name)(\(coproductCase.constructorArguments(["$0"]))) }"
         default:
@@ -111,7 +111,7 @@ extension Prism.Derivation {
         consuming value: String,
         rebuildsWhole: Bool
     ) -> String {
-        if rebuildsWhole, analysis.cases.count == 1, !analysis.isCopyableSuppressed {
+        if rebuildsWhole, analysis.isSingleCase, !analysis.isCopyableSuppressed {
             let values = selected.bindings()
             return """
                 if case \(selected.pattern()) = \(value) { return .right(\(selected.payloadExpression(values))) }
@@ -119,9 +119,11 @@ extension Prism.Derivation {
                 """
         }
         let branches = analysis.cases.map { coproductCase in
-            coproductCase.name.text == selected.name.text
-                ? matchingBranch(coproductCase)
-                : unmatchedBranch(coproductCase)
+            coproductCase.conditional(
+                coproductCase.name.text == selected.name.text
+                    ? matchingBranch(coproductCase)
+                    : unmatchedBranch(coproductCase)
+            )
         }.joined(separator: "\n")
         let switchValue =
             analysis.isCopyableSuppressed

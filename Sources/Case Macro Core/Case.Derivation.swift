@@ -19,11 +19,13 @@ extension Case.Derivation {
         let members = analysis.cases.map { coproductCase in
             let name = coproductCase.name.text
             let payload = coproductCase.parameters.isEmpty ? "Void" : coproductCase.payload.trimmedDescription
-            return """
+            return coproductCase.conditional(
+                """
                 \(access)var \(name): Optic<\(whole), \(whole), \(payload), \(payload)>.Case {
                     .init(prism: \(whole).prisms.\(name), fold: \(whole).folds.\(name))
                 }
                 """
+            )
         }.joined(separator: "\n")
 
         return [

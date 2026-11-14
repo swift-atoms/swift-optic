@@ -55,3 +55,29 @@ func `a derived case lends a noncopyable payload and embeds one`() {
     let matched = Linear.cases.token.matches(embedded)
     #expect(matched)
 }
+
+@Prisms
+@Folds
+@Cases
+private enum Conditional: Equatable {
+    case always(Int)
+    #if canImport(Swift)
+    case present(String)
+    #if !canImport(Swift)
+    case nestedAbsent(UndeclaredInNestedBlock)
+    #endif
+    #else
+    case absent(UndeclaredInElseBlock)
+    #endif
+}
+
+@Test
+func `cases inside conditional compilation blocks have prisms folds and cases`() {
+    #expect(Conditional.prisms.present.extract(.present("a")) == "a")
+    #expect(Conditional.prisms.present.extract(.always(1)) == nil)
+    #expect(Conditional.prisms.always.extract(.present("a")) == nil)
+    #expect(Conditional.prisms.present.embed("b") == .present("b"))
+    #expect(Conditional.folds.present.extract(.present("c")) == "c")
+    #expect(!Conditional.folds.always.matches(.present("c")))
+    #expect(Conditional.cases.present.matches(.present("d")))
+}
