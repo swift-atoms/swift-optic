@@ -14,6 +14,22 @@ extension __OpticPrismAccessible where Self: Copyable {
     ) -> Focus? {
         Self.prisms[keyPath: keyPath].extract(self)
     }
+
+    public func `is`<Focus: Copyable & Escapable>(
+        _ keyPath: KeyPath<Prisms, Optic<Self, Self, Focus, Focus>.Prism>
+    ) -> Bool {
+        Self.prisms[keyPath: keyPath].matches(self)
+    }
+
+    public mutating func modify<Focus: Copyable & Escapable, Failure: Error>(
+        _ keyPath: KeyPath<Prisms, Optic<Self, Self, Focus, Focus>.Prism>,
+        _ transform: (inout Focus) throws(Failure) -> Void
+    ) throws(Failure) {
+        let prism = Self.prisms[keyPath: keyPath]
+        guard var focus = prism.extract(self) else { return }
+        try transform(&focus)
+        self = prism.embed(focus)
+    }
 }
 
 extension Optic.Prism

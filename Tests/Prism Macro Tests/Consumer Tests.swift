@@ -365,3 +365,24 @@ func `prisms of a main-actor enum are reached from nonisolated code`() {
     #expect(nameOutsideTheActor(.name("a")) == "a")
     #expect(nameOutsideTheActor(.count(1)) == nil)
 }
+
+private struct Refusal: Error, Equatable {}
+
+@Test
+func `an accessible enum reports its case and modifies the payload in place`() throws {
+    var node = Node.leaf(1)
+    #expect(node.is(\.leaf))
+    #expect(!node.is(\.empty))
+
+    node.modify(\.leaf) { $0 += 41 }
+    #expect(node.leaf == 42)
+
+    var empty = Node.empty
+    empty.modify(\.leaf) { $0 += 1 }
+    #expect(empty.is(\.empty))
+
+    #expect(throws: Refusal()) {
+        try node.modify(\.leaf) { (_: inout Int) throws(Refusal) in throw Refusal() }
+    }
+    #expect(node.leaf == 42)
+}
