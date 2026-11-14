@@ -111,7 +111,7 @@ extension Prism.Derivation {
         consuming value: String,
         rebuildsWhole: Bool
     ) -> String {
-        if rebuildsWhole, analysis.isSingleCase, !analysis.isCopyableSuppressed {
+        if rebuildsWhole, !analysis.isCopyableSuppressed {
             let values = selected.bindings()
             return """
                 if case \(selected.pattern()) = \(value) { return .right(\(selected.payloadExpression(values))) }
