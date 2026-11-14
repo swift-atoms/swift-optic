@@ -39,6 +39,15 @@ func `field derivation numbers stored variables and skips what is not stored`() 
                 static var fields: Fields {
                     Fields()
                 }
+
+                #if !hasFeature(Embedded)
+                static func __fieldIdentity(of keyPath: Swift::AnyKeyPath) -> __OpticFieldIdentity? {
+                    if keyPath == \\Counter.count as Swift::AnyKeyPath {
+                        return .init(positions: [1])
+                    }
+                    return nil
+                }
+                #endif
             }
 
             extension Counter: __OpticFieldAccessible {

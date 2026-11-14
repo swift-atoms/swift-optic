@@ -6,7 +6,18 @@
 public protocol __OpticFieldAccessible {
     associatedtype Fields
     static var fields: Fields { get }
+    #if !hasFeature(Embedded)
+        static func __fieldIdentity(of keyPath: Swift::AnyKeyPath) -> __OpticFieldIdentity?
+    #endif
 }
+
+#if !hasFeature(Embedded)
+    extension __OpticFieldAccessible {
+        public static func __fieldIdentity(of keyPath: Swift::AnyKeyPath) -> __OpticFieldIdentity? {
+            nil
+        }
+    }
+#endif
 
 extension Optic.Field {
     public typealias Accessible = __OpticFieldAccessible

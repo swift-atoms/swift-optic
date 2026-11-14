@@ -165,3 +165,12 @@ func `a derived field's lens sets through a copy`() {
     #expect(counter.count == 0)
     #expect(changed.count == 9)
 }
+
+@Test
+func `a key path to a stored variable names the same field as the namespace`() {
+    #expect(Counter.__fieldIdentity(of: \Counter.name) == Counter.fields.name.identity)
+    #expect(Mixed.__fieldIdentity(of: \Mixed.value) == Mixed.fields.value.identity)
+    #expect(Mixed.__fieldIdentity(of: \Mixed.doubled) == nil)
+    #expect(Mixed.__fieldIdentity(of: \Mixed.id) == nil)
+    #expect(Wrapped.__fieldIdentity(of: \Wrapped.after) == Wrapped.fields.after.identity)
+}
