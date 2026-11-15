@@ -62,12 +62,12 @@ func `a derived case lends a noncopyable payload and embeds one`() {
 private enum Conditional: Equatable {
     case always(Int)
     #if canImport(Swift)
-    case present(String)
-    #if !canImport(Swift)
-    case nestedAbsent(UndeclaredInNestedBlock)
-    #endif
+        case present(String)
+        #if !canImport(Swift)
+            case nestedAbsent(UndeclaredInNestedBlock)
+        #endif
     #else
-    case absent(UndeclaredInElseBlock)
+        case absent(UndeclaredInElseBlock)
     #endif
 }
 
