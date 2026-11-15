@@ -8,12 +8,17 @@ public protocol __OpticFieldAccessible {
     static var fields: Fields { get }
     #if !hasFeature(Embedded)
         static func __fieldIdentity(of keyPath: Swift::AnyKeyPath) -> __OpticFieldIdentity?
+        static func __fieldName(of keyPath: Swift::AnyKeyPath) -> Swift::String?
     #endif
 }
 
 #if !hasFeature(Embedded)
     extension __OpticFieldAccessible {
         public static func __fieldIdentity(of keyPath: Swift::AnyKeyPath) -> __OpticFieldIdentity? {
+            nil
+        }
+
+        public static func __fieldName(of keyPath: Swift::AnyKeyPath) -> Swift::String? {
             nil
         }
     }

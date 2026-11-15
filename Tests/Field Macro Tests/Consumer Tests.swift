@@ -174,3 +174,10 @@ func `a key path to a stored variable names the same field as the namespace`() {
     #expect(Mixed.__fieldIdentity(of: \Mixed.id) == nil)
     #expect(Wrapped.__fieldIdentity(of: \Wrapped.after) == Wrapped.fields.after.identity)
 }
+
+@Test
+func `a key path to a stored variable gives the variable's name`() {
+    #expect(Counter.__fieldName(of: \Counter.name) == "name")
+    #expect(Mixed.__fieldName(of: \Mixed.value) == "value")
+    #expect(Mixed.__fieldName(of: \Mixed.doubled) == nil)
+}

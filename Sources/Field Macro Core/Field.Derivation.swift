@@ -31,6 +31,7 @@ extension Field.Derivation {
         var position = 0
         var members: [Swift::String] = []
         var identities: [Swift::String] = []
+        var names: [Swift::String] = []
         for member in structure.memberBlock.members {
             guard let variable = member.decl.as(VariableDeclSyntax.self), stored(variable) else { continue }
             for binding in variable.bindings {
@@ -41,6 +42,7 @@ extension Field.Derivation {
                 identities.append(
                     "if keyPath == \\\(whole).\(name) as Swift::AnyKeyPath { return .init(positions: [\(position)]) }"
                 )
+                names.append("if keyPath == \\\(whole).\(name) as Swift::AnyKeyPath { return \"\(name)\" }")
                 members.append(
                     "\(access)let \(name) = Optic.Field(identity: .init(positions: [\(position)]), "
                         + "get: { (whole: \(whole)) in whole.\(name) }, "
@@ -65,6 +67,9 @@ extension Field.Derivation {
             #if !hasFeature(Embedded)
             \(raw: isolated)\(raw: access)static func __fieldIdentity(of keyPath: Swift::AnyKeyPath) -> __OpticFieldIdentity? {
                 \(raw: (identities + ["return nil"]).joined(separator: "\n"))
+            }
+            \(raw: isolated)\(raw: access)static func __fieldName(of keyPath: Swift::AnyKeyPath) -> Swift::String? {
+                \(raw: (names + ["return nil"]).joined(separator: "\n"))
             }
             #endif
             """,

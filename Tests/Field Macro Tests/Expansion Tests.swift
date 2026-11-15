@@ -47,6 +47,12 @@ func `field derivation numbers stored variables and skips what is not stored`() 
                     }
                     return nil
                 }
+                static func __fieldName(of keyPath: Swift::AnyKeyPath) -> Swift::String? {
+                    if keyPath == \\Counter.count as Swift::AnyKeyPath {
+                        return "count"
+                    }
+                    return nil
+                }
                 #endif
             }
 
