@@ -21,7 +21,7 @@ extension __OpticPrismAccessible where Self: Copyable {
         Self.prisms[keyPath: keyPath].matches(self)
     }
 
-    public mutating func modify<Focus: Copyable & Escapable, Failure: Error>(
+    public mutating func modify<Focus: Copyable & Escapable, Failure: Swift.Error>(
         _ keyPath: KeyPath<Prisms, Optic<Self, Self, Focus, Focus>.Prism>,
         _ transform: (inout Focus) throws(Failure) -> Void
     ) throws(Failure) {

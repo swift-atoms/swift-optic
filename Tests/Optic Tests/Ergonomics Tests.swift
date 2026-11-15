@@ -218,6 +218,6 @@ private struct `Optic convenience operations preserve composition and focus beha
     }
 }
 
-private enum TestFailure: Error, Equatable {
+private enum TestFailure: Swift.Error, Equatable {
     case expected
 }

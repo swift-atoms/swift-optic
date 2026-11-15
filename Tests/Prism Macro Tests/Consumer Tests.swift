@@ -366,7 +366,7 @@ func `prisms of a main-actor enum are reached from nonisolated code`() {
     #expect(nameOutsideTheActor(.count(1)) == nil)
 }
 
-private struct Refusal: Error, Equatable {}
+private struct Refusal: Swift.Error, Equatable {}
 
 @Test
 func `an accessible enum reports its case and modifies the payload in place`() throws {
