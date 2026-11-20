@@ -1,110 +1,112 @@
-import SwiftSyntaxBuilder
-import SwiftSyntaxMacroExpansion
-import SwiftSyntaxMacrosGenericTestSupport
-import Testing
+#if Coproduct
+    import SwiftSyntaxBuilder
+    import SwiftSyntaxMacroExpansion
+    import SwiftSyntaxMacrosGenericTestSupport
+    import Testing
 
-@testable import Prism_Macro_Plugin
+    @testable import Prism_Macro_Plugin
 
-private let prismMacros: [String: MacroSpec] = [
-    "Prisms": MacroSpec(
-        type: Prism_Macro_Plugin::Macro.self,
-        conformances: ["__OpticPrismAccessible"]
-    )
-]
+    private let prismMacros: [String: MacroSpec] = [
+        "Prisms": MacroSpec(
+            type: Prism_Macro_Plugin::Macro.self,
+            conformances: ["__OpticPrismAccessible"]
+        )
+    ]
 
-@Test
-func `prism derivation diagnoses a non enum attachment`() {
-    assertMacroExpansion(
-        """
-        @Prisms
-        struct Choice {}
-        """,
-        expandedSource: """
+    @Test
+    func `prism derivation diagnoses a non enum attachment`() {
+        assertMacroExpansion(
+            """
+            @Prisms
             struct Choice {}
             """,
-        diagnostics: [
-            DiagnosticSpec(
-                message: "@Prisms applies to an enum declaration only.",
-                line: 1,
-                column: 1
-            )
-        ],
-        macroSpecs: prismMacros,
-        failureHandler: { failure in
-            Issue.record(Comment(rawValue: failure.message))
-        }
-    )
-}
+            expandedSource: """
+                struct Choice {}
+                """,
+            diagnostics: [
+                DiagnosticSpec(
+                    message: "@Prisms applies to an enum declaration only.",
+                    line: 1,
+                    column: 1
+                )
+            ],
+            macroSpecs: prismMacros,
+            failureHandler: { failure in
+                Issue.record(Comment(rawValue: failure.message))
+            }
+        )
+    }
 
-@Test
-func `prism derivation adds accessibility and preserves explicit dynamic lookup`() {
-    assertMacroExpansion(
-        """
-        @Prisms
-        @dynamicMemberLookup
-        public enum Node {
-            case leaf(Int)
-        }
-        """,
-        expandedSource: """
+    @Test
+    func `prism derivation adds accessibility and preserves explicit dynamic lookup`() {
+        assertMacroExpansion(
+            """
+            @Prisms
             @dynamicMemberLookup
             public enum Node {
                 case leaf(Int)
+            }
+            """,
+            expandedSource: """
+                @dynamicMemberLookup
+                public enum Node {
+                    case leaf(Int)
 
-                public nonisolated struct Prisms {
-                    public var leaf: Optic<Node, Node, Int, Int>.Prism {
-                    .init(
-                        match: { whole in
-                            if case let .leaf(value0) = whole {
-                                return .right(value0)
-                            }
-                            return .left(whole)
-                        },
-                        embed: Node.leaf
-                    )
+                    public nonisolated struct Prisms {
+                        public var leaf: Optic<Node, Node, Int, Int>.Prism {
+                        .init(
+                            match: { whole in
+                                if case let .leaf(value0) = whole {
+                                    return .right(value0)
+                                }
+                                return .left(whole)
+                            },
+                            embed: Node.leaf
+                        )
+                        }
+                    }
+
+                    public nonisolated static var prisms: Prisms {
+                        Prisms()
                     }
                 }
 
-                public nonisolated static var prisms: Prisms {
-                    Prisms()
+                extension Node: nonisolated __OpticPrismAccessible {
                 }
+                """,
+            macroSpecs: prismMacros,
+            failureHandler: { failure in
+                Issue.record(Comment(rawValue: failure.message))
             }
+        )
+    }
 
-            extension Node: nonisolated __OpticPrismAccessible {
-            }
+    @Test
+    func `prism derivation does not opt into dynamic lookup or copyability`() {
+        assertMacroExpansion(
+            """
+            @Prisms
+            enum Linear: ~Copyable {}
             """,
-        macroSpecs: prismMacros,
-        failureHandler: { failure in
-            Issue.record(Comment(rawValue: failure.message))
-        }
-    )
-}
+            expandedSource: """
+                enum Linear: ~Copyable {
 
-@Test
-func `prism derivation does not opt into dynamic lookup or copyability`() {
-    assertMacroExpansion(
-        """
-        @Prisms
-        enum Linear: ~Copyable {}
-        """,
-        expandedSource: """
-            enum Linear: ~Copyable {
+                    nonisolated struct Prisms {
 
-                nonisolated struct Prisms {
+                    }
 
+                    nonisolated static var prisms: Prisms {
+                        Prisms()
+                    }
                 }
 
-                nonisolated static var prisms: Prisms {
-                    Prisms()
+                extension Linear: nonisolated __OpticPrismAccessible {
                 }
+                """,
+            macroSpecs: prismMacros,
+            failureHandler: { failure in
+                Issue.record(Comment(rawValue: failure.message))
             }
-
-            extension Linear: nonisolated __OpticPrismAccessible {
-            }
-            """,
-        macroSpecs: prismMacros,
-        failureHandler: { failure in
-            Issue.record(Comment(rawValue: failure.message))
-        }
-    )
-}
+        )
+    }
+#endif

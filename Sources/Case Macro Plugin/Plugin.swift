@@ -3,5 +3,9 @@ import SwiftSyntaxMacros
 
 @main
 struct Plugin: CompilerPlugin {
-    let providingMacros: [any SwiftSyntaxMacros.Macro.Type] = [Macro.self]
+    #if Coproduct
+        let providingMacros: [any SwiftSyntaxMacros.Macro.Type] = [Macro.self]
+    #else
+        let providingMacros: [any SwiftSyntaxMacros.Macro.Type] = []
+    #endif
 }

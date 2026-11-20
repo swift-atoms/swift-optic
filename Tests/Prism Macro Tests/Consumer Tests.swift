@@ -1,388 +1,390 @@
-public import Prism_Macro
-import Testing
+#if Coproduct
+    public import Prism_Macro
+    import Testing
 
-@Prisms
-private enum Choice {
-    case none
-    case name(String)
-    case pair(Int, String)
-    case labeled(code: Int, note: String)
-}
-
-@Prisms
-private enum GenericChoice<Value> {
-    case value(payload: Value)
-    case empty
-}
-
-private enum Qualified {
-    struct Value {}
-}
-
-@Prisms
-private enum NameCollision<Value> {
-    case value(Value)
-    case qualified(Qualified.Value)
-}
-
-@Prisms
-private enum NestedReference<Value> {
-    case value(Value)
-    case retained([Value])
-}
-
-private struct LinearToken: ~Copyable {
-    let value: Int
-}
-
-@Prisms
-private enum LinearPair: ~Copyable {
-    case pair(LinearToken, LinearToken)
-    case empty
-}
-
-@Prisms
-private enum RawChoice: Int {
-    case one = 1
-    case two = 2
-}
-
-@Test
-func `derived prisms embed extract and reject other cases`() {
-    guard case .right = Choice.prisms.none.match(.none) else {
-        Issue.record("Expected none to match")
-        return
-    }
-    guard case .right(let name) = Choice.prisms.name.match(.name("Blob")) else {
-        Issue.record("Expected name to match")
-        return
-    }
-    #expect(name == "Blob")
-    guard case .left(.none) = Choice.prisms.name.match(.none) else {
-        Issue.record("Expected none to reconstruct through a name mismatch")
-        return
+    @Prisms
+    private enum Choice {
+        case none
+        case name(String)
+        case pair(Int, String)
+        case labeled(code: Int, note: String)
     }
 
-    let pair = Choice.prisms.pair.embed((42, "Blob"))
-    guard case .pair(let number, let name) = pair else {
-        Issue.record("Expected pair")
-        return
+    @Prisms
+    private enum GenericChoice<Value> {
+        case value(payload: Value)
+        case empty
     }
-    #expect(number == 42)
-    #expect(name == "Blob")
 
-    let labeled = Choice.prisms.labeled.embed((code: 7, note: "seven"))
-    guard case .labeled(let code, let note) = labeled else {
-        Issue.record("Expected labeled payload")
-        return
+    private enum Qualified {
+        struct Value {}
     }
-    #expect(code == 7)
-    #expect(note == "seven")
-}
 
-@Test
-func `derived prism transforms a generic family`() {
-    let prism = GenericChoice<Int>.prisms.value(to: String.self)
-
-    guard case .right(let value) = prism.match(.value(payload: 42)) else {
-        Issue.record("Expected value to match")
-        return
+    @Prisms
+    private enum NameCollision<Value> {
+        case value(Value)
+        case qualified(Qualified.Value)
     }
-    #expect(value == 42)
-    guard case .value(payload: "forty-two") = prism.embed("forty-two") else {
-        Issue.record("Expected replacement to embed in the target family")
-        return
+
+    @Prisms
+    private enum NestedReference<Value> {
+        case value(Value)
+        case retained([Value])
     }
-    guard case .left(.empty) = prism.match(.empty) else {
-        Issue.record("Expected empty to reconstruct in the target family")
-        return
+
+    private struct LinearToken: ~Copyable {
+        let value: Int
     }
-}
 
-@Test
-func `type changing prism distinguishes a generic reference from a member name`() {
-    let prism = NameCollision<Int>.prisms.value(to: String.self)
-
-    guard case .left(.qualified) = prism.match(.qualified(Qualified.Value())) else {
-        Issue.record("Expected the generic-independent case to reconstruct")
-        return
+    @Prisms
+    private enum LinearPair: ~Copyable {
+        case pair(LinearToken, LinearToken)
+        case empty
     }
-    guard case .value("replacement") = prism.embed("replacement") else {
-        Issue.record("Expected the replacement generic argument")
-        return
+
+    @Prisms
+    private enum RawChoice: Int {
+        case one = 1
+        case two = 2
     }
-}
 
-@Test
-func `prism match and embed obey partial round trip laws`() {
-    let embedded = Choice.prisms.labeled.embed((code: 42, note: "Blob"))
-    guard case .right(let payload) = Choice.prisms.labeled.match(embedded) else {
-        Issue.record("Expected an embedded focus to match")
-        return
+    @Test
+    func `derived prisms embed extract and reject other cases`() {
+        guard case .right = Choice.prisms.none.match(.none) else {
+            Issue.record("Expected none to match")
+            return
+        }
+        guard case .right(let name) = Choice.prisms.name.match(.name("Blob")) else {
+            Issue.record("Expected name to match")
+            return
+        }
+        #expect(name == "Blob")
+        guard case .left(.none) = Choice.prisms.name.match(.none) else {
+            Issue.record("Expected none to reconstruct through a name mismatch")
+            return
+        }
+
+        let pair = Choice.prisms.pair.embed((42, "Blob"))
+        guard case .pair(let number, let name) = pair else {
+            Issue.record("Expected pair")
+            return
+        }
+        #expect(number == 42)
+        #expect(name == "Blob")
+
+        let labeled = Choice.prisms.labeled.embed((code: 7, note: "seven"))
+        guard case .labeled(let code, let note) = labeled else {
+            Issue.record("Expected labeled payload")
+            return
+        }
+        #expect(code == 7)
+        #expect(note == "seven")
     }
-    #expect(payload.code == 42)
-    #expect(payload.note == "Blob")
 
-    let rejected = Choice.pair(7, "seven")
-    guard case .left(.pair(let number, let word)) = Choice.prisms.labeled.match(rejected) else {
-        Issue.record("Expected a rejected source to be reconstructed")
-        return
+    @Test
+    func `derived prism transforms a generic family`() {
+        let prism = GenericChoice<Int>.prisms.value(to: String.self)
+
+        guard case .right(let value) = prism.match(.value(payload: 42)) else {
+            Issue.record("Expected value to match")
+            return
+        }
+        #expect(value == 42)
+        guard case .value(payload: "forty-two") = prism.embed("forty-two") else {
+            Issue.record("Expected replacement to embed in the target family")
+            return
+        }
+        guard case .left(.empty) = prism.match(.empty) else {
+            Issue.record("Expected empty to reconstruct in the target family")
+            return
+        }
     }
-    #expect(number == 7)
-    #expect(word == "seven")
 
-    _ = NestedReference<Int>.prisms.value
-}
+    @Test
+    func `type changing prism distinguishes a generic reference from a member name`() {
+        let prism = NameCollision<Int>.prisms.value(to: String.self)
 
-@Test
-func `derived prism carries a noncopyable tuple payload`() {
-    let embedded = LinearPair.prisms.pair.embed(
-        (LinearToken(value: 1), LinearToken(value: 2))
-    )
-    let matched = LinearPair.prisms.pair.match(embedded)
-
-    switch consume matched {
-    case .right:
-        break
-    case .left:
-        Issue.record("Expected the noncopyable tuple payload to match")
+        guard case .left(.qualified) = prism.match(.qualified(Qualified.Value())) else {
+            Issue.record("Expected the generic-independent case to reconstruct")
+            return
+        }
+        guard case .value("replacement") = prism.embed("replacement") else {
+            Issue.record("Expected the replacement generic argument")
+            return
+        }
     }
-}
 
-@Test
-func `a raw enum's raw-value prism comes from RawRepresentable`() {
-    let prism = Optic::Prisms<RawChoice>().rawValue
+    @Test
+    func `prism match and embed obey partial round trip laws`() {
+        let embedded = Choice.prisms.labeled.embed((code: 42, note: "Blob"))
+        guard case .right(let payload) = Choice.prisms.labeled.match(embedded) else {
+            Issue.record("Expected an embedded focus to match")
+            return
+        }
+        #expect(payload.code == 42)
+        #expect(payload.note == "Blob")
 
-    guard case .right(.one) = prism.match(1) else {
-        Issue.record("Expected a represented raw value to match")
-        return
+        let rejected = Choice.pair(7, "seven")
+        guard case .left(.pair(let number, let word)) = Choice.prisms.labeled.match(rejected) else {
+            Issue.record("Expected a rejected source to be reconstructed")
+            return
+        }
+        #expect(number == 7)
+        #expect(word == "seven")
+
+        _ = NestedReference<Int>.prisms.value
     }
-    guard case .left(3) = prism.match(3) else {
-        Issue.record("Expected an invalid raw value to remain available")
-        return
+
+    @Test
+    func `derived prism carries a noncopyable tuple payload`() {
+        let embedded = LinearPair.prisms.pair.embed(
+            (LinearToken(value: 1), LinearToken(value: 2))
+        )
+        let matched = LinearPair.prisms.pair.match(embedded)
+
+        switch consume matched {
+        case .right:
+            break
+        case .left:
+            Issue.record("Expected the noncopyable tuple payload to match")
+        }
     }
-    #expect(prism.embed(.two) == 2)
-}
 
-@Prisms
-@dynamicMemberLookup
-private enum Node {
-    case leaf(Int)
-    case empty
-}
+    @Test
+    func `a raw enum's raw-value prism comes from RawRepresentable`() {
+        let prism = Optic::Prisms<RawChoice>().rawValue
 
-@Prisms
-private enum Branch {
-    case node(Node)
-    case empty
-}
+        guard case .right(.one) = prism.match(1) else {
+            Issue.record("Expected a represented raw value to match")
+            return
+        }
+        guard case .left(3) = prism.match(3) else {
+            Issue.record("Expected an invalid raw value to remain available")
+            return
+        }
+        #expect(prism.embed(.two) == 2)
+    }
 
-@Prisms
-@dynamicMemberLookup
-public enum PublicNode<Value> {
-    case leaf(Value)
-    case empty
-}
-
-@Prisms
-@dynamicMemberLookup
-package enum PackageNode {
-    case leaf(Int)
-    case empty
-}
-
-private enum Namespace {
     @Prisms
     @dynamicMemberLookup
-    enum Node<Value> {
+    private enum Node {
+        case leaf(Int)
+        case empty
+    }
+
+    @Prisms
+    private enum Branch {
+        case node(Node)
+        case empty
+    }
+
+    @Prisms
+    @dynamicMemberLookup
+    public enum PublicNode<Value> {
         case leaf(Value)
         case empty
     }
-}
 
-@Prisms
-@dynamicMemberLookup
-private enum PropertyCollision {
-    case leaf(Int)
-    case empty
-
-    var leaf: String { "existing property" }
-    var description: String { "description" }
-    var prisms: String { "instance prisms" }
-}
-
-@Prisms
-@dynamicMemberLookup
-private enum RawDynamicChoice: Int {
-    case one = 1
-    case two = 2
-}
-
-@Test
-func `dynamic members extract matching cases and preserve their source`() {
-    let node = Node.leaf(42)
-    let value: Int? = node.leaf
-    #expect(value == 42)
-    #expect(node.leaf == 42)
-    #expect(Node.empty.leaf == nil)
-    #expect(Node.empty.empty != nil)
-    #expect(node.empty == nil)
-}
-
-@Test
-func `dynamic member key paths convert to extraction functions`() {
-    func apply(_ node: Node, extract: (Node) -> Int?) -> Int? {
-        extract(node)
+    @Prisms
+    @dynamicMemberLookup
+    package enum PackageNode {
+        case leaf(Int)
+        case empty
     }
-    #expect(apply(.leaf(42), extract: \.leaf) == 42)
-    #expect(apply(.empty, extract: \.leaf) == nil)
-    let extract: (Node) -> Int? = \Node.leaf
-    #expect(extract(.leaf(7)) == 7)
-}
 
-@Test
-func `generic and nested enums retain dynamic member access`() {
-    #expect(PublicNode.leaf(42).leaf == 42)
-    #expect(PublicNode<String>.empty.leaf == nil)
-    #expect(PackageNode.leaf(7).leaf == 7)
-    #expect(Namespace.Node.leaf("nested").leaf == "nested")
-    #expect(GenericChoice<Int>.prisms.value.extract(.value(payload: 42)) == 42)
-}
-
-@Test
-func `existing properties take precedence over dynamic extraction`() {
-    let node = PropertyCollision.leaf(42)
-    #expect(node.leaf == "existing property")
-    #expect(node.description == "description")
-    #expect(node.prisms == "instance prisms")
-    #expect(PropertyCollision.prisms.leaf.extract(node) == 42)
-    #expect(node[dynamicMember: \.leaf] == 42)
-    #expect(RawDynamicChoice.one.rawValue == 1)
-    #expect(RawDynamicChoice.one.one != nil)
-}
-
-@Test
-func `derived accessibility composes without opting into instance lookup`() {
-    let root = Optic<Branch, Branch, Branch, Branch>.Prism.identity
-    let leaf = root.node.leaf
-    #expect(leaf.extract(.node(.leaf(42))) == 42)
-    #expect(leaf.extract(.node(.empty)) == nil)
-    #expect(leaf.extract(.empty) == nil)
-    #expect(Branch.prisms.node.extract(leaf.embed(7))?.leaf == 7)
-}
-
-@Test
-func `noncopyable derivation retains consuming extraction and accessibility`() {
-    func collection<Value: ~Copyable & __OpticPrismAccessible>(_: Value.Type) -> Value.Prisms {
-        Value.prisms
+    private enum Namespace {
+        @Prisms
+        @dynamicMemberLookup
+        enum Node<Value> {
+            case leaf(Value)
+            case empty
+        }
     }
-    let prisms = collection(LinearPair.self)
-    let extracted = prisms.pair.extract(.pair(LinearToken(value: 1), LinearToken(value: 2)))
-    switch consume extracted {
-    case .some:
-        break
-    case .none:
-        Issue.record("Expected consuming extraction to preserve the linear payload")
+
+    @Prisms
+    @dynamicMemberLookup
+    private enum PropertyCollision {
+        case leaf(Int)
+        case empty
+
+        var leaf: String { "existing property" }
+        var description: String { "description" }
+        var prisms: String { "instance prisms" }
     }
-    let rejected = prisms.pair.match(.empty)
-    switch consume rejected {
-    case .left(.empty): break
-    default: Issue.record("Expected a noncopyable mismatch to reconstruct the source")
+
+    @Prisms
+    @dynamicMemberLookup
+    private enum RawDynamicChoice: Int {
+        case one = 1
+        case two = 2
     }
-}
 
-@Prisms
-@dynamicMemberLookup
-private enum AlreadyAccessible {
-    case leaf(Int)
-    case empty
-}
-
-extension AlreadyAccessible: Optic<AlreadyAccessible, AlreadyAccessible, Int, Int>.Prism.Accessible {}
-
-@Test
-func `derivation respects an existing accessibility conformance`() {
-    #expect(AlreadyAccessible.leaf(42).leaf == 42)
-}
-
-@Prisms
-private enum GenericLinear<Value: ~Copyable>: ~Copyable {
-    case value(Value)
-    case empty
-}
-
-@Test
-func `accessibility does not constrain a noncopyable generic payload`() {
-    let prism = GenericLinear<LinearToken>.prisms.value
-    let source = prism.embed(LinearToken(value: 42))
-    let extracted = prism.extract(source)
-    switch consume extracted {
-    case .some(let token): #expect(token.value == 42)
-    case .none: Issue.record("Expected the generic noncopyable payload")
+    @Test
+    func `dynamic members extract matching cases and preserve their source`() {
+        let node = Node.leaf(42)
+        let value: Int? = node.leaf
+        #expect(value == 42)
+        #expect(node.leaf == 42)
+        #expect(Node.empty.leaf == nil)
+        #expect(Node.empty.empty != nil)
+        #expect(node.empty == nil)
     }
-}
 
-@Prisms
-private enum Single: Equatable {
-    case only(Int)
-}
-
-@Prisms
-private enum Uninhabited {
-    case only(Never)
-}
-
-@Test
-func `a single case matches and embeds`() {
-    let prism = Single.prisms.only
-    #expect(prism.extract(.only(3)) == 3)
-    #expect(prism.embed(4) == .only(4))
-    switch prism.match(.only(5)) {
-    case .left: Issue.record("the only case did not match")
-    case .right(let focus): #expect(focus == 5)
+    @Test
+    func `dynamic member key paths convert to extraction functions`() {
+        func apply(_ node: Node, extract: (Node) -> Int?) -> Int? {
+            extract(node)
+        }
+        #expect(apply(.leaf(42), extract: \.leaf) == 42)
+        #expect(apply(.empty, extract: \.leaf) == nil)
+        let extract: (Node) -> Int? = \Node.leaf
+        #expect(extract(.leaf(7)) == 7)
     }
-}
 
-@Test
-func `a single case with an uninhabited payload has a prism`() {
-    let prism: Optic<Uninhabited, Uninhabited, Never, Never>.Prism = Uninhabited.prisms.only
-    _ = prism
-}
-
-@MainActor
-@Prisms
-private enum MainActorChoice: Equatable {
-    case name(String)
-    case count(Int)
-}
-
-private nonisolated func nameOutsideTheActor(_ choice: MainActorChoice) -> String? {
-    MainActorChoice.prisms.name.extract(choice)
-}
-
-@Test
-func `prisms of a main-actor enum are reached from nonisolated code`() {
-    #expect(nameOutsideTheActor(.name("a")) == "a")
-    #expect(nameOutsideTheActor(.count(1)) == nil)
-}
-
-private struct Refusal: Swift.Error, Equatable {}
-
-@Test
-func `an accessible enum reports its case and modifies the payload in place`() throws {
-    var node = Node.leaf(1)
-    #expect(node.is(\.leaf))
-    #expect(!node.is(\.empty))
-
-    node.modify(\.leaf) { $0 += 41 }
-    #expect(node.leaf == 42)
-
-    var empty = Node.empty
-    empty.modify(\.leaf) { $0 += 1 }
-    #expect(empty.is(\.empty))
-
-    #expect(throws: Refusal()) {
-        try node.modify(\.leaf) { (_: inout Int) throws(Refusal) in throw Refusal() }
+    @Test
+    func `generic and nested enums retain dynamic member access`() {
+        #expect(PublicNode.leaf(42).leaf == 42)
+        #expect(PublicNode<String>.empty.leaf == nil)
+        #expect(PackageNode.leaf(7).leaf == 7)
+        #expect(Namespace.Node.leaf("nested").leaf == "nested")
+        #expect(GenericChoice<Int>.prisms.value.extract(.value(payload: 42)) == 42)
     }
-    #expect(node.leaf == 42)
-}
+
+    @Test
+    func `existing properties take precedence over dynamic extraction`() {
+        let node = PropertyCollision.leaf(42)
+        #expect(node.leaf == "existing property")
+        #expect(node.description == "description")
+        #expect(node.prisms == "instance prisms")
+        #expect(PropertyCollision.prisms.leaf.extract(node) == 42)
+        #expect(node[dynamicMember: \.leaf] == 42)
+        #expect(RawDynamicChoice.one.rawValue == 1)
+        #expect(RawDynamicChoice.one.one != nil)
+    }
+
+    @Test
+    func `derived accessibility composes without opting into instance lookup`() {
+        let root = Optic<Branch, Branch, Branch, Branch>.Prism.identity
+        let leaf = root.node.leaf
+        #expect(leaf.extract(.node(.leaf(42))) == 42)
+        #expect(leaf.extract(.node(.empty)) == nil)
+        #expect(leaf.extract(.empty) == nil)
+        #expect(Branch.prisms.node.extract(leaf.embed(7))?.leaf == 7)
+    }
+
+    @Test
+    func `noncopyable derivation retains consuming extraction and accessibility`() {
+        func collection<Value: ~Copyable & __OpticPrismAccessible>(_: Value.Type) -> Value.Prisms {
+            Value.prisms
+        }
+        let prisms = collection(LinearPair.self)
+        let extracted = prisms.pair.extract(.pair(LinearToken(value: 1), LinearToken(value: 2)))
+        switch consume extracted {
+        case .some:
+            break
+        case .none:
+            Issue.record("Expected consuming extraction to preserve the linear payload")
+        }
+        let rejected = prisms.pair.match(.empty)
+        switch consume rejected {
+        case .left(.empty): break
+        default: Issue.record("Expected a noncopyable mismatch to reconstruct the source")
+        }
+    }
+
+    @Prisms
+    @dynamicMemberLookup
+    private enum AlreadyAccessible {
+        case leaf(Int)
+        case empty
+    }
+
+    extension AlreadyAccessible: Optic<AlreadyAccessible, AlreadyAccessible, Int, Int>.Prism.Accessible {}
+
+    @Test
+    func `derivation respects an existing accessibility conformance`() {
+        #expect(AlreadyAccessible.leaf(42).leaf == 42)
+    }
+
+    @Prisms
+    private enum GenericLinear<Value: ~Copyable>: ~Copyable {
+        case value(Value)
+        case empty
+    }
+
+    @Test
+    func `accessibility does not constrain a noncopyable generic payload`() {
+        let prism = GenericLinear<LinearToken>.prisms.value
+        let source = prism.embed(LinearToken(value: 42))
+        let extracted = prism.extract(source)
+        switch consume extracted {
+        case .some(let token): #expect(token.value == 42)
+        case .none: Issue.record("Expected the generic noncopyable payload")
+        }
+    }
+
+    @Prisms
+    private enum Single: Equatable {
+        case only(Int)
+    }
+
+    @Prisms
+    private enum Uninhabited {
+        case only(Never)
+    }
+
+    @Test
+    func `a single case matches and embeds`() {
+        let prism = Single.prisms.only
+        #expect(prism.extract(.only(3)) == 3)
+        #expect(prism.embed(4) == .only(4))
+        switch prism.match(.only(5)) {
+        case .left: Issue.record("the only case did not match")
+        case .right(let focus): #expect(focus == 5)
+        }
+    }
+
+    @Test
+    func `a single case with an uninhabited payload has a prism`() {
+        let prism: Optic<Uninhabited, Uninhabited, Never, Never>.Prism = Uninhabited.prisms.only
+        _ = prism
+    }
+
+    @MainActor
+    @Prisms
+    private enum MainActorChoice: Equatable {
+        case name(String)
+        case count(Int)
+    }
+
+    private nonisolated func nameOutsideTheActor(_ choice: MainActorChoice) -> String? {
+        MainActorChoice.prisms.name.extract(choice)
+    }
+
+    @Test
+    func `prisms of a main-actor enum are reached from nonisolated code`() {
+        #expect(nameOutsideTheActor(.name("a")) == "a")
+        #expect(nameOutsideTheActor(.count(1)) == nil)
+    }
+
+    private struct Refusal: Swift.Error, Equatable {}
+
+    @Test
+    func `an accessible enum reports its case and modifies the payload in place`() throws {
+        var node = Node.leaf(1)
+        #expect(node.is(\.leaf))
+        #expect(!node.is(\.empty))
+
+        node.modify(\.leaf) { $0 += 41 }
+        #expect(node.leaf == 42)
+
+        var empty = Node.empty
+        empty.modify(\.leaf) { $0 += 1 }
+        #expect(empty.is(\.empty))
+
+        #expect(throws: Refusal()) {
+            try node.modify(\.leaf) { (_: inout Int) throws(Refusal) in throw Refusal() }
+        }
+        #expect(node.leaf == 42)
+    }
+#endif

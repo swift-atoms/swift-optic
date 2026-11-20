@@ -1,43 +1,45 @@
-public import Coproduct_Syntax
-public import SwiftSyntax
-import SwiftSyntaxBuilder
+#if Coproduct
+    public import Coproduct_Syntax
+    public import SwiftSyntax
+    import SwiftSyntaxBuilder
 
-extension Case {
-    public enum Derivation {}
-}
-
-extension Case.Derivation {
-    public static func expansion(
-        of declaration: EnumDeclSyntax
-    ) -> [DeclSyntax] {
-        expansion(Coproduct.Analysis(declaration))
+    extension Case {
+        public enum Derivation {}
     }
 
-    public static func expansion(_ analysis: Coproduct.Analysis) -> [DeclSyntax] {
-        let access = analysis.access.map { "\($0.name.text) " } ?? ""
-        let whole = analysis.whole.trimmedDescription
-        let members = analysis.cases.map { coproductCase in
-            let name = coproductCase.name.text
-            let payload = coproductCase.parameters.isEmpty ? "Void" : coproductCase.payload.trimmedDescription
-            return coproductCase.conditional(
+    extension Case.Derivation {
+        public static func expansion(
+            of declaration: EnumDeclSyntax
+        ) -> [DeclSyntax] {
+            expansion(Coproduct.Analysis(declaration))
+        }
+
+        public static func expansion(_ analysis: Coproduct.Analysis) -> [DeclSyntax] {
+            let access = analysis.access.map { "\($0.name.text) " } ?? ""
+            let whole = analysis.whole.trimmedDescription
+            let members = analysis.cases.map { coproductCase in
+                let name = coproductCase.name.text
+                let payload = coproductCase.parameters.isEmpty ? "Void" : coproductCase.payload.trimmedDescription
+                return coproductCase.conditional(
+                    """
+                    \(access)var \(name): Optic<\(whole), \(whole), \(payload), \(payload)>.Case {
+                        .init(prism: \(whole).prisms.\(name), fold: \(whole).folds.\(name))
+                    }
+                    """
+                )
+            }.joined(separator: "\n")
+
+            return [
                 """
-                \(access)var \(name): Optic<\(whole), \(whole), \(payload), \(payload)>.Case {
-                    .init(prism: \(whole).prisms.\(name), fold: \(whole).folds.\(name))
+                \(raw: access)struct Cases {
+                    \(raw: members)
+                }
+
+                \(raw: access)static var cases: Cases {
+                    Cases()
                 }
                 """
-            )
-        }.joined(separator: "\n")
-
-        return [
-            """
-            \(raw: access)struct Cases {
-                \(raw: members)
-            }
-
-            \(raw: access)static var cases: Cases {
-                Cases()
-            }
-            """
-        ]
+            ]
+        }
     }
-}
+#endif

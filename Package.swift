@@ -26,6 +26,10 @@ let package = Package(
         .library(name: "Prism Macro", targets: ["Prism Macro"]),
         .library(name: "Traversal Macro", targets: ["Traversal Macro"]),
     ],
+    traits: [
+        .trait(name: "Bifunctor", description: "Bifunctor distributivity isomorphism in Optic Algebra Integration"),
+        .trait(name: "Coproduct", description: "Coproduct-backed macros (Case, Fold, Prism)"),
+    ],
     dependencies: [
         .package(url: "https://github.com/swift-atoms/swift-bifunctor.git", branch: "main"),
         .package(url: "https://github.com/swift-atoms/swift-algebra.git", branch: "main"),
@@ -52,7 +56,7 @@ let package = Package(
             dependencies: [
                 .target(name: "Optic"),
                 .product(name: "Algebra", package: "swift-algebra"),
-                .product(name: "Bifunctor", package: "swift-bifunctor"),
+                .product(name: "Bifunctor", package: "swift-bifunctor", condition: .when(traits: ["Bifunctor"])),
             ]
         ),
         .target(
@@ -92,7 +96,7 @@ let package = Package(
         .target(
             name: "Case Macro Core",
             dependencies: [
-                .product(name: "Coproduct Syntax", package: "swift-coproduct"),
+                .product(name: "Coproduct Syntax", package: "swift-coproduct", condition: .when(traits: ["Coproduct"])),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
             ]
@@ -162,7 +166,7 @@ let package = Package(
         .target(
             name: "Fold Macro Core",
             dependencies: [
-                .product(name: "Coproduct Syntax", package: "swift-coproduct"),
+                .product(name: "Coproduct Syntax", package: "swift-coproduct", condition: .when(traits: ["Coproduct"])),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
             ]
@@ -267,7 +271,7 @@ let package = Package(
         .target(
             name: "Prism Macro Core",
             dependencies: [
-                .product(name: "Coproduct Syntax", package: "swift-coproduct"),
+                .product(name: "Coproduct Syntax", package: "swift-coproduct", condition: .when(traits: ["Coproduct"])),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxBuilder", package: "swift-syntax"),
             ]
